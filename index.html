@@ -1,63 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SK Rakib Ul Islam Rahat</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-      background-color: #f5f5f5;
-      color: #333;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #000428, #004e92);
+      color: #f2f2f2;
     }
-    h1 {
-      color: #2c3e50;
+
+    header {
+      padding: 60px 20px 20px;
+      text-align: center;
+      background: url('https://source.unsplash.com/1600x400/?technology,data') no-repeat center center/cover;
+      color: #fff;
     }
+
+    header h1 {
+      font-size: 2.8em;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      font-size: 1.2em;
+      font-style: italic;
+    }
+
+    .section {
+      padding: 40px 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    h2 {
+      border-left: 6px solid #00c6ff;
+      padding-left: 15px;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+
+    p, li {
+      font-size: 1.1em;
+      line-height: 1.6em;
+    }
+
+    ul {
+      padding-left: 30px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
     a {
-      color: #007acc;
+      color: #00c6ff;
       text-decoration: none;
     }
+
     a:hover {
       text-decoration: underline;
     }
-    .section {
-      margin-bottom: 30px;
+
+    .btn {
+      background-color: #00c6ff;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 10px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background-color: #0099cc;
+    }
+
+    footer {
+      background: #001f3f;
+      padding: 30px 20px;
+      text-align: center;
+      font-size: 0.9em;
+      color: #ccc;
+    }
+
+    .toggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
     }
   </style>
+  <script>
+    function toggleTheme() {
+      const body = document.body;
+      if (body.style.background.includes('000428')) {
+        body.style.background = 'linear-gradient(to right, #ffffff, #eaeaea)';
+        body.style.color = '#111';
+      } else {
+        body.style.background = 'linear-gradient(to right, #000428, #004e92)';
+        body.style.color = '#f2f2f2';
+      }
+    }
+  </script>
 </head>
 <body>
-  <h1>SK Rakib Ul Islam Rahat</h1>
-  <p><strong>Data Science Enthusiast | Python Developer | Researcher</strong></p>
+  <div class="toggle">
+    <button onclick="toggleTheme()">Toggle Theme</button>
+  </div>
+
+  <header>
+    <h1>SK Rakib Ul Islam Rahat</h1>
+    <p>Data Science Enthusiast | Python Developer | MIS Strategist | Future PhD</p>
+  </header>
 
   <div class="section">
     <h2>About Me</h2>
-    <p>I'm pursuing an MBA in MIS and have completed multiple IBM Data Science courses. I'm passionate about data-driven research, machine learning, and academic growth. This site is a portfolio of my work and progress.</p>
-  </div>
-
-  <div class="section">
-    <h2>Projects</h2>
-    <ul>
-      <li><a href="https://github.com/skrakibulislamrahat">GitHub Projects</a> – Explore my latest data science projects.</li>
-    </ul>
+    <div class="card">
+      <p>I am currently pursuing an MBA in Management Information Systems at International American University, Los Angeles. I hold an MSc in Global Business and Administration from Kyungsung University, South Korea, and a B.Tech in Computer Science and Engineering from Lovely Professional University, India.</p>
+      <p>I specialize in data-driven research, machine learning, blockchain applications, and high-performance computing. My mission is to drive national-level impact through technology and research innovation.</p>
+      <a href="resume.pdf" class="btn" download>Download Resume</a>
+    </div>
   </div>
 
   <div class="section">
     <h2>Certifications</h2>
-    <ul>
-      <li><a href="https://coursera.org/verify/HBXG3T76E6TB" target="_blank">Tools for Data Science (IBM)</a></li>
-      <li><a href="https://coursera.org/verify/99VPB29EW562" target="_blank">What is Data Science?</a></li>
-      <li><a href="https://coursera.org/verify/VIJ14C0CZGOZ" target="_blank">Data Science Methodology</a></li>
-      <li><a href="https://coursera.org/verify/L67JAIOK3BQ9" target="_blank">Python for Data Science</a></li>
-      <li><a href="https://coursera.org/verify/Q29E7PGINTZU" target="_blank">Python Project for Data Science</a></li>
-    </ul>
+    <div class="card">
+      <ul>
+        <li><a href="https://coursera.org/verify/HBXG3T76E6TB">Tools for Data Science (IBM)</a></li>
+        <li><a href="https://coursera.org/verify/99VPB29EW562">What is Data Science?</a></li>
+        <li><a href="https://coursera.org/verify/VIJ14C0CZGOZ">Data Science Methodology</a></li>
+        <li><a href="https://coursera.org/verify/L67JAIOK3BQ9">Python for Data Science</a></li>
+        <li><a href="https://coursera.org/verify/Q29E7PGINTZU">Python Project for Data Science</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Projects & Research</h2>
+    <div class="card">
+      <ul>
+        <li>Smart Blood Implementation using IoT & Cloud</li>
+        <li>Blockchain-Based Management Information System (B-MIS)</li>
+        <li>Android Performance Optimization Research</li>
+        <li>Research Assistant – Big Data Analytics</li>
+      </ul>
+      <p>Explore more on my <a href="https://github.com/skrakibulislamrahat" target="_blank">GitHub</a></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Blog & Publications</h2>
+    <div class="card">
+      <p>Coming soon: personal blog, research papers, and articles on data ethics, machine learning strategies, and national interest topics relevant to NIW.</p>
+    </div>
   </div>
 
   <div class="section">
     <h2>Contact</h2>
-    <p>Email: <a href="mailto:your.email@example.com">your.email@example.com</a><br>
-       LinkedIn: <a href="https://linkedin.com/in/skrakibulislamrahat" target="_blank">linkedin.com/in/skrakibulislamrahat</a>
-    </p>
+    <div class="card">
+      <p>Email: <a href="mailto:rakibmis@gmail.com">rakibmis@gmail.com</a></p>
+      <p>Location: Los Angeles, California, USA</p>
+      <p>Phone: +1 (310) 123-4567</p>
+      <p>LinkedIn: <a href="https://linkedin.com/in/skrakibulislamrahat" target="_blank">linkedin.com/in/skrakibulislamrahat</a></p>
+    </div>
   </div>
+
+  <footer>
+    <p>&copy; 2025 SK Rakib Ul Islam Rahat | Designed with vision, built with passion</p>
+  </footer>
 </body>
 </html>
