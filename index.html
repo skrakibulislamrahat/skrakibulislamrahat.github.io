@@ -7,6 +7,25 @@
   <title>SK Rakib Ul Islam Rahat</title>
 
   <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    /* --- critical fixes --- */
+    .photo img {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 1px solid #e5e7eb;
+    }
+    .project {
+      margin-bottom: 16px;
+    }
+    .project img {
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      margin-top: 6px;
+    }
+  </style>
 </head>
 
 <body>
@@ -17,8 +36,8 @@
       <li><a href="#about">About</a></li>
       <li><a href="#research">Research</a></li>
       <li><a href="#education">Education</a></li>
-      <li><a href="#publications">Publications</a></li>
       <li><a href="#projects">Projects</a></li>
+      <li><a href="#publications">Publications</a></li>
     </ul>
   </nav>
 </header>
@@ -31,10 +50,10 @@
 
     <p>
       I work on <strong>medical artificial intelligence</strong> with a focus on
-      <strong>multimodal deep learning</strong>, <strong>computational imaging</strong>,
-      and <strong>robust clinical prediction</strong>.
-      My research emphasizes explainability, calibration, and generalization under dataset shift,
-      particularly for disease screening and risk stratification.
+      <strong>multimodal deep learning</strong>, <strong>medical imaging</strong>,
+      and <strong>robust model evaluation</strong>.
+      My research emphasizes dataset bias analysis, explainability, and generalization
+      under external validation.
     </p>
 
     <p class="contact">
@@ -55,21 +74,21 @@
 <section id="about">
   <h2>About</h2>
   <p>
-    My research lies at the intersection of machine learning and healthcare,
-    where I develop and evaluate AI systems for medical imaging and clinical decision support.
-    I am particularly interested in understanding and mitigating failure modes in medical AI,
-    including shortcut learning, poor calibration, and performance degradation under external validation.
+    My research lies at the intersection of machine learning and healthcare.
+    I study how medical AI systems fail in real-world settings due to dataset artifacts,
+    shortcut learning, and poor calibration, and I develop evaluation frameworks
+    that expose and mitigate these issues.
   </p>
 </section>
 
 <section id="research">
   <h2>Research Interests</h2>
   <ul>
-    <li>Medical Image Analysis (Fundus, Mammography, SPECT)</li>
-    <li>Multimodal Learning (Imaging + Clinical/EHR Data)</li>
-    <li>Explainable AI (Grad-CAM, SHAP)</li>
-    <li>Model Calibration and Reliability</li>
-    <li>Dataset Bias and Robust Evaluation</li>
+    <li>Medical Image Analysis (Fundus Photography, Mammography)</li>
+    <li>Dataset Artifacts and Shortcut Learning</li>
+    <li>Explainable AI (Grad-CAM, attribution methods)</li>
+    <li>Robust Evaluation and External Validation</li>
+    <li>Lightweight Models for Clinical Deployment</li>
   </ul>
 </section>
 
@@ -85,16 +104,42 @@
   </ul>
 </section>
 
+<section id="projects">
+  <h2>Research Projects</h2>
+
+  <div class="project">
+    <strong>Exposing Dataset Artifacts in Medical AI (IJBHI-level Study)</strong><br>
+    Investigated shortcut learning in diabetic retinopathy models trained on fundus images.
+    Demonstrated that models exploit non-pathological artifacts such as borders and acquisition cues,
+    leading to inflated internal performance and degraded external generalization.
+    <br>
+    <a href="https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts" target="_blank">GitHub Repository</a>
+  </div>
+
+  <div class="project">
+    <strong>Lightweight DR Detection Models</strong><br>
+    Systematic evaluation of MobileNetV2, EfficientNetB0, and SqueezeNet for diabetic retinopathy screening,
+    emphasizing accuracy–efficiency trade-offs for mobile and low-resource clinical settings.
+    <br>
+    <a href="https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models" target="_blank">GitHub Repository</a>
+  </div>
+
+  <div class="project">
+    <strong>Multimodal Framework Research</strong><br>
+    Development of multimodal learning pipelines integrating medical images and structured clinical data
+    to study performance, robustness, and interpretability in disease prediction tasks.
+    <br>
+    <a href="https://github.com/skrakibulislamrahat/Multimodal_Framework_Research" target="_blank">GitHub Repository</a>
+  </div>
+</section>
+
 <section id="publications">
   <h2>Selected Publications</h2>
   <ol>
     <li>
-      <strong>TriGWONet:</strong> A lightweight multibranch CNN using gray wolf optimization for oral cancer classification.<br>
+      <strong>TriGWONet:</strong> A lightweight multibranch CNN using gray wolf optimization
+      for oral cancer image classification.<br>
       <em>Discover Artificial Intelligence (Springer Nature), 2025</em>
-    </li>
-    <li>
-      <strong>DiaStackX2:</strong> A robust and explainable multimodal learning framework for diabetes prediction.<br>
-      <em>IEEE Access (under review), 2025</em>
     </li>
     <li>
       <strong>Advancing diabetic retinopathy detection with AI and deep learning.</strong><br>
@@ -103,31 +148,11 @@
   </ol>
 
   <p>
-    Full publication list available on
+    Full list available on
     <a href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank">
       Google Scholar
     </a>.
   </p>
-</section>
-
-<section id="projects">
-  <h2>Research Projects</h2>
-  <ul>
-    <li>
-      <strong>Artifact Bias in Fundus Image Models</strong><br>
-      Identified shortcut learning caused by image borders and acquisition artifacts;
-      evaluated robustness using external datasets and Grad-CAM analysis.
-    </li>
-    <li>
-      <strong>Calibration-Aware Diabetic Retinopathy Screening</strong><br>
-      Studied probabilistic reliability, ECE, Brier score, and temperature scaling
-      across internal and external validation cohorts.
-    </li>
-    <li>
-      <strong>Multimodal Breast Cancer Risk Prediction</strong><br>
-      Integrated mammography and clinical EHR features for early detection using deep learning.
-    </li>
-  </ul>
 </section>
 
 <footer class="foot">
