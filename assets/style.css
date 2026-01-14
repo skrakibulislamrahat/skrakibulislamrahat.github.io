@@ -1,43 +1,28 @@
-/* Base */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
                Roboto, Helvetica, Arial, sans-serif;
   color: #111827;
   background: #ffffff;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
-a {
-  color: #2563eb;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-/* Navigation */
-.top {
+/* Header */
+.header {
   border-bottom: 1px solid #e5e7eb;
-  background: #ffffff;
 }
 
 .nav {
   max-width: 1100px;
   margin: 0 auto;
   padding: 14px 24px;
-}
-
-.nav-list {
-  list-style: none;
   display: flex;
   gap: 28px;
-  margin: 0;
-  padding: 0;
 }
 
-.nav-list a {
+.nav a {
+  text-decoration: none;
+  color: #2563eb;
   font-weight: 500;
 }
 
@@ -45,7 +30,7 @@ a:hover {
 .container {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 40px 24px 80px;
+  padding: 48px 24px 80px;
 }
 
 /* Hero */
@@ -54,10 +39,10 @@ a:hover {
   grid-template-columns: 1.4fr 0.6fr;
   gap: 64px;
   align-items: center;
-  margin-bottom: 80px;
+  margin-bottom: 72px;
 }
 
-.hero-text h1 {
+.hero-left h1 {
   font-size: 36px;
   margin-bottom: 8px;
 }
@@ -68,21 +53,7 @@ a:hover {
   margin-bottom: 20px;
 }
 
-.intro {
-  max-width: 640px;
-}
-
-.contact {
-  margin-top: 20px;
-  font-size: 15px;
-}
-
-.hero-photo {
-  display: flex;
-  justify-content: center;
-}
-
-.hero-photo img {
+.hero-right img {
   max-width: 280px;
   width: 100%;
   aspect-ratio: 4 / 5;
@@ -106,21 +77,22 @@ ul {
   padding-left: 20px;
 }
 
-.project {
-  margin-bottom: 28px;
-}
-
-.project h3 {
-  margin-bottom: 6px;
+/* Cards */
+.card {
+  margin-bottom: 24px;
+  padding: 18px 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafafa;
 }
 
 /* Footer */
 .footer {
+  border-top: 1px solid #e5e7eb;
   text-align: center;
   font-size: 14px;
   color: #6b7280;
-  padding: 24px 0 40px;
-  border-top: 1px solid #e5e7eb;
+  padding: 32px 0;
 }
 
 /* Mobile */
@@ -131,11 +103,12 @@ ul {
     text-align: center;
   }
 
-  .hero-photo {
-    margin-top: 16px;
+  .hero-right {
+    display: flex;
+    justify-content: center;
   }
 
-  .nav-list {
+  .nav {
     flex-wrap: wrap;
     gap: 16px;
   }
