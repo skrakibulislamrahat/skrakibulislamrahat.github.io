@@ -1,38 +1,19 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="SK Rakib Ul Islam Rahat — Graduate Researcher in Multimodal AI and Medical Imaging." />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SK Rakib Ul Islam Rahat</title>
+  <meta name="description" content="SK Rakib Ul Islam Rahat — Graduate Researcher in Multimodal AI and Medical Imaging.">
 
-  <link rel="stylesheet" href="assets/style.css" />
-  <style>
-    /* --- critical fixes --- */
-    .photo img {
-      width: 180px;
-      height: 180px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 1px solid #e5e7eb;
-    }
-    .project {
-      margin-bottom: 16px;
-    }
-    .project img {
-      max-width: 100%;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      margin-top: 6px;
-    }
-  </style>
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 
 <body>
+
 <header class="top">
   <nav class="nav">
-    <button class="nav__toggle" id="navToggle">Menu</button>
-    <ul class="nav__list" id="navList">
+    <ul class="nav-list">
       <li><a href="#about">About</a></li>
       <li><a href="#research">Research</a></li>
       <li><a href="#education">Education</a></li>
@@ -42,124 +23,151 @@
   </nav>
 </header>
 
-<main class="wrap">
-<section class="hero">
-  <div>
-    <h1>SK Rakib Ul Islam Rahat</h1>
-    <p class="subtitle">Graduate Researcher in Multimodal AI</p>
+<main class="container">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-text">
+      <h1>SK Rakib Ul Islam Rahat</h1>
+      <p class="subtitle">Graduate Researcher in Multimodal AI</p>
+
+      <p class="intro">
+        I work on <strong>medical artificial intelligence</strong> with a focus on
+        <strong>multimodal deep learning</strong>, <strong>medical imaging</strong>,
+        and <strong>robust model evaluation</strong>. My research examines dataset
+        artifacts, shortcut learning, explainability, and generalization under
+        external validation, particularly for disease screening and risk
+        stratification.
+      </p>
+
+      <p class="contact">
+        Email:
+        <a href="mailto:skrakibulislamrahat@gmail.com">skrakibulislamrahat@gmail.com</a><br>
+        Phone: +1 (323) 471-5980<br>
+        Google Scholar:
+        <a href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank">
+          scholar.google.com/citations?user=0X1eRi8AAAAJ
+        </a>
+      </p>
+    </div>
+
+    <div class="hero-photo">
+      <img src="assets/headshot.png" alt="SK Rakib Ul Islam Rahat">
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <h2>About</h2>
+    <p>
+      My work lies at the intersection of machine learning and healthcare. I focus
+      on identifying failure modes in medical AI systems, including dataset bias,
+      shortcut learning, and poor calibration, and on designing evaluation
+      frameworks that expose and mitigate these issues.
+    </p>
+  </section>
+
+  <!-- RESEARCH -->
+  <section id="research">
+    <h2>Research Interests</h2>
+    <ul>
+      <li>Medical Image Analysis (Fundus Photography, Mammography)</li>
+      <li>Multimodal Learning (Imaging + Clinical Data)</li>
+      <li>Dataset Artifacts and Shortcut Learning</li>
+      <li>Explainable AI (Grad-CAM, Attribution Methods)</li>
+      <li>Robust Evaluation and External Validation</li>
+    </ul>
+  </section>
+
+  <!-- EDUCATION -->
+  <section id="education">
+    <h2>Education</h2>
+    <ul>
+      <li>
+        <strong>MBA, Management Information Systems</strong><br>
+        International American University, Los Angeles (2024–2026)
+      </li>
+      <li>
+        <strong>MSc, Global Business & Administration</strong><br>
+        Kyungsung University, South Korea (2022–2023)
+      </li>
+      <li>
+        <strong>BTech, Computer Science & Engineering</strong><br>
+        Lovely Professional University, India (2017–2021)
+      </li>
+    </ul>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <h2>Research Projects</h2>
+
+    <div class="project">
+      <h3>Exposing Dataset Artifacts in Medical AI</h3>
+      <p>
+        An IJBHI-level empirical study demonstrating how diabetic retinopathy models
+        exploit non-pathological artifacts such as image borders and acquisition
+        cues, leading to inflated internal performance and degraded external
+        generalization.
+      </p>
+      <a href="https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts" target="_blank">
+        GitHub Repository
+      </a>
+    </div>
+
+    <div class="project">
+      <h3>Lightweight Diabetic Retinopathy Detection Models</h3>
+      <p>
+        Comparative evaluation of MobileNetV2, EfficientNet-B0, and SqueezeNet for
+        DR screening, emphasizing accuracy–efficiency trade-offs for mobile and
+        low-resource clinical deployment.
+      </p>
+      <a href="https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models" target="_blank">
+        GitHub Repository
+      </a>
+    </div>
+
+    <div class="project">
+      <h3>Multimodal Framework Research</h3>
+      <p>
+        Development of multimodal learning pipelines integrating medical images
+        and structured clinical data to study robustness, interpretability, and
+        generalization in disease prediction tasks.
+      </p>
+      <a href="https://github.com/skrakibulislamrahat/Multimodal_Framework_Research" target="_blank">
+        GitHub Repository
+      </a>
+    </div>
+  </section>
+
+  <!-- PUBLICATIONS -->
+  <section id="publications">
+    <h2>Selected Publications</h2>
+    <ol>
+      <li>
+        <strong>TriGWONet:</strong> A lightweight multibranch CNN using gray wolf
+        optimization for oral cancer image classification.<br>
+        <em>Discover Artificial Intelligence (Springer Nature), 2025</em>
+      </li>
+      <li>
+        <strong>Advancing diabetic retinopathy detection with AI and deep learning.</strong><br>
+        <em>British Journal of Nursing Studies, 2025</em>
+      </li>
+    </ol>
 
     <p>
-      I work on <strong>medical artificial intelligence</strong> with a focus on
-      <strong>multimodal deep learning</strong>, <strong>medical imaging</strong>,
-      and <strong>robust model evaluation</strong>.
-      My research emphasizes dataset bias analysis, explainability, and generalization
-      under external validation.
-    </p>
-
-    <p class="contact">
-      Email: <a href="mailto:skrakibulislamrahat@gmail.com">skrakibulislamrahat@gmail.com</a><br>
-      Phone: +1 (323) 471-5980<br>
-      Google Scholar:
+      Full publication list available on
       <a href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank">
-        scholar.google.com/citations?user=0X1eRi8AAAAJ
-      </a>
+        Google Scholar
+      </a>.
     </p>
-  </div>
+  </section>
 
-  <div class="photo">
-    <img src="assets/headshot.png" alt="SK Rakib Ul Islam Rahat">
-  </div>
-</section>
-
-<section id="about">
-  <h2>About</h2>
-  <p>
-    My research lies at the intersection of machine learning and healthcare.
-    I study how medical AI systems fail in real-world settings due to dataset artifacts,
-    shortcut learning, and poor calibration, and I develop evaluation frameworks
-    that expose and mitigate these issues.
-  </p>
-</section>
-
-<section id="research">
-  <h2>Research Interests</h2>
-  <ul>
-    <li>Medical Image Analysis (Fundus Photography, Mammography)</li>
-    <li>Dataset Artifacts and Shortcut Learning</li>
-    <li>Explainable AI (Grad-CAM, attribution methods)</li>
-    <li>Robust Evaluation and External Validation</li>
-    <li>Lightweight Models for Clinical Deployment</li>
-  </ul>
-</section>
-
-<section id="education">
-  <h2>Education</h2>
-  <ul>
-    <li><strong>MBA, Management Information Systems</strong><br>
-        International American University, Los Angeles (2024–2026)</li>
-    <li><strong>MSc, Global Business & Administration</strong><br>
-        Kyungsung University, South Korea (2022–2023)</li>
-    <li><strong>BTech, Computer Science & Engineering</strong><br>
-        Lovely Professional University, India (2017–2021)</li>
-  </ul>
-</section>
-
-<section id="projects">
-  <h2>Research Projects</h2>
-
-  <div class="project">
-    <strong>Exposing Dataset Artifacts in Medical AI (IJBHI-level Study)</strong><br>
-    Investigated shortcut learning in diabetic retinopathy models trained on fundus images.
-    Demonstrated that models exploit non-pathological artifacts such as borders and acquisition cues,
-    leading to inflated internal performance and degraded external generalization.
-    <br>
-    <a href="https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts" target="_blank">GitHub Repository</a>
-  </div>
-
-  <div class="project">
-    <strong>Lightweight DR Detection Models</strong><br>
-    Systematic evaluation of MobileNetV2, EfficientNetB0, and SqueezeNet for diabetic retinopathy screening,
-    emphasizing accuracy–efficiency trade-offs for mobile and low-resource clinical settings.
-    <br>
-    <a href="https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models" target="_blank">GitHub Repository</a>
-  </div>
-
-  <div class="project">
-    <strong>Multimodal Framework Research</strong><br>
-    Development of multimodal learning pipelines integrating medical images and structured clinical data
-    to study performance, robustness, and interpretability in disease prediction tasks.
-    <br>
-    <a href="https://github.com/skrakibulislamrahat/Multimodal_Framework_Research" target="_blank">GitHub Repository</a>
-  </div>
-</section>
-
-<section id="publications">
-  <h2>Selected Publications</h2>
-  <ol>
-    <li>
-      <strong>TriGWONet:</strong> A lightweight multibranch CNN using gray wolf optimization
-      for oral cancer image classification.<br>
-      <em>Discover Artificial Intelligence (Springer Nature), 2025</em>
-    </li>
-    <li>
-      <strong>Advancing diabetic retinopathy detection with AI and deep learning.</strong><br>
-      <em>British Journal of Nursing Studies, 2025</em>
-    </li>
-  </ol>
-
-  <p>
-    Full list available on
-    <a href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank">
-      Google Scholar
-    </a>.
-  </p>
-</section>
-
-<footer class="foot">
-  © 2026 SK Rakib Ul Islam Rahat
-</footer>
 </main>
 
-<script src="assets/script.js"></script>
+<footer class="footer">
+  © 2026 SK Rakib Ul Islam Rahat
+</footer>
+
 </body>
 </html>
