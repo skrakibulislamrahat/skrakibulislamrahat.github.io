@@ -33,11 +33,10 @@
 
       <p class="intro">
         I work on <strong>medical artificial intelligence</strong> with a focus on
-        <strong>multimodal deep learning</strong>, <strong>medical imaging</strong>,
-        and <strong>robust model evaluation</strong>. My research examines dataset
-        artifacts, shortcut learning, explainability, and generalization under
-        external validation, particularly for disease screening and risk
-        stratification.
+        <strong>multimodal deep learning</strong>, <strong>medical image analysis</strong>,
+        and <strong>probabilistic model evaluation</strong>. My research emphasizes
+        calibration, robustness under dataset shift, and conservative external
+        validation, particularly for disease screening applications.
       </p>
 
       <p class="contact">
@@ -60,10 +59,11 @@
   <section id="about">
     <h2>About</h2>
     <p>
-      My work lies at the intersection of machine learning and healthcare. I focus
-      on identifying failure modes in medical AI systems, including dataset bias,
-      shortcut learning, and poor calibration, and on designing evaluation
-      frameworks that expose and mitigate these issues.
+      My work lies at the intersection of machine learning and healthcare, with an
+      emphasis on understanding how medical image classifiers behave under realistic
+      evaluation constraints. I focus on identifying failure modes related to
+      miscalibration, dataset artifacts, and distribution shift, and on reporting
+      results using protocol-faithful, reproducible evaluation pipelines.
     </p>
   </section>
 
@@ -71,11 +71,11 @@
   <section id="research">
     <h2>Research Interests</h2>
     <ul>
-      <li>Medical Image Analysis (Fundus Photography, Mammography)</li>
-      <li>Multimodal Learning (Imaging + Clinical Data)</li>
-      <li>Dataset Artifacts and Shortcut Learning</li>
-      <li>Explainable AI (Grad-CAM, Attribution Methods)</li>
-      <li>Robust Evaluation and External Validation</li>
+      <li>Medical Image Analysis (Fundus Imaging, Mammography)</li>
+      <li>Probabilistic Calibration and Reliability</li>
+      <li>External Validation and Dataset Shift</li>
+      <li>Explainable AI (Grad-CAM, reliability diagrams)</li>
+      <li>Multimodal Learning with Clinical Data</li>
     </ul>
   </section>
 
@@ -103,24 +103,28 @@
     <h2>Research Projects</h2>
 
     <div class="project">
-      <h3>Exposing Dataset Artifacts in Medical AI</h3>
+      <h3>Calibration Analysis Under Counterfactual Consistency Regularization for Referable Diabetic Retinopathy</h3>
       <p>
-        An IJBHI-level empirical study demonstrating how diabetic retinopathy models
-        exploit non-pathological artifacts such as image borders and acquisition
-        cues, leading to inflated internal performance and degraded external
-        generalization.
+        An IEEE J-BHI–style methodological evaluation of probabilistic calibration
+        in a ResNet-18 fundus classifier trained on APTOS 2019. The study reports
+        multi-seed internal discrimination and calibration metrics (ECE15, Brier score,
+        reliability diagrams), applies post-hoc temperature scaling on internal data
+        only, and provides a constrained supporting external diagnostic evaluation
+        on Messidor-2 under a strict no-adaptation protocol.
       </p>
-      <a href="https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts" target="_blank">
-        GitHub Repository
-      </a>
+      <p>
+        The work explicitly separates internal calibration analysis from external
+        behavior under dataset shift and makes no claims of deployment readiness,
+        aligning with conservative evaluation standards in medical imaging.
+      </p>
     </div>
 
     <div class="project">
       <h3>Lightweight Diabetic Retinopathy Detection Models</h3>
       <p>
         Comparative evaluation of MobileNetV2, EfficientNet-B0, and SqueezeNet for
-        DR screening, emphasizing accuracy–efficiency trade-offs for mobile and
-        low-resource clinical deployment.
+        diabetic retinopathy screening, focusing on accuracy–efficiency trade-offs
+        relevant to low-resource and mobile clinical settings.
       </p>
       <a href="https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models" target="_blank">
         GitHub Repository
@@ -130,9 +134,9 @@
     <div class="project">
       <h3>Multimodal Framework Research</h3>
       <p>
-        Development of multimodal learning pipelines integrating medical images
-        and structured clinical data to study robustness, interpretability, and
-        generalization in disease prediction tasks.
+        Development and analysis of multimodal learning pipelines integrating medical
+        images with structured clinical features to study robustness, interpretability,
+        and generalization across disease prediction tasks.
       </p>
       <a href="https://github.com/skrakibulislamrahat/Multimodal_Framework_Research" target="_blank">
         GitHub Repository
@@ -145,18 +149,29 @@
     <h2>Selected Publications</h2>
     <ol>
       <li>
-        <strong>TriGWONet:</strong> A lightweight multibranch CNN using gray wolf
-        optimization for oral cancer image classification.<br>
+        <strong>Calibration Analysis Under Counterfactual Consistency Regularization for Referable Diabetic Retinopathy.</strong><br>
+        <em>IEEE Journal of Biomedical and Health Informatics (under review)</em>
+      </li>
+      <li>
+        <strong>TriGWONet: A Lightweight Multibranch CNN Using Gray Wolf Optimization for Oral Cancer Classification.</strong><br>
         <em>Discover Artificial Intelligence (Springer Nature), 2025</em>
       </li>
       <li>
-        <strong>Advancing diabetic retinopathy detection with AI and deep learning.</strong><br>
+        <strong>Artificial Intelligence for Chronic Kidney Disease Risk Stratification in the USA.</strong><br>
+        <em>British Journal of Nursing Studies, 2025</em>
+      </li>
+      <li>
+        <strong>Advancing Diabetic Retinopathy Detection with AI and Deep Learning.</strong><br>
+        <em>British Journal of Nursing Studies, 2025</em>
+      </li>
+      <li>
+        <strong>A Deep Learning Framework for Early Breast Cancer Detection Integrating Mammography and Clinical Data.</strong><br>
         <em>British Journal of Nursing Studies, 2025</em>
       </li>
     </ol>
 
     <p>
-      Full publication list available on
+      A complete and up-to-date publication list is available on
       <a href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank">
         Google Scholar
       </a>.
