@@ -481,6 +481,15 @@
       background: rgba(99,102,241,0.08);
     }
 
+    .mini-btn-disabled {
+  cursor: default;
+}
+
+.mini-btn-disabled:hover {
+  border-color: rgba(148,163,184,0.14);
+  background: rgba(255,255,255,0.04);
+}
+
     .pub-group {
       margin-top: 18px;
       display: grid;
@@ -1256,7 +1265,15 @@
             <a class="mini-btn" href="https://coursera.org/verify/professional-cert/EC6IHGSG99HX" target="_blank" rel="noopener noreferrer">IBM Data Science</a>
             <a class="mini-btn" href="https://coursera.org/verify/P4N76QCC77D3" target="_blank" rel="noopener noreferrer">Google Cloud AI Healthcare</a>
             <a class="mini-btn" href="https://coursera.org/verify/IALUTM83NC4Q" target="_blank" rel="noopener noreferrer">Illinois Tech AI Healthcare</a>
-          </div> <p style="margin-top: 14px;">Elsevier Researcher Academy — Certified Peer Reviewer Course</p>        
+          </div> <a
+  class="mini-btn mini-btn-disabled"
+  href="javascript:void(0)"
+  title="Verification link not available"
+  aria-label="Elsevier Researcher Academy — Certified Peer Reviewer Course. Verification link not available."
+  onclick="return false;"
+>
+  Elsevier Researcher Academy — Certified Peer Reviewer Course
+</a>       
         </article>
       </div>
     </section>
