@@ -911,8 +911,15 @@
             <p style="margin-top:10px;color:var(--soft);font-size:0.95rem;">Current work includes calibration under domain shift (CMIG) and artifact-driven shortcut auditing (CMPB).</p>
             <div class="hero-actions">
               <a class="btn btn-primary" href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank" rel="noopener noreferrer">Google Scholar</a>
-              <button class="btn btn-secondary" onclick="downloadResume()">Download Resume</button>
-              <a class="btn btn-ghost" href="mailto:skrakibulislamrahat@gmail.com">Email</a>
+              <button class="btn btn-secondary" onclick="trackResumeDownload(); downloadResume();">Download Resume</button>
+              <a
+  class="btn btn-ghost"
+  href="https://mail.google.com/mail/?view=cm&fs=1&to=skrakibulislamrahat@gmail.com"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  Email
+</a>
             </div>
           </div>
 
@@ -1501,7 +1508,15 @@
       <div class="contact-grid">
         <article class="contact-card" style="padding: 24px;">
           <h3>Email</h3>
-          <p><a href="mailto:skrakibulislamrahat@gmail.com">skrakibulislamrahat@gmail.com</a></p>
+          <p>
+  <a
+    href="https://mail.google.com/mail/?view=cm&fs=1&to=skrakibulislamrahat@gmail.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    skrakibulislamrahat@gmail.com
+  </a>
+</p>
         </article>
 
         <article class="contact-card" style="padding: 24px;">
@@ -1653,6 +1668,18 @@
 </section>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+
+  <script>
+  function trackResumeDownload() {
+    if (typeof gtag === "function") {
+      gtag("event", "resume_download", {
+        event_category: "engagement",
+        event_label: "Download Resume"
+      });
+    }
+  }
+</script>
 
 <script>
   async function downloadResume() {
