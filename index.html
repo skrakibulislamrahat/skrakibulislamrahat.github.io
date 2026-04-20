@@ -1,153 +1,542 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SK Rakib Ul Islam Rahat</title>
-  <meta name="description" content="Graduate Researcher in Multimodal AI and Medical Imaging">
-  <link rel="stylesheet" href="assets/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SK Rakib Ul Islam Rahat | Medical AI Researcher</title>
+<meta name="description" content="Personal academic site of SK Rakib Ul Islam Rahat, focused on medical AI reliability, calibration, shortcut learning, and dataset shift.">
+<style>
+:root{
+  --bg:#0b1020;
+  --bg-2:#11182b;
+  --panel:#121a2f;
+  --panel-2:#17223d;
+  --text:#e8edf7;
+  --muted:#a9b5ce;
+  --line:rgba(255,255,255,.09);
+  --accent:#7aa2ff;
+  --accent-2:#8d7dff;
+  --success:#3ddc97;
+  --warn:#ffcc66;
+  --shadow:0 20px 50px rgba(0,0,0,.35);
+  --max:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1200px 700px at 80% -10%, rgba(122,162,255,.22), transparent 42%),
+    radial-gradient(900px 600px at 10% 0%, rgba(141,125,255,.18), transparent 38%),
+    linear-gradient(180deg, #0a0f1e 0%, #0c1325 100%);
+  line-height:1.6;
+}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.container{width:min(var(--max), calc(100% - 2rem)); margin:0 auto}
+.nav{
+  position:sticky; top:0; z-index:1000;
+  backdrop-filter: blur(14px);
+  background:rgba(10,15,30,.72);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:1rem 0;
+}
+.brand{font-weight:700; letter-spacing:.03em}
+.nav-links{display:flex; gap:1.2rem; flex-wrap:wrap}
+.nav-links a{color:var(--muted); font-size:.95rem}
+.nav-links a:hover{color:var(--text)}
+.hero{padding:4.5rem 0 2.5rem}
+.hero-grid{
+  display:grid; gap:2rem; grid-template-columns: 1.4fr .9fr;
+  align-items:center;
+}
+.kicker{
+  display:inline-flex; gap:.5rem; align-items:center;
+  padding:.45rem .8rem; border:1px solid rgba(122,162,255,.25);
+  background:rgba(122,162,255,.08); color:#d9e4ff;
+  border-radius:999px; font-size:.88rem; margin-bottom:1rem;
+}
+.hero h1{
+  margin:.2rem 0 .7rem; font-size:clamp(2.2rem, 5vw, 4.2rem);
+  line-height:1.05; letter-spacing:-.03em;
+}
+.hero p.lead{
+  font-size:1.06rem; color:var(--muted); max-width:72ch;
+}
+.badges{display:flex;flex-wrap:wrap;gap:.65rem;margin:1.2rem 0 1.6rem}
+.badge{
+  padding:.52rem .78rem;border-radius:999px;
+  border:1px solid var(--line); background:rgba(255,255,255,.04);
+  color:#dce6ff; font-size:.92rem
+}
+.hero-actions{display:flex; gap:.8rem; flex-wrap:wrap; margin-top:.6rem}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+  padding:.88rem 1.1rem; border-radius:14px; border:1px solid var(--line);
+  background:rgba(255,255,255,.05); color:var(--text); font-weight:600;
+  transition:transform .18s ease, border-color .18s ease, background .18s ease;
+}
+.btn:hover{transform:translateY(-1px); border-color:rgba(122,162,255,.45)}
+.btn.primary{
+  background:linear-gradient(135deg, rgba(122,162,255,.24), rgba(141,125,255,.24));
+  border-color:rgba(122,162,255,.35)
+}
+.stat-grid{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:1.35rem;
+}
+.stat{
+  padding:1rem 1.05rem; background:rgba(255,255,255,.04);
+  border:1px solid var(--line); border-radius:18px;
+}
+.stat .num{font-size:1.7rem; font-weight:800}
+.stat .label{font-size:.92rem; color:var(--muted)}
+.hero-card{
+  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+  border:1px solid var(--line); border-radius:28px; padding:1.4rem;
+  box-shadow:var(--shadow)
+}
+.profile-top{display:flex; gap:1rem; align-items:center}
+.avatar{
+  width:112px; height:112px; border-radius:24px; object-fit:cover;
+  border:1px solid rgba(255,255,255,.16)
+}
+.profile-name{font-size:1.22rem; font-weight:700; line-height:1.2}
+.profile-sub{font-size:.95rem; color:var(--muted)}
+.profile-list{margin:1rem 0 0; display:grid; gap:.7rem}
+.profile-item{padding:.75rem .85rem; background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:16px}
+.section{padding:2rem 0}
+.section-head{display:flex; justify-content:space-between; align-items:end; gap:1rem; margin-bottom:1rem}
+.section h2{
+  margin:0; font-size:1.7rem; letter-spacing:-.02em
+}
+.section p.section-copy{margin:0; color:var(--muted); max-width:72ch}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:1rem}
+.grid-2{display:grid; grid-template-columns:repeat(2,1fr); gap:1rem}
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border:1px solid var(--line); border-radius:22px; padding:1.15rem;
+  box-shadow:var(--shadow)
+}
+.card h3{margin:.15rem 0 .5rem; font-size:1.1rem; line-height:1.35}
+.card p{margin:0; color:var(--muted); font-size:.98rem}
+.tags{display:flex; flex-wrap:wrap; gap:.5rem; margin:0 0 .9rem}
+.tag{
+  font-size:.82rem; color:#dce3ff; padding:.36rem .58rem;
+  border-radius:999px; background:rgba(122,162,255,.1); border:1px solid rgba(122,162,255,.2)
+}
+.split{
+  display:grid; grid-template-columns:1.15fr .85fr; gap:1rem
+}
+.timeline{display:grid; gap:1rem}
+.entry{
+  display:grid; gap:.35rem; padding:1rem 1.05rem; border-radius:18px;
+  background:rgba(255,255,255,.04); border:1px solid var(--line)
+}
+.entry-top{
+  display:flex; justify-content:space-between; gap:1rem; align-items:baseline; flex-wrap:wrap
+}
+.entry-title{font-weight:700}
+.entry-meta{color:var(--muted); font-size:.95rem}
+.entry p{margin:0; color:var(--muted)}
+.pub-group{display:grid; gap:1rem}
+.pub-header{
+  margin-top:.2rem; margin-bottom:.2rem; color:#dbe3ff; font-weight:700;
+  text-transform:uppercase; letter-spacing:.08em; font-size:.8rem
+}
+.pub{
+  padding:1rem 1.05rem; background:rgba(255,255,255,.04); border:1px solid var(--line);
+  border-radius:18px;
+}
+.pub-title{font-weight:700; line-height:1.35}
+.pub-meta{margin-top:.25rem; color:var(--muted); font-size:.95rem}
+.pub-links{display:flex; gap:.65rem; flex-wrap:wrap; margin-top:.7rem}
+.pub-link{font-size:.9rem; color:#d9e4ff; padding:.35rem .6rem; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.03)}
+.pub-link:hover{border-color:rgba(122,162,255,.35)}
+.cols-2{columns:2; column-gap:1rem}
+.service-list, .cert-list{display:grid; gap:.85rem}
+.service-item, .cert-item{
+  padding:.95rem 1rem; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid var(--line)
+}
+.footer{
+  padding:2.6rem 0 3.6rem; color:var(--muted)
+}
+.footer-box{
+  display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+  padding-top:1.3rem; border-top:1px solid var(--line)
+}
+.small{font-size:.92rem; color:var(--muted)}
+.note{
+  margin-top:1rem; padding:1rem 1.05rem; border-radius:16px;
+  border:1px solid rgba(255,204,102,.22); background:rgba(255,204,102,.08);
+  color:#fff4d1;
+}
+hr.sep{
+  border:none; border-top:1px solid var(--line); margin:1rem 0 0;
+}
+@media (max-width: 960px){
+  .hero-grid, .split, .grid-3, .grid-2{grid-template-columns:1fr}
+  .stat-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width: 640px){
+  .nav-links{display:none}
+  .container{width:min(var(--max), calc(100% - 1rem))}
+  .hero{padding-top:3rem}
+  .stat-grid{grid-template-columns:1fr}
+  .cols-2{columns:1}
+}
+</style>
 </head>
-
 <body>
+<nav class="nav">
+  <div class="container nav-inner">
+    <div class="brand">SK RAKIB UL ISLAM RAHAT</div>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#featured">Featured Work</a>
+      <a href="#publications">Publications</a>
+      <a href="#education">Education</a>
+      <a href="#experience">Experience</a>
+      <a href="#service">Service</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
 
-<header class="header">
-  <nav class="nav">
-    <a href="#about">About</a>
-    <a href="#research">Research</a>
-    <a href="#education">Education</a>
-    <a href="#projects">Projects</a>
-    <a href="#publications">Publications</a>
-  </nav>
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="kicker">Medical AI Researcher · Reliability · Calibration · Dataset Shift</div>
+      <h1>Medical AI research with a focus on what breaks under real-world deployment.</h1>
+      <p class="lead">
+        I work on medical imaging and clinical AI systems, with emphasis on shortcut learning,
+        artifact-driven bias, calibration under domain shift, multimodal modeling, and external validation.
+        My recent work concentrates on diabetic retinopathy screening, interpretability, and reliability
+        in healthcare-facing machine learning pipelines.
+      </p>
+      <div class="badges">
+        <span class="badge">Medical Imaging</span>
+        <span class="badge">Deep Learning</span>
+        <span class="badge">Computer Vision</span>
+        <span class="badge">Multimodal Learning</span>
+        <span class="badge">Explainable AI</span>
+        <span class="badge">Clinical AI Reliability</span>
+      </div>
+      <div class="hero-actions">
+        <a class="btn primary" href="SK_RAKIB_UL_ISLAM_RAHAT_Resume_OnePage.pdf" download>Download Resume PDF</a>
+        <a class="btn" href="resume_print.html" target="_blank">Preview Resume Page</a>
+        <a class="btn" href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+        <a class="btn" href="mailto:skrakibulislamrahat@gmail.com">Email</a>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="num">49</div><div class="label">Google Scholar citations</div></div>
+        <div class="stat"><div class="num">5</div><div class="label">h-index</div></div>
+        <div class="stat"><div class="num">3</div><div class="label">Verified peer reviews</div></div>
+      </div>
+    </div>
+    <aside class="hero-card">
+      <div class="profile-top">
+        <img src="profile_crop.png" alt="Portrait of SK Rakib Ul Islam Rahat" class="avatar">
+        <div>
+          <div class="profile-name">SK Rakib Ul Islam Rahat</div>
+          <div class="profile-sub">International American University · Los Angeles, USA</div>
+        </div>
+      </div>
+      <div class="profile-list">
+        <div class="profile-item"><strong>Current positioning</strong><br><span class="small">Medical AI researcher working on reliability, calibration, shortcut learning, and dataset shift in healthcare models.</span></div>
+        <div class="profile-item"><strong>Research focus</strong><br><span class="small">Diabetic retinopathy, fundus imaging, clinical decision support, explainability, external validation, and robust AI evaluation.</span></div>
+        <div class="profile-item"><strong>Academic profile</strong><br><span class="small">MBA in MIS, MSc in Global Business and Administration, B.Tech in Computer Science and Engineering.</span></div>
+        <div class="profile-item"><strong>Online presence</strong><br><span class="small"><a href="https://skrakibulislamrahat.github.io/" target="_blank">Personal URL</a> · <a href="https://orcid.org/0009-0005-0744-8398" target="_blank">ORCID</a></span></div>
+      </div>
+    </aside>
+  </div>
 </header>
 
-<main class="container">
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-left">
-    <h1>SK Rakib Ul Islam Rahat</h1>
-    <p class="subtitle">Graduate Researcher in Multimodal AI</p>
-
-    <p>
-      I work on <strong>medical artificial intelligence</strong> with a focus on
-      <strong>multimodal deep learning</strong>, <strong>medical image analysis</strong>,
-      and <strong>probabilistic calibration</strong>. My research emphasizes
-      conservative evaluation, robustness under dataset shift, and protocol-faithful
-      reporting for clinical screening models.
-    </p>
-
-    <p class="contact">
-      Email:
-      <a href="mailto:skrakibulislamrahat@gmail.com">skrakibulislamrahat@gmail.com</a><br>
-      Phone: +1 (323) 471-5980<br>
-      Google Scholar:
-      <a href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank">
-        scholar.google.com/citations?user=0X1eRi8AAAAJ
-      </a>
-    </p>
-  </div>
-
-  <div class="hero-right">
-    <img src="assets/headshot.png" alt="SK Rakib Ul Islam Rahat">
-  </div>
-</section>
-
-<!-- ABOUT -->
-<section id="about">
-  <h2>About</h2>
-  <p>
-    My work lies at the intersection of machine learning and healthcare.
-    I focus on identifying and quantifying failure modes in medical AI,
-    including miscalibration, shortcut learning, and performance degradation
-    under external validation.
-  </p>
-</section>
-
-<!-- RESEARCH -->
-<section id="research">
-  <h2>Research Interests</h2>
-  <ul>
-    <li>Medical Image Analysis (Fundus Imaging, Mammography)</li>
-    <li>Probabilistic Calibration and Reliability</li>
-    <li>External Validation and Dataset Shift</li>
-    <li>Explainable AI (Grad-CAM, Reliability Diagrams)</li>
-    <li>Multimodal Learning with Clinical Data</li>
-  </ul>
-</section>
-
-<!-- EDUCATION -->
-<section id="education">
-  <h2>Education</h2>
-  <ul>
-    <li><strong>MBA, MIS</strong> — International American University (2024–2026)</li>
-    <li><strong>MSc, Global Business & Administration</strong> — Kyungsung University (2022–2023)</li>
-    <li><strong>BTech, Computer Science & Engineering</strong> — LPU (2017–2021)</li>
-  </ul>
-</section>
-
-<!-- PROJECTS -->
-<section id="projects">
-  <h2>Research Projects</h2>
-
-  <div class="project-grid">
-
-    <div class="project-card">
-      <h3>Calibration Analysis for Referable Diabetic Retinopathy (IJBHI)</h3>
-      <p>
-        Multi-seed internal calibration analysis of a ResNet-18 fundus classifier
-        trained on APTOS 2019 using Counterfactual Consistency Regularization,
-        with constrained external evaluation on Messidor-2.
-      </p>
-      <a href="https://github.com/skrakibulislamrahat/JBHI_1" target="_blank">GitHub</a>
+<main>
+  <section id="about" class="section">
+    <div class="container split">
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <h2>About</h2>
+            <p class="section-copy">
+              My work sits at the intersection of medical imaging, machine learning, and deployment-aware AI evaluation.
+              Instead of treating benchmark accuracy as the finish line, I focus on whether model behavior is clinically meaningful,
+              stable under shift, and interpretable enough to justify trust.
+            </p>
+          </div>
+        </div>
+        <p>
+          A major part of my recent research is centered on diabetic retinopathy screening, especially how fundus models fail
+          when they learn dataset artifacts, overconfident calibration maps, or shortcuts that do not reflect disease.
+          I also work on multimodal systems that combine images with structured clinical variables, and on applied healthcare
+          prediction problems including kidney disease, breast cancer, pneumonia, Parkinson’s disease, and heart disease.
+        </p>
+        <div class="note">
+          Important: manuscripts listed under <strong>Under Review</strong> are not counted as published papers. They are shown separately to avoid overstating publication status.
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-head"><h2>Research Themes</h2></div>
+        <div class="service-list">
+          <div class="service-item"><strong>Medical AI Reliability</strong><br><span class="small">How models behave under domain shift, calibration failure, and deployment mismatch.</span></div>
+          <div class="service-item"><strong>Shortcut Learning</strong><br><span class="small">Identifying artifact-driven cues, border effects, and non-clinical signals in fundus models.</span></div>
+          <div class="service-item"><strong>Multimodal Clinical AI</strong><br><span class="small">Combining retinal imaging with patient-level variables for more context-aware prediction.</span></div>
+          <div class="service-item"><strong>Explainability</strong><br><span class="small">Using Grad-CAM and SHAP to inspect what the model is actually using.</span></div>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <div class="project-card">
-      <h3>Exposing Dataset Artifacts in Medical AI</h3>
-      <p>
-        Empirical study demonstrating shortcut learning driven by non-pathological
-        artifacts in fundus imaging models.
-      </p>
-      <a href="https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts" target="_blank">GitHub</a>
+  <section id="featured" class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2>Featured Research</h2>
+          <p class="section-copy">These are the strongest papers to foreground because they best represent the research direction rather than just raw paper count.</p>
+        </div>
+      </div>
+      <div class="grid-3">
+        <article class="card">
+          <div class="tags"><span class="tag">Under Review</span><span class="tag">CMPB</span><span class="tag">Reliability Study</span></div>
+          <h3>Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models</h3>
+          <p>Structured analysis of how fundus models exploit borders, padding, and acquisition artifacts instead of pathology-relevant cues, with external validation on Messidor-2 and Grad-CAM auditing.</p>
+        </article>
+        <article class="card">
+          <div class="tags"><span class="tag">Under Review</span><span class="tag">CMIG</span><span class="tag">Calibration</span></div>
+          <h3>Calibration Under Domain Shift in Diabetic Retinopathy Screening</h3>
+          <p>Five-seed evaluation of temperature scaling transfer from APTOS to Messidor-2, showing that source-fitted calibration fails under shift while limited target-side calibration restores reliability.</p>
+        </article>
+        <article class="card">
+          <div class="tags"><span class="tag">Published</span><span class="tag">KMMS</span><span class="tag">Multimodal</span></div>
+          <h3>Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity</h3>
+          <p>Explainable multimodal framework combining fundus images and structured clinical metadata, with cross-validation, external validation, Grad-CAM, and SHAP analysis.</p>
+          <div class="pub-links"><a class="pub-link" href="https://doi.org/10.9717/kmms.2026.29.3.524" target="_blank">DOI</a></div>
+        </article>
+      </div>
     </div>
+  </section>
 
-    <div class="project-card">
-      <h3>Lightweight DR Detection Models</h3>
-      <p>
-        Evaluation of MobileNetV2, EfficientNet-B0, and SqueezeNet focusing on
-        accuracy–efficiency trade-offs for low-resource screening.
-      </p>
-      <a href="https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models" target="_blank">GitHub</a>
+  <section id="publications" class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2>Publications</h2>
+          <p class="section-copy">Published work is separated from manuscripts under review so publication status remains accurate and professional.</p>
+        </div>
+      </div>
+
+      <div class="pub-group">
+        <div class="pub-header">Published / Accepted Journal Articles</div>
+
+        <div class="pub">
+          <div class="pub-title">TriGWONet: A Lightweight Multibranch Convolutional Neural Network Using Gray Wolf Optimization for Accurate Oral Cancer Image Classification</div>
+          <div class="pub-meta">Discover Artificial Intelligence (Springer Nature), 2026</div>
+          <div class="pub-links"><a class="pub-link" href="https://doi.org/10.1007/s44163-025-00776-x" target="_blank">DOI</a></div>
+        </div>
+
+        <div class="pub">
+          <div class="pub-title">Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity</div>
+          <div class="pub-meta">Journal of Korea Multimedia Society, 2026</div>
+          <div class="pub-links"><a class="pub-link" href="https://doi.org/10.9717/kmms.2026.29.3.524" target="_blank">DOI</a></div>
+        </div>
+
+        <div class="pub">
+          <div class="pub-title">Machine Learning-Based Hospital Readmission Prediction and Risk Analysis in the United States Healthcare System</div>
+          <div class="pub-meta">Journal of Computer Science and Technology Studies, 2024</div>
+          <div class="pub-links"><a class="pub-link" href="https://doi.org/10.32996/jcsts.2024.6.5.32" target="_blank">DOI</a></div>
+        </div>
+
+        <div class="pub">
+          <div class="pub-title">Artificial Intelligence for Chronic Kidney Disease Risk Stratification in the USA: Ensemble vs. Deep Learning Methods</div>
+          <div class="pub-meta">British Journal of Nursing Studies, 2025</div>
+        </div>
+
+        <div class="pub">
+          <div class="pub-title">Advancing Diabetic Retinopathy Detection with AI and Deep Learning: Opportunities, Limitations, and Clinical Barriers</div>
+          <div class="pub-meta">British Journal of Nursing Studies, 2025</div>
+        </div>
+
+        <div class="pub">
+          <div class="pub-title">A Deep Learning Framework for Early Breast Cancer Detection Among US Women: Integrating Mammography and Clinical EHR Data</div>
+          <div class="pub-meta">British Journal of Nursing Studies, 2025</div>
+        </div>
+
+        <div class="pub">
+          <div class="pub-title">Deep Learning-Based Skin Cancer Diagnosis in the United States: Advances, Challenges, and Clinical Translation</div>
+          <div class="pub-meta">Journal of Medical and Health Studies, 2023</div>
+        </div>
+
+        <div class="pub">
+          <div class="pub-title">A Transfer Learning-Based Deep Convolutional Neural Network Framework for Automated Multi-Class Eye Disease Classification in the USA Using Retinal Fundus Image</div>
+          <div class="pub-meta">Journal of Medical and Health Studies, 2023</div>
+        </div>
+      </div>
+
+      <div class="pub-group" style="margin-top:1rem">
+        <div class="pub-header">Conference Publications</div>
+
+        <div class="pub">
+          <div class="pub-title">Performance Evaluation of Hybrid Machine Learning Models for Heart Disease Prediction in U.S. Clinical Decision Support Systems</div>
+          <div class="pub-meta">IEEE ICSADL, 2026</div>
+          <div class="pub-links"><a class="pub-link" href="https://doi.org/10.1109/ICSADL67539.2026.11452047" target="_blank">DOI</a></div>
+        </div>
+
+        <div class="pub">
+          <div class="pub-title">An ANN Network-Based Approach for Early Detection of Parkinson’s Disease Through Image Processing</div>
+          <div class="pub-meta">IEEE ICCTEIE, 2025</div>
+          <div class="pub-links"><a class="pub-link" href="https://doi.org/10.1109/ICCTEIE66144.2025.11341843" target="_blank">DOI</a></div>
+        </div>
+
+        <div class="pub">
+          <div class="pub-title">PneuNet: A Multi-Scale Attention-Enhanced CNN for Pediatric Pneumonia Detection from Chest X-rays</div>
+          <div class="pub-meta">IEEE DELCON, 2025</div>
+          <div class="pub-links"><a class="pub-link" href="https://doi.org/10.1109/DELCON68055.2025.11400229" target="_blank">DOI</a></div>
+        </div>
+
+        <div class="pub">
+          <div class="pub-title">Deep Learning-Based Multi-Class Brain Tumor Classification from MRI Using a Novel MS-DSCCNet Architecture</div>
+          <div class="pub-meta">IEEE DELCON, 2025</div>
+        </div>
+      </div>
+
+      <div class="pub-group" style="margin-top:1rem">
+        <div class="pub-header">Manuscripts Under Review</div>
+
+        <div class="pub">
+          <div class="pub-title">Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models</div>
+          <div class="pub-meta">Under review — Computer Methods and Programs in Biomedicine</div>
+        </div>
+
+        <div class="pub">
+          <div class="pub-title">Calibration Under Domain Shift in Diabetic Retinopathy Screening: Temperature Scaling Transfer and Target-Side Calibration with Limited Labels</div>
+          <div class="pub-meta">Under review — Computerized Medical Imaging and Graphics</div>
+        </div>
+
+        <div class="pub">
+          <div class="pub-title">Evaluation of Lightweight AI Models for Early Diabetic Retinopathy Detection in Resource-Constrained Screening Settings</div>
+          <div class="pub-meta">Under review</div>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <div class="project-card">
-      <h3>Multimodal Framework Research</h3>
-      <p>
-        Multimodal pipelines integrating medical images and structured clinical data
-        to study robustness and interpretability.
-      </p>
-      <a href="https://github.com/skrakibulislamrahat/Multimodal_Framework_Research" target="_blank">GitHub</a>
+  <section id="education" class="section">
+    <div class="container grid-2">
+      <div class="card">
+        <div class="section-head"><h2>Education</h2></div>
+        <div class="timeline">
+          <div class="entry">
+            <div class="entry-top">
+              <div class="entry-title">MBA, Management Information Systems</div>
+              <div class="entry-meta">2024 – 2026</div>
+            </div>
+            <div class="small">International American University · Los Angeles, USA</div>
+            <p>Focus on database systems, business analytics, and data-driven decision-making.</p>
+          </div>
+          <div class="entry">
+            <div class="entry-top">
+              <div class="entry-title">MSc, Global Business and Administration</div>
+              <div class="entry-meta">2022 – 2023</div>
+            </div>
+            <div class="small">Kyungsung University · Busan, South Korea</div>
+            <p>Thesis: Integrating Artificial Intelligence in Business and Healthcare Decision Systems.</p>
+          </div>
+          <div class="entry">
+            <div class="entry-top">
+              <div class="entry-title">B.Tech, Computer Science and Engineering</div>
+              <div class="entry-meta">2017 – 2021</div>
+            </div>
+            <div class="small">Lovely Professional University · Punjab, India</div>
+            <p>Projects included Android optimization and Android application development.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-head"><h2>Certifications</h2></div>
+        <div class="cert-list">
+          <div class="cert-item"><strong>IBM Data Science Professional Certificate</strong><br><span class="small">IBM Skills Network / Coursera, 2026</span></div>
+          <div class="cert-item"><strong>Generative AI for Healthcare</strong><br><span class="small">Google Cloud / Coursera, 2026</span></div>
+          <div class="cert-item"><strong>AI Integration in Healthcare Patient Data</strong><br><span class="small">Illinois Tech / Coursera, 2026</span></div>
+          <div class="cert-item"><strong>Certified Peer Reviewer Course</strong><br><span class="small">Elsevier Researcher Academy, 2026</span></div>
+        </div>
+      </div>
     </div>
+  </section>
 
-  </div>
-</section>
+  <section id="experience" class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2>Experience</h2>
+          <p class="section-copy">A compact academic-industrial profile, kept focused on work relevant to medical AI, healthcare analytics, and machine learning.</p>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="entry">
+          <div class="entry-top">
+            <div class="entry-title">Medical AI & Healthcare Informatics — Independent Researcher</div>
+            <div class="entry-meta">2023 – Present</div>
+          </div>
+          <p>Designed and evaluated deep learning systems across retinal imaging, radiology, and clinical prediction tasks. Current emphasis is on reliability, shortcut learning, interpretability, and generalization under shift.</p>
+        </div>
+        <div class="entry">
+          <div class="entry-top">
+            <div class="entry-title">AI & Data Intern — Taskimpetus</div>
+            <div class="entry-meta">2024</div>
+          </div>
+          <p>Supported Python and SQL-based analytics workflows, AI-enabled dashboards, exploratory data analysis, and internal automation-focused data pipelines.</p>
+        </div>
+        <div class="entry">
+          <div class="entry-top">
+            <div class="entry-title">Teaching Assistant — Kyungsung University</div>
+            <div class="entry-meta">2022 – 2023</div>
+          </div>
+          <p>Mentored students on data preprocessing, model evaluation, and reproducible ML workflows while contributing to peer-reviewed healthcare AI work.</p>
+        </div>
+        <div class="entry">
+          <div class="entry-top">
+            <div class="entry-title">Jr. Software Engineer — KCIT</div>
+            <div class="entry-meta">2020 – 2021</div>
+          </div>
+          <p>Worked on smart systems integration and IoT-oriented automation projects in a team engineering environment.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<!-- PUBLICATIONS -->
-<section id="publications">
-  <h2>Selected Publications</h2>
-  <ol>
-    <li><strong>Calibration Analysis Under Counterfactual Consistency Regularization for Referable Diabetic Retinopathy.</strong> IEEE JBHI (under review)</li>
-    <li><strong>TriGWONet: A Lightweight Multibranch CNN Using Gray Wolf Optimization.</strong> Discover AI, 2025</li>
-    <li><strong>Artificial Intelligence for Chronic Kidney Disease Risk Stratification.</strong> BJNS, 2025</li>
-    <li><strong>Advancing Diabetic Retinopathy Detection with AI.</strong> BJNS, 2025</li>
-    <li><strong>Deep Learning Framework for Early Breast Cancer Detection.</strong> BJNS, 2025</li>
-  </ol>
-</section>
-
+  <section id="service" class="section">
+    <div class="container grid-2">
+      <div class="card">
+        <div class="section-head"><h2>Peer Review & Service</h2></div>
+        <div class="service-list">
+          <div class="service-item"><strong>IAES International Journal of Robotics and Automation (IJRA)</strong><br><span class="small">Verified peer review</span></div>
+          <div class="service-item"><strong>International Journal of Electrical and Computer Engineering (IJECE)</strong><br><span class="small">Verified peer review</span></div>
+          <div class="service-item"><strong>International Journal of Power Electronics and Drive Systems (IJPEDS)</strong><br><span class="small">Verified peer review</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-head"><h2>Contact</h2></div>
+        <div class="service-list" id="contact">
+          <div class="service-item"><strong>Email</strong><br><span class="small"><a href="mailto:skrakibulislamrahat@gmail.com">skrakibulislamrahat@gmail.com</a></span></div>
+          <div class="service-item"><strong>Phone</strong><br><span class="small">+1 (323) 471-5980</span></div>
+          <div class="service-item"><strong>Location</strong><br><span class="small">Los Angeles, California, USA</span></div>
+          <div class="service-item"><strong>Links</strong><br><span class="small"><a href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank">Google Scholar</a> · <a href="https://orcid.org/0009-0005-0744-8398" target="_blank">ORCID</a> · <a href="https://skrakibulislamrahat.github.io/" target="_blank">Website</a></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer class="footer">
-  © 2026 SK Rakib Ul Islam Rahat
+  <div class="container footer-box">
+    <div>© 2026 SK Rakib Ul Islam Rahat</div>
+    <div class="small">Built to present published work, active manuscripts under review, academic training, service, and a printable one-page resume without inflating status.</div>
+  </div>
 </footer>
-
 </body>
 </html>
