@@ -297,7 +297,7 @@
     }
 
     .section {
-      padding: 16px 0 0;
+      padding: 40px 0 0;
     }
 
     .section-head {
@@ -307,6 +307,20 @@
       gap: 18px;
       margin-bottom: 12px;
     }
+    #about {
+  position: relative;
+}
+
+#about::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 0;
+  width: 140px;
+  height: 2px;
+  background: linear-gradient(90deg, #60a5fa, transparent);
+  opacity: 0.9;
+}
 
     .eyebrow {
       color: var(--accent-2);
@@ -348,8 +362,16 @@
     .contact-grid { grid-template-columns: 1fr 1fr 1fr; }
 
     .section-panel {
-      padding: 20px;
-    }
+  padding: 22px;
+  background:
+    linear-gradient(180deg, rgba(32,43,64,0.78), rgba(10,15,28,0.96)),
+    linear-gradient(135deg, rgba(99,102,241,0.08), rgba(96,165,250,0.04));
+}
+    .about-grid .section-panel:last-child {
+  background:
+    linear-gradient(180deg, rgba(22,30,46,0.82), rgba(8,12,22,0.99)),
+    linear-gradient(135deg, rgba(99,102,241,0.05), rgba(96,165,250,0.03));
+}
 
     .section-panel h3 {
       margin: 0 0 12px;
@@ -358,12 +380,13 @@
       letter-spacing: -0.03em;
     }
 
-    .section-panel p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.8;
-      font-size: 1rem;
-    }
+.section-panel p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.9;
+  font-size: 1rem;
+  max-width: 95%;
+}
 
     .list {
       display: grid;
@@ -381,15 +404,16 @@
     }
 
     .list li::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 11px;
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent-2), var(--accent));
-    }
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #60a5fa, #8b5cf6);
+  box-shadow: 0 0 10px rgba(96,165,250,0.28);
+}
 
     .feature-card,
     .pub-card,
@@ -817,11 +841,14 @@
         <div class="section-panel">
           <h3>What I work on</h3>
           <p>
-            I investigate artifact-driven shortcut learning, fundus image bias, calibration under domain shift,
-            multimodal retinal AI, and evaluation strategies that reflect actual clinical use rather than inflated
-            in-dataset performance. The goal is not just better scores, but models that remain interpretable,
-            reliable, and defensible when conditions change.
-          </p>
+  I investigate artifact-driven shortcut learning, fundus image bias, calibration under domain shift,
+  multimodal retinal AI, and evaluation strategies that reflect actual clinical use rather than inflated
+  in-dataset performance.
+</p>
+<p style="margin-top: 12px;">
+  The goal is not just better scores, but models that remain interpretable, reliable, and defensible
+  when conditions change.
+</p>
         </div>
 
         <div class="section-panel">
