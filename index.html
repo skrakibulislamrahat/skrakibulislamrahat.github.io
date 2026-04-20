@@ -3,273 +3,705 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SK Rakib Ul Islam Rahat | Medical AI Researcher</title>
-  <meta name="description" content="Academic portfolio of SK Rakib Ul Islam Rahat focused on medical AI reliability, calibration, shortcut learning, multimodal learning, and dataset shift." />
-  <meta name="theme-color" content="#0b1220" />
+  <title>SK Rakib Ul Islam Rahat</title>
+  <meta name="description" content="Medical AI researcher focused on reliability, calibration, dataset shift, and multimodal diagnostic systems." />
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC55P0z8IfGQn+vB9W1YQ2rYvM5QxYvQxYwXH5j2YQ+v3DK6nJx8B7Y5eJv0Y2oM9d4p2f7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg: #07111f;
-      --bg-2: #0a1527;
-      --panel: rgba(12, 22, 40, 0.8);
-      --panel-2: rgba(17, 29, 52, 0.95);
-      --text: #eef4ff;
-      --muted: #9fb0c8;
-      --line: rgba(255,255,255,0.09);
-      --line-2: rgba(255,255,255,0.14);
-      --accent: #78a7ff;
-      --accent-2: #8b78ff;
-      --accent-3: #63e6be;
-      --warning: #f3c96b;
-      --danger: #ff8f8f;
-      --shadow: 0 24px 60px rgba(0,0,0,0.38);
-      --max: 1180px;
-      --radius: 24px;
+      --bg: #070b14;
+      --bg-2: #0b1120;
+      --panel: rgba(16, 24, 40, 0.78);
+      --panel-2: rgba(15, 23, 42, 0.92);
+      --line: rgba(148, 163, 184, 0.16);
+      --line-2: rgba(99, 102, 241, 0.25);
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --soft: #cbd5e1;
+      --accent: #8b5cf6;
+      --accent-2: #60a5fa;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --shadow: 0 30px 80px rgba(2, 6, 23, 0.42);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --max: 1320px;
     }
+
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      font-family: "Inter", system-ui, sans-serif;
       color: var(--text);
       background:
-        radial-gradient(900px 520px at 85% -10%, rgba(120,167,255,0.24), transparent 50%),
-        radial-gradient(700px 500px at 15% 0%, rgba(139,120,255,0.16), transparent 50%),
-        linear-gradient(180deg, #06101d 0%, #081120 45%, #091424 100%);
-      line-height: 1.6;
-      overflow-x: hidden;
+        radial-gradient(circle at 0% 0%, rgba(99,102,241,0.18), transparent 28%),
+        radial-gradient(circle at 100% 0%, rgba(59,130,246,0.14), transparent 22%),
+        linear-gradient(180deg, #060910 0%, #070c16 40%, #060910 100%);
     }
+
     a { color: inherit; text-decoration: none; }
-    img { max-width: 100%; display: block; }
-    .container { width: min(var(--max), calc(100% - 2rem)); margin: 0 auto; }
-    .glass {
-      background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.035));
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(16px);
+    img { display: block; max-width: 100%; }
+
+    .container {
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
     }
+
+    .nav-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(18px);
+      background: rgba(7, 11, 20, 0.72);
+      border-bottom: 1px solid rgba(148,163,184,0.09);
+    }
+
     .nav {
-      position: sticky; top: 0; z-index: 1200;
-      background: rgba(6, 13, 25, 0.72);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--line);
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
     }
-    .nav-inner {
-      display: flex; align-items: center; justify-content: space-between;
-      min-height: 76px; gap: 1rem;
-    }
-    .brand-wrap { display: flex; align-items: center; gap: .9rem; }
-    .brand-dot {
-      width: 12px; height: 12px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      box-shadow: 0 0 20px rgba(120,167,255,.7);
-    }
+
     .brand {
-      font-weight: 800; letter-spacing: .02em; font-size: .97rem;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: 1.35rem;
+      white-space: nowrap;
     }
-    .nav-links { display: flex; gap: 1.15rem; flex-wrap: wrap; }
+
+    .brand-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      box-shadow: 0 0 18px rgba(139,92,246,0.7);
+      flex: 0 0 auto;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
     .nav-links a {
-      color: var(--muted); font-size: .95rem; position: relative;
+      color: var(--muted);
+      font-weight: 500;
+      transition: 0.2s ease;
     }
-    .nav-links a::after {
-      content: ""; position: absolute; left: 0; bottom: -8px; width: 0; height: 2px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .2s ease;
-    }
+
     .nav-links a:hover { color: var(--text); }
-    .nav-links a:hover::after { width: 100%; }
 
-    .hero { padding: 4.6rem 0 2.7rem; position: relative; }
+    .hero {
+      padding: 48px 0 24px;
+    }
+
     .hero-grid {
-      display: grid; grid-template-columns: 1.25fr .9fr; gap: 1.35rem; align-items: stretch;
+      display: grid;
+      grid-template-columns: 1.35fr 0.95fr;
+      gap: 26px;
+      align-items: stretch;
     }
-    .hero-main, .hero-side { border-radius: 32px; }
-    .hero-main { padding: 1.8rem; position: relative; overflow: hidden; }
-    .hero-main::before {
-      content: ""; position: absolute; inset: auto -25% -30% auto; width: 320px; height: 320px;
-      background: radial-gradient(circle, rgba(120,167,255,.18), transparent 65%);
-      pointer-events: none;
+
+    .hero-main,
+    .hero-side,
+    .section-panel {
+      background:
+        linear-gradient(180deg, rgba(30,41,59,0.66), rgba(15,23,42,0.88)),
+        linear-gradient(135deg, rgba(99,102,241,0.09), rgba(96,165,250,0.06));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
     }
-    .kicker {
-      display: inline-flex; align-items: center; gap: .55rem;
-      padding: .52rem .85rem; border-radius: 999px; font-size: .86rem; color: #dbe7ff;
-      border: 1px solid rgba(120,167,255,0.24); background: rgba(120,167,255,0.08);
+
+    .hero-main {
+      padding: 34px 34px 30px;
+      min-height: 720px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
-    .hero-main h1 {
-      margin: .9rem 0 .8rem;
-      font-size: clamp(2.4rem, 6vw, 5rem);
-      line-height: 1.02; letter-spacing: -.04em;
-      max-width: 10.5ch;
-    }
-    .lead {
-      color: var(--muted); font-size: 1.06rem; max-width: 68ch; margin: 0;
-    }
-    .hero-badges { display: flex; flex-wrap: wrap; gap: .65rem; margin: 1.25rem 0 1.35rem; }
+
     .pill {
-      display: inline-flex; align-items: center; gap: .45rem; padding: .56rem .8rem;
-      border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.04);
-      color: #e6edff; font-size: .9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 11px 18px;
+      border-radius: 999px;
+      border: 1px solid var(--line-2);
+      background: rgba(99,102,241,0.08);
+      color: var(--soft);
+      font-size: 0.98rem;
+      font-weight: 500;
+      margin-bottom: 24px;
     }
-    .hero-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: .5rem; }
+
+    .hero-title {
+      margin: 0;
+      font-size: clamp(3.6rem, 7vw, 6.5rem);
+      line-height: 0.92;
+      letter-spacing: -0.07em;
+      max-width: 760px;
+      font-weight: 900;
+    }
+
+    .hero-desc {
+      margin: 26px 0 0;
+      color: var(--muted);
+      font-size: 1.32rem;
+      line-height: 1.68;
+      max-width: 860px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 34px;
+    }
+
     .btn {
-      border: 1px solid var(--line-2); background: rgba(255,255,255,0.04); color: var(--text);
-      padding: .92rem 1.15rem; border-radius: 16px; font-weight: 700; cursor: pointer;
-      transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
-      display: inline-flex; align-items: center; gap: .55rem;
-      font-size: .95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 0 20px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 0.98rem;
+      border: 1px solid rgba(148,163,184,0.16);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+      cursor: pointer;
     }
-    .btn:hover { transform: translateY(-1px); border-color: rgba(120,167,255,.4); box-shadow: 0 14px 28px rgba(0,0,0,.18); }
-    .btn.primary {
-      background: linear-gradient(135deg, rgba(120,167,255,0.24), rgba(139,120,255,0.24));
-      border-color: rgba(120,167,255,.3);
-    }
-    .btn.ghost { color: var(--muted); }
-    .meta-row {
-      margin-top: 1.4rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: .8rem;
-    }
-    .metric {
-      padding: 1rem 1rem; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid var(--line);
-    }
-    .metric .value { font-size: 1.7rem; font-weight: 800; line-height: 1; }
-    .metric .label { color: var(--muted); font-size: .92rem; margin-top: .35rem; }
 
-    .hero-side { padding: 1.4rem; display: grid; gap: 1rem; }
-    .profile-top { display: grid; grid-template-columns: 132px 1fr; gap: 1rem; align-items: center; }
-    .headshot {
-      width: 132px; height: 132px; object-fit: cover; border-radius: 28px;
-      border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 18px 40px rgba(0,0,0,.28);
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white;
+      border-color: rgba(99,102,241,0.35);
     }
-    .name { font-size: 1.3rem; font-weight: 800; line-height: 1.2; }
-    .sub { color: var(--muted); font-size: .97rem; margin-top: .25rem; }
-    .mini-grid { display: grid; gap: .8rem; }
+    .btn-secondary {
+      background: rgba(15,23,42,0.8);
+      color: var(--text);
+    }
+    .btn-ghost {
+      background: rgba(255,255,255,0.03);
+      color: var(--soft);
+    }
+
+    .hero-side {
+      padding: 20px;
+      min-height: 720px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 16px;
+    }
+
+    .profile-card {
+      display: grid;
+      grid-template-columns: 148px 1fr;
+      gap: 18px;
+      align-items: center;
+      padding: 18px;
+      border-radius: 24px;
+      background: rgba(17,24,39,0.7);
+      border: 1px solid rgba(148,163,184,0.14);
+    }
+
+    .profile-photo {
+      width: 148px;
+      height: 148px;
+      border-radius: 28px;
+      object-fit: cover;
+      border: 1px solid rgba(148,163,184,0.15);
+      box-shadow: 0 12px 40px rgba(2,6,23,0.38);
+    }
+
+    .profile-name {
+      font-size: clamp(1.7rem, 2.2vw, 2.35rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin: 0 0 10px;
+      line-height: 1.05;
+    }
+
+    .profile-meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
     .mini-card {
-      padding: .95rem 1rem; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+      padding: 20px 22px;
+      border-radius: 22px;
+      background: rgba(17,24,39,0.64);
+      border: 1px solid rgba(148,163,184,0.14);
     }
-    .mini-card strong { display: block; margin-bottom: .25rem; }
-    .mini-card span, .mini-card a { color: var(--muted); font-size: .94rem; }
 
-    .section { padding: 1.1rem 0 0; }
-    .section-block { padding: 1.45rem; border-radius: 28px; }
-    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
-    .section-head h2 { margin: 0; font-size: 1.7rem; letter-spacing: -.03em; }
-    .section-head p { margin: 0; color: var(--muted); max-width: 68ch; }
-    .section-chip { color: #dbe7ff; font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; }
+    .mini-card h3 {
+      margin: 0 0 14px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
 
-    .featured-grid, .grid-3, .grid-2 { display: grid; gap: 1rem; }
-    .featured-grid { grid-template-columns: repeat(3, 1fr); }
-    .grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .grid-2 { grid-template-columns: repeat(2, 1fr); }
-    .card {
-      padding: 1.15rem; border-radius: 22px; background: rgba(255,255,255,0.04); border: 1px solid var(--line);
-      position: relative; overflow: hidden;
+    .mini-card p,
+    .mini-card li {
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0;
+      font-size: 1.03rem;
     }
-    .card::before {
-      content: ""; position: absolute; inset: auto -20% -40% auto; width: 180px; height: 180px;
-      background: radial-gradient(circle, rgba(120,167,255,.12), transparent 65%); pointer-events: none;
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
-    .card h3 { margin: .2rem 0 .55rem; font-size: 1.08rem; line-height: 1.35; }
-    .card p { margin: 0; color: var(--muted); font-size: .97rem; }
+
+    .stat {
+      padding: 18px 16px;
+      border-radius: 18px;
+      background: rgba(9,14,26,0.6);
+      border: 1px solid rgba(148,163,184,0.14);
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.8rem;
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .section {
+      padding: 24px 0 0;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      margin-bottom: 18px;
+    }
+
     .eyebrow {
-      display: inline-flex; align-items: center; gap: .4rem; padding: .34rem .58rem;
-      border-radius: 999px; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase;
-      border: 1px solid var(--line); margin-bottom: .75rem;
+      color: var(--accent-2);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.77rem;
+      margin-bottom: 10px;
     }
-    .eyebrow.journal { background: rgba(99,230,190,.08); color: #d8fff3; border-color: rgba(99,230,190,.18); }
-    .eyebrow.conf { background: rgba(120,167,255,.08); color: #dbe7ff; border-color: rgba(120,167,255,.18); }
-    .eyebrow.review { background: rgba(243,201,107,.08); color: #fff0c9; border-color: rgba(243,201,107,.18); }
-    .eyebrow.pub { background: rgba(139,120,255,.1); color: #ece7ff; border-color: rgba(139,120,255,.2); }
 
-    .pub-shell { display: grid; gap: 1rem; }
+    .section-title {
+      margin: 0;
+      font-size: clamp(2rem, 3.4vw, 3.1rem);
+      letter-spacing: -0.05em;
+      line-height: 1.05;
+    }
+
+    .section-subtitle {
+      margin: 10px 0 0;
+      max-width: 780px;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 1.02rem;
+    }
+
+    .about-grid,
+    .featured-grid,
+    .edu-exp-grid,
+    .service-grid,
+    .contact-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .about-grid { grid-template-columns: 1.1fr 0.9fr; }
+    .featured-grid { grid-template-columns: repeat(3, 1fr); }
+    .edu-exp-grid { grid-template-columns: 1fr 1fr; }
+    .service-grid { grid-template-columns: 1fr 1fr; }
+    .contact-grid { grid-template-columns: 1fr 1fr 1fr; }
+
+    .section-panel {
+      padding: 26px;
+    }
+
+    .section-panel h3 {
+      margin: 0 0 12px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .section-panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+
+    .list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .list li {
+      color: var(--muted);
+      line-height: 1.75;
+      position: relative;
+      padding-left: 16px;
+    }
+
+    .list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 11px;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    }
+
+    .feature-card,
+    .pub-card,
+    .timeline-card,
+    .service-card,
+    .contact-card {
+      background:
+        linear-gradient(180deg, rgba(15,23,42,0.92), rgba(10,15,28,0.98));
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .feature-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feature-card h3,
+    .pub-card h3,
+    .timeline-card h3,
+    .service-card h3,
+    .contact-card h3 {
+      margin: 0;
+      font-size: 1.16rem;
+      letter-spacing: -0.03em;
+      line-height: 1.35;
+    }
+
+    .feature-card p,
+    .pub-card p,
+    .timeline-card p,
+    .service-card p,
+    .contact-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 0.98rem;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: 1px solid rgba(148,163,184,0.14);
+      color: var(--soft);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .chip-journal { background: rgba(37,99,235,0.16); color: #bfdbfe; }
+    .chip-conf { background: rgba(16,185,129,0.14); color: #bbf7d0; }
+    .chip-review { background: rgba(245,158,11,0.16); color: #fde68a; }
+
+    .link-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .mini-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border: 1px solid rgba(148,163,184,0.14);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+    }
+
+    .mini-btn:hover {
+      border-color: rgba(139,92,246,0.34);
+      background: rgba(99,102,241,0.08);
+    }
+
     .pub-group {
-      padding: 1rem; border-radius: 24px; background: rgba(255,255,255,0.03); border: 1px solid var(--line);
-    }
-    .pub-group-title {
-      font-size: .84rem; text-transform: uppercase; letter-spacing: .1em; color: #dbe7ff; margin: 0 0 .85rem;
-    }
-    .pub-list { display: grid; gap: .8rem; }
-    .pub-item {
-      padding: 1rem; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid var(--line);
-    }
-    .pub-title { font-weight: 750; line-height: 1.35; }
-    .pub-meta { color: var(--muted); font-size: .94rem; margin-top: .25rem; }
-    .pub-links { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: .75rem; }
-    .pub-link {
-      font-size: .86rem; padding: .38rem .65rem; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.03);
-      color: #e3ecff;
+      margin-top: 18px;
+      display: grid;
+      gap: 14px;
     }
 
-    .timeline { display: grid; gap: .85rem; }
-    .entry {
-      padding: 1rem; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid var(--line);
-    }
-    .entry-top { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; flex-wrap: wrap; }
-    .entry-title { font-weight: 750; }
-    .entry-meta { color: var(--muted); font-size: .93rem; }
-    .entry p { margin: .3rem 0 0; color: var(--muted); }
-    .entry ul { margin: .55rem 0 0 1rem; color: var(--muted); padding: 0; }
-
-    .resume-note {
-      margin-top: 1rem; padding: .95rem 1rem; border-radius: 18px;
-      border: 1px solid rgba(243,201,107,.18); background: rgba(243,201,107,.07); color: #fff4da;
-      font-size: .95rem;
+    .group-label {
+      margin: 10px 0 4px;
+      font-size: 0.82rem;
+      color: var(--accent-2);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 800;
     }
 
-    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .contact-box { padding: 1rem; border-radius: 20px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); }
-    .contact-box strong { display: block; margin-bottom: .3rem; }
-    .contact-box span, .contact-box a { color: var(--muted); }
-
-    .footer { padding: 2.8rem 0 3.2rem; color: var(--muted); }
-    .footer-box {
-      padding-top: 1.2rem; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    .pub-card {
+      padding: 20px 22px;
+      display: grid;
+      gap: 12px;
     }
 
-    .hidden-resume { position: fixed; left: -99999px; top: 0; width: 794px; background: white; color: #111827; z-index: -1; }
-    .resume-page {
-      width: 794px; min-height: 1123px; padding: 34px 40px 32px; background: white; color: #0f172a;
-      font-family: Arial, Helvetica, sans-serif;
+    .pub-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
     }
-    .resume-header { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
-    .resume-header h1 { margin: 0; font-size: 28px; line-height: 1.04; }
-    .resume-sub { margin-top: 6px; font-size: 13px; color: #334155; }
-    .resume-contact { text-align: right; font-size: 12px; color: #334155; }
-    .resume-section { margin-top: 16px; }
-    .resume-section h2 {
-      margin: 0 0 7px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px;
-    }
-    .resume-p { margin: 0; font-size: 11.5px; line-height: 1.46; color: #334155; }
-    .resume-row { margin-bottom: 8px; }
-    .resume-row:last-child { margin-bottom: 0; }
-    .resume-row-head { display: flex; justify-content: space-between; gap: 14px; align-items: baseline; }
-    .resume-role { font-size: 11.8px; font-weight: 700; color: #111827; }
-    .resume-meta { font-size: 11px; color: #475569; text-align: right; }
-    .resume-list { margin: 4px 0 0 15px; padding: 0; font-size: 11.3px; line-height: 1.42; color: #334155; }
-    .resume-list li { margin-bottom: 2px; }
-    .resume-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .resume-tags { font-size: 11.3px; line-height: 1.5; color: #334155; }
 
-    @media (max-width: 1024px) {
-      .hero-grid, .featured-grid, .grid-3, .grid-2, .contact-grid { grid-template-columns: 1fr; }
-      .meta-row { grid-template-columns: repeat(2, 1fr); }
+    .pub-year {
+      font-weight: 800;
+      color: var(--soft);
+      white-space: nowrap;
+      font-size: 0.96rem;
     }
-    @media (max-width: 760px) {
-      .container { width: min(var(--max), calc(100% - 1rem)); }
-      .nav-links { display: none; }
-      .profile-top { grid-template-columns: 1fr; }
-      .headshot { width: 120px; height: 120px; }
-      .hero-main, .hero-side, .section-block { padding: 1.1rem; border-radius: 24px; }
-      .meta-row { grid-template-columns: 1fr; }
-      .hero-main h1 { max-width: none; }
+
+    .timeline-col {
+      display: grid;
+      gap: 14px;
+    }
+
+    .timeline-card {
+      padding: 22px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .meta {
+      color: var(--soft);
+      font-weight: 600;
+      font-size: 0.96rem;
+    }
+
+    .muted { color: var(--muted); }
+
+    .footer {
+      padding: 34px 0 48px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    /* hidden resume template for PDF */
+    #resumeTemplate {
+      width: 794px;
+      min-height: 1123px;
+      background: white;
+      color: #111827;
+      padding: 44px 46px;
+      font-family: Arial, sans-serif;
+      position: fixed;
+      left: -99999px;
+      top: 0;
+      z-index: -1;
+    }
+
+    #resumeTemplate h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: -0.03em;
+    }
+
+    #resumeTemplate .sub {
+      font-size: 13px;
+      color: #374151;
+      margin-bottom: 10px;
+    }
+
+    #resumeTemplate .line {
+      height: 1px;
+      background: #d1d5db;
+      margin: 14px 0 16px;
+    }
+
+    #resumeTemplate h2 {
+      margin: 14px 0 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #111827;
+    }
+
+    #resumeTemplate p,
+    #resumeTemplate li {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #111827;
+    }
+
+    #resumeTemplate ul {
+      margin: 0;
+      padding-left: 16px;
+    }
+
+    #resumeTemplate .entry {
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 1180px) {
+      .hero-grid,
+      .about-grid,
+      .featured-grid,
+      .edu-exp-grid,
+      .service-grid,
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-main,
+      .hero-side { min-height: auto; }
+    }
+
+    @media (max-width: 860px) {
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 18px 0;
+      }
+
+      .nav-links {
+        gap: 14px 18px;
+      }
+
+      .hero {
+        padding-top: 30px;
+      }
+
+      .hero-main {
+        padding: 24px;
+      }
+
+      .hero-side {
+        padding: 16px;
+      }
+
+      .profile-card {
+        grid-template-columns: 110px 1fr;
+        gap: 14px;
+        padding: 14px;
+      }
+
+      .profile-photo {
+        width: 110px;
+        height: 110px;
+        border-radius: 22px;
+      }
+
+      .hero-title {
+        font-size: clamp(3rem, 14vw, 4.6rem);
+      }
+
+      .hero-desc {
+        font-size: 1.06rem;
+      }
+
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pub-top {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .container,
+      .nav {
+        width: min(var(--max), calc(100% - 24px));
+      }
+
+      .brand {
+        font-size: 1.08rem;
+      }
+
+      .pill {
+        font-size: 0.86rem;
+      }
+
+      .hero-actions,
+      .link-row {
+        width: 100%;
+      }
+
+      .btn,
+      .mini-btn {
+        width: 100%;
+      }
+
+      .profile-name {
+        font-size: 1.4rem;
+      }
     }
   </style>
 </head>
 <body>
-  <nav class="nav">
-    <div class="container nav-inner">
-      <div class="brand-wrap">
+  <div class="nav-wrap">
+    <nav class="nav">
+      <a href="#top" class="brand">
         <span class="brand-dot"></span>
-        <div class="brand">SK RAKIB UL ISLAM RAHAT</div>
-      </div>
+        <span>SK RAKIB UL ISLAM RAHAT</span>
+      </a>
       <div class="nav-links">
         <a href="#about">About</a>
         <a href="#featured">Featured Work</a>
@@ -279,464 +711,689 @@
         <a href="#service">Service</a>
         <a href="#contact">Contact</a>
       </div>
-    </div>
-  </nav>
+    </nav>
+  </div>
 
-  <header class="hero">
-    <div class="container hero-grid">
-      <section class="hero-main glass">
-        <div class="kicker">Medical AI · Reliability · Calibration · Dataset Shift</div>
-        <h1>Building medical AI that survives contact with real-world data.</h1>
-        <p class="lead">
-          I work on medical imaging and clinical AI systems, with emphasis on shortcut learning, artifact-driven bias,
-          calibration under domain shift, multimodal modeling, interpretability, and external validation. My recent work
-          focuses on diabetic retinopathy screening and reliability failures that appear when models leave benchmark settings.
-        </p>
-        <div class="hero-badges">
-          <span class="pill">Medical Imaging</span>
-          <span class="pill">Deep Learning</span>
-          <span class="pill">Computer Vision</span>
-          <span class="pill">Multimodal Learning</span>
-          <span class="pill">Explainable AI</span>
-          <span class="pill">Clinical AI Reliability</span>
-        </div>
-        <div class="hero-actions">
-          <button class="btn primary" id="downloadResumeBtn">Download 1-Page Resume PDF</button>
-          <a class="btn" href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank" rel="noopener">Google Scholar</a>
-          <a class="btn" href="https://orcid.org/0009-0005-0744-8398" target="_blank" rel="noopener">ORCID</a>
-          <a class="btn ghost" href="mailto:skrakibulislamrahat@gmail.com">skrakibulislamrahat@gmail.com</a>
-        </div>
-        <div class="meta-row">
-          <div class="metric"><div class="value">49</div><div class="label">Google Scholar citations</div></div>
-          <div class="metric"><div class="value">5</div><div class="label">h-index</div></div>
-          <div class="metric"><div class="value">3</div><div class="label">Verified peer reviews</div></div>
-          <div class="metric"><div class="value">12+</div><div class="label">Publications and manuscripts</div></div>
-        </div>
-      </section>
-
-      <aside class="hero-side glass">
-        <div class="profile-top">
-          <img src="assets/headshot.png" alt="Headshot of SK Rakib Ul Islam Rahat" class="headshot" />
+  <main id="top" class="container">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-main">
           <div>
-            <div class="name">SK Rakib Ul Islam Rahat</div>
-            <div class="sub">Medical AI Researcher · International American University · Los Angeles, USA</div>
-          </div>
-        </div>
-        <div class="mini-grid">
-          <div class="mini-card">
-            <strong>Research direction</strong>
-            <span>Medical AI reliability, fundus imaging, calibration, shortcut learning, domain shift, multimodal diagnostic systems, and healthcare-facing model evaluation.</span>
-          </div>
-          <div class="mini-card">
-            <strong>Academic background</strong>
-            <span>MBA in Management Information Systems, MSc in Global Business and Administration, and B.Tech in Computer Science and Engineering.</span>
-          </div>
-          <div class="mini-card">
-            <strong>Primary research anchor</strong>
-            <span>Diabetic retinopathy screening, artifact-driven failure analysis, and clinically meaningful robustness evaluation.</span>
-          </div>
-          <div class="mini-card">
-            <strong>Links</strong>
-            <span><a href="https://skrakibulislamrahat.github.io/" target="_blank">Personal site</a> · <a href="https://orcid.org/0009-0005-0744-8398" target="_blank">ORCID</a></span>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </header>
+            <div class="pill">Medical AI · Reliability · Calibration · Dataset Shift</div>
+            <h1 class="hero-title">Building medical AI that survives contact with real-world data.</h1>
+            <p class="hero-desc">
+              I work on medical imaging and clinical AI systems, with emphasis on shortcut learning,
+              artifact-driven bias, calibration under domain shift, multimodal diagnostic systems,
+              and deployment-facing model evaluation.
+            </p>
 
-  <main class="container">
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank" rel="noopener noreferrer">Google Scholar</a>
+              <button class="btn btn-secondary" onclick="downloadResume()">Download 1-Page Resume PDF</button>
+              <a class="btn btn-ghost" href="mailto:skrakibulislamrahat@gmail.com">Email</a>
+            </div>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat">
+              <strong>49</strong>
+              <span>Citations</span>
+            </div>
+            <div class="stat">
+              <strong>5</strong>
+              <span>h-index</span>
+            </div>
+            <div class="stat">
+              <strong>3</strong>
+              <span>Verified peer reviews</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-side">
+          <div class="profile-card">
+            <img class="profile-photo" src="assets/headshot.png" alt="SK Rakib Ul Islam Rahat headshot" />
+            <div>
+              <h2 class="profile-name">SK Rakib Ul Islam Rahat</h2>
+              <p class="profile-meta">
+                Medical AI Researcher · International American University · Los Angeles, USA
+              </p>
+            </div>
+          </div>
+
+          <div class="mini-card">
+            <h3>Research direction</h3>
+            <p>
+              Medical AI reliability, fundus imaging, calibration, shortcut learning, domain shift,
+              multimodal diagnostic systems, and healthcare-facing model evaluation.
+            </p>
+          </div>
+
+          <div class="mini-card">
+            <h3>Selected strengths</h3>
+            <ul class="list">
+              <li>Medical imaging and clinical AI evaluation</li>
+              <li>External validation and reliability under shift</li>
+              <li>Grad-CAM, SHAP, calibration, and auditing workflows</li>
+              <li>Published journal and IEEE conference record</li>
+            </ul>
+          </div>
+
+          <div class="mini-card">
+            <h3>Quick links</h3>
+            <div class="link-row">
+              <a class="mini-btn" href="https://skrakibulislamrahat.github.io/" target="_blank" rel="noopener noreferrer">Website</a>
+              <a class="mini-btn" href="https://orcid.org/0009-0005-0744-8398" target="_blank" rel="noopener noreferrer">ORCID</a>
+              <a class="mini-btn" href="mailto:skrakibulislamrahat@gmail.com">Email</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="about" class="section">
-      <div class="section-block glass">
-        <div class="section-head">
-          <div>
-            <div class="section-chip">Positioning</div>
-            <h2>About</h2>
-          </div>
-          <p>I do not frame medical AI as a leaderboard problem. I treat it as a reliability problem.</p>
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">About</div>
+          <h2 class="section-title">Research profile</h2>
+          <p class="section-subtitle">
+            My work focuses on the gap between benchmark performance and real-world reliability in medical AI.
+            I study how models fail, what they latch onto, and how to make diagnostic systems more trustworthy
+            under changing acquisition conditions and clinical deployment constraints.
+          </p>
         </div>
-        <div class="grid-2">
-          <div class="card">
-            <div class="eyebrow pub">What I work on</div>
-            <h3>Reliability before hype</h3>
-            <p>
-              My work centers on the gap between benchmark performance and dependable clinical use. That includes model miscalibration,
-              shortcut learning from non-clinical artifacts, weak external generalization, and the need for evaluation protocols that reflect deployment conditions.
-            </p>
-          </div>
-          <div class="card">
-            <div class="eyebrow pub">Current emphasis</div>
-            <h3>Fundus imaging and diabetic retinopathy</h3>
-            <p>
-              Recent projects focus on diabetic retinopathy screening, retinal image artifacts, transfer of post-hoc calibration under dataset shift,
-              and multimodal systems that combine images with structured clinical information.
-            </p>
-          </div>
+      </div>
+
+      <div class="about-grid">
+        <div class="section-panel">
+          <h3>What I work on</h3>
+          <p>
+            I investigate artifact-driven shortcut learning, fundus image bias, calibration under domain shift,
+            multimodal retinal AI, and evaluation strategies that reflect actual clinical use rather than inflated
+            in-dataset performance. The goal is not just better scores, but models that remain interpretable,
+            reliable, and defensible when conditions change.
+          </p>
         </div>
-        <div class="resume-note">
-          The resume PDF is generated directly from this page. The download button compresses the most important content into a one-page academic resume,
-          rather than pointing to a separate static file.
+
+        <div class="section-panel">
+          <h3>Core areas</h3>
+          <ul class="list">
+            <li>Medical image analysis and fundus imaging</li>
+            <li>Probabilistic calibration and reliability</li>
+            <li>Shortcut learning and dataset artifact auditing</li>
+            <li>External validation and cross-dataset evaluation</li>
+            <li>Explainable AI with Grad-CAM and SHAP</li>
+            <li>Multimodal learning with clinical metadata</li>
+          </ul>
         </div>
       </div>
     </section>
 
     <section id="featured" class="section">
-      <div class="section-block glass">
-        <div class="section-head">
-          <div>
-            <div class="section-chip">Selected work</div>
-            <h2>Featured research</h2>
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Featured Work</div>
+          <h2 class="section-title">Anchor projects and manuscripts</h2>
+          <p class="section-subtitle">
+            These best represent my current research direction: reliability, artifact auditing, calibration,
+            and clinically grounded diabetic retinopathy modeling.
+          </p>
+        </div>
+      </div>
+
+      <div class="featured-grid">
+        <article class="feature-card">
+          <div class="chip-row">
+            <span class="chip chip-review">Under Review</span>
+            <span class="chip">CMPB</span>
           </div>
-          <p>Three projects that best represent my current research identity.</p>
-        </div>
-        <div class="featured-grid">
-          <article class="card">
-            <div class="eyebrow review">Under Review</div>
-            <h3>Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models</h3>
-            <p>Evaluation study on how fundus classifiers learn borders, padding, and acquisition-linked visual regularities instead of disease-relevant features.</p>
-          </article>
-          <article class="card">
-            <div class="eyebrow review">Under Review</div>
-            <h3>Calibration Under Domain Shift in Diabetic Retinopathy Screening</h3>
-            <p>Study of why source-fitted temperature scaling fails after APTOS→Messidor-2 shift and how small target calibration subsets restore reliability.</p>
-          </article>
-          <article class="card">
-            <div class="eyebrow journal">Published</div>
-            <h3>Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity</h3>
-            <p>Published multimodal DR study integrating fundus images and structured clinical variables, with external validation and interpretability analysis.</p>
-          </article>
-        </div>
+          <h3>Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models</h3>
+          <p>
+            Evaluation study showing how fundus models exploit non-pathological borders, padding, and overlays,
+            with external validation on Messidor-2 and attribution-based auditing.
+          </p>
+        </article>
+
+        <article class="feature-card">
+          <div class="chip-row">
+            <span class="chip chip-review">Under Review</span>
+            <span class="chip">CMIG</span>
+          </div>
+          <h3>Calibration Under Domain Shift in Diabetic Retinopathy Screening</h3>
+          <p>
+            Controlled study of temperature scaling transfer from APTOS to Messidor-2, showing that source-fitted
+            calibration does not reliably survive dataset shift, while small target calibration subsets can restore
+            reliability.
+          </p>
+        </article>
+
+        <article class="feature-card">
+          <div class="chip-row">
+            <span class="chip chip-journal">Published</span>
+            <span class="chip">KMMS</span>
+          </div>
+          <h3>Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity</h3>
+          <p>
+            Explainable multimodal framework combining fundus images and structured clinical variables for diabetic
+            retinopathy severity classification, with external validation and interpretability analysis.
+          </p>
+        </article>
       </div>
     </section>
 
     <section id="publications" class="section">
-      <div class="section-block glass">
-        <div class="section-head">
-          <div>
-            <div class="section-chip">Output</div>
-            <h2>Publications</h2>
-          </div>
-          <p>Published articles, conference papers, and manuscripts under review are separated intentionally. Under review is not presented as published work.</p>
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Publications</div>
+          <h2 class="section-title">Published work, conference papers, and current manuscripts</h2>
+          <p class="section-subtitle">
+            Published and under-review work are separated deliberately. Under-review manuscripts are not presented
+            as published papers.
+          </p>
         </div>
-        <div class="pub-shell">
-          <div class="pub-group">
-            <div class="pub-group-title">Journal publications</div>
-            <div class="pub-list">
-              <div class="pub-item">
-                <div class="pub-title">TriGWONet a lightweight multibranch convolutional neural network using gray wolf optimization for accurate oral cancer image classification</div>
-                <div class="pub-meta">Discover Artificial Intelligence, 2026</div>
-                <div class="pub-links"><a class="pub-link" href="https://doi.org/10.1007/s44163-025-00776-x" target="_blank">DOI</a></div>
-              </div>
-              <div class="pub-item">
-                <div class="pub-title">Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity</div>
-                <div class="pub-meta">Journal of Korea Multimedia Society, 2026</div>
-                <div class="pub-links"><a class="pub-link" href="https://doi.org/10.9717/kmms.2026.29.3.524" target="_blank">DOI</a></div>
-              </div>
-              <div class="pub-item">
-                <div class="pub-title">Machine Learning-Based Hospital Readmission Prediction and Risk Analysis in the United States Healthcare System</div>
-                <div class="pub-meta">Journal of Computer Science and Technology Studies, 2024</div>
-                <div class="pub-links"><a class="pub-link" href="https://doi.org/10.32996/jcsts.2024.6.5.32" target="_blank">DOI</a></div>
-              </div>
-              <div class="pub-item">
-                <div class="pub-title">Artificial intelligence for chronic kidney disease risk stratification in the USA: Ensemble vs. deep learning methods</div>
-                <div class="pub-meta">British Journal of Nursing Studies, 2025</div>
-              </div>
-              <div class="pub-item">
-                <div class="pub-title">Advancing diabetic retinopathy detection with AI and deep learning: Opportunities, limitations, and clinical barriers</div>
-                <div class="pub-meta">British Journal of Nursing Studies, 2025</div>
-              </div>
-              <div class="pub-item">
-                <div class="pub-title">A Deep Learning Framework for Early Breast Cancer Detection Among US Women: Integrating Mammography and Clinical EHR Data</div>
-                <div class="pub-meta">British Journal of Nursing Studies, 2025</div>
-              </div>
-              <div class="pub-item">
-                <div class="pub-title">Deep Learning–Based Skin Cancer Diagnosis in the United States: Advances, Challenges, and Clinical Translation</div>
-                <div class="pub-meta">Journal of Medical and Health Studies, 2023</div>
-              </div>
-              <div class="pub-item">
-                <div class="pub-title">A Transfer Learning–Based Deep Convolutional Neural Network Framework for Automated Multi-Class Eye Disease Classification in the USA Using Retinal Fundus Image</div>
-                <div class="pub-meta">Journal of Medical and Health Studies, 2023</div>
-              </div>
-            </div>
-          </div>
+      </div>
 
-          <div class="pub-group">
-            <div class="pub-group-title">Conference publications</div>
-            <div class="pub-list">
-              <div class="pub-item">
-                <div class="pub-title">An ANN Network-Based Approach for Early Detection of Parkinson’s Disease Through Image Processing</div>
-                <div class="pub-meta">2025 International Conference on Converging Technology in Electrical and Information Engineering</div>
-                <div class="pub-links"><a class="pub-link" href="https://doi.org/10.1109/ICCTEIE66144.2025.11341843" target="_blank">DOI</a></div>
-              </div>
-              <div class="pub-item">
-                <div class="pub-title">PneuNet: A Multi-Scale Attention-Enhanced CNN for Pediatric Pneumonia Detection from Chest X-rays</div>
-                <div class="pub-meta">2025 IEEE DELCON</div>
-                <div class="pub-links"><a class="pub-link" href="https://doi.org/10.1109/DELCON68055.2025.11400229" target="_blank">DOI</a></div>
-              </div>
-              <div class="pub-item">
-                <div class="pub-title">Deep Learning-Based Multi-Class Brain Tumor Classification from MRI Using a Novel MS-DSCCNet Architecture</div>
-                <div class="pub-meta">2025 IEEE DELCON</div>
-              </div>
-              <div class="pub-item">
-                <div class="pub-title">Performance Evaluation of Hybrid Machine Learning Models for Heart Disease Prediction in U.S. Clinical Decision Support Systems</div>
-                <div class="pub-meta">2026 5th International Conference on Sentiment Analysis and Deep Learning</div>
-                <div class="pub-links"><a class="pub-link" href="https://doi.org/10.1109/ICSADL67539.2026.11452047" target="_blank">DOI</a></div>
-              </div>
-            </div>
-          </div>
+      <div class="pub-group">
+        <div class="group-label">Journal Articles</div>
 
-          <div class="pub-group">
-            <div class="pub-group-title">Manuscripts under review</div>
-            <div class="pub-list">
-              <div class="pub-item">
-                <div class="pub-title">Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models</div>
-                <div class="pub-meta">Under review — Computer Methods and Programs in Biomedicine</div>
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-journal">Journal</span>
+                <span class="chip">2026</span>
               </div>
-              <div class="pub-item">
-                <div class="pub-title">Calibration Under Domain Shift in Diabetic Retinopathy Screening: Temperature Scaling Transfer and Target-Side Calibration with Limited Labels</div>
-                <div class="pub-meta">Under review — Computerized Medical Imaging and Graphics</div>
-              </div>
-              <div class="pub-item">
-                <div class="pub-title">Evaluation of lightweight AI models for early diabetic retinopathy detection in resource-constrained screening settings</div>
-                <div class="pub-meta">In review, submitted April 2026</div>
-              </div>
+              <h3>TriGWONet: A lightweight multibranch convolutional neural network using gray wolf optimization for accurate oral cancer image classification</h3>
+              <p>Discover Artificial Intelligence (Springer Nature)</p>
             </div>
+            <div class="pub-year">2026</div>
           </div>
-        </div>
+          <div class="link-row">
+            <a class="mini-btn" href="https://doi.org/10.1007/s44163-025-00776-x" target="_blank" rel="noopener noreferrer">DOI</a>
+            <a class="mini-btn" href="https://link.springer.com/article/10.1007/s44163-025-00776-x" target="_blank" rel="noopener noreferrer">View</a>
+          </div>
+        </article>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-journal">Journal</span>
+                <span class="chip">2026</span>
+              </div>
+              <h3>Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity</h3>
+              <p>Journal of Korea Multimedia Society</p>
+            </div>
+            <div class="pub-year">2026</div>
+          </div>
+        </article>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-journal">Journal</span>
+                <span class="chip">2025</span>
+              </div>
+              <h3>Advancing diabetic retinopathy detection with AI and deep learning: Opportunities, limitations, and clinical barriers</h3>
+              <p>British Journal of Nursing Studies</p>
+            </div>
+            <div class="pub-year">2025</div>
+          </div>
+          <div class="link-row">
+            <a class="mini-btn" href="https://doi.org/10.32996/bjns.2025.5.2.1" target="_blank" rel="noopener noreferrer">DOI</a>
+            <a class="mini-btn" href="https://al-kindipublishers.org/index.php/bjns/article/view/10314" target="_blank" rel="noopener noreferrer">View</a>
+          </div>
+        </article>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-journal">Journal</span>
+                <span class="chip">2025</span>
+              </div>
+              <h3>Artificial intelligence for chronic kidney disease risk stratification in the USA: Ensemble vs. deep learning methods</h3>
+              <p>British Journal of Nursing Studies</p>
+            </div>
+            <div class="pub-year">2025</div>
+          </div>
+          <div class="link-row">
+            <a class="mini-btn" href="https://doi.org/10.32996/bjns.2025.5.2.3" target="_blank" rel="noopener noreferrer">DOI</a>
+            <a class="mini-btn" href="https://al-kindipublishers.org/index.php/bjns/article/view/10498" target="_blank" rel="noopener noreferrer">View</a>
+          </div>
+        </article>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-journal">Journal</span>
+                <span class="chip">2025</span>
+              </div>
+              <h3>A Deep Learning Framework for Early Breast Cancer Detection Among US Women: Integrating Mammography and Clinical EHR Data</h3>
+              <p>British Journal of Nursing Studies</p>
+            </div>
+            <div class="pub-year">2025</div>
+          </div>
+          <div class="link-row">
+            <a class="mini-btn" href="https://doi.org/10.32996/bjns.2025.5.2.6" target="_blank" rel="noopener noreferrer">DOI</a>
+            <a class="mini-btn" href="https://al-kindipublishers.org/index.php/bjns/article/view/11667" target="_blank" rel="noopener noreferrer">View</a>
+          </div>
+        </article>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-journal">Journal</span>
+                <span class="chip">2024</span>
+              </div>
+              <h3>Machine Learning-Based Hospital Readmission Prediction and Risk Analysis in the United States Healthcare System</h3>
+              <p>Journal of Computer Science and Technology Studies (JCSTS)</p>
+            </div>
+            <div class="pub-year">2024</div>
+          </div>
+          <div class="link-row">
+            <a class="mini-btn" href="https://doi.org/10.32996/jcsts.2024.6.5.32" target="_blank" rel="noopener noreferrer">DOI</a>
+            <a class="mini-btn" href="https://doi.org/10.32996/jcsts.2024.6.5.32" target="_blank" rel="noopener noreferrer">View</a>
+          </div>
+        </article>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-journal">Journal</span>
+                <span class="chip">2023</span>
+              </div>
+              <h3>Deep Learning-Based Skin Cancer Diagnosis in the United States: Advances, Challenges, and Clinical Translation</h3>
+              <p>Journal of Medical and Health Studies</p>
+            </div>
+            <div class="pub-year">2023</div>
+          </div>
+          <div class="link-row">
+            <a class="mini-btn" href="https://doi.org/10.32996/jmhs.2023.4.6.18" target="_blank" rel="noopener noreferrer">DOI</a>
+            <a class="mini-btn" href="https://al-kindipublishers.org/index.php/jmhs/article/view/11890" target="_blank" rel="noopener noreferrer">View</a>
+          </div>
+        </article>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-journal">Journal</span>
+                <span class="chip">2023</span>
+              </div>
+              <h3>A Transfer Learning-Based Deep Convolutional Neural Network Framework for Automated Multi-Class Eye Disease Classification in the USA Using Retinal Fundus Image</h3>
+              <p>Journal of Medical and Health Studies</p>
+            </div>
+            <div class="pub-year">2023</div>
+          </div>
+          <div class="link-row">
+            <a class="mini-btn" href="https://doi.org/10.32996/jmhs.2023.4.4.24" target="_blank" rel="noopener noreferrer">DOI</a>
+            <a class="mini-btn" href="https://al-kindipublishers.org/index.php/jmhs/article/view/11950" target="_blank" rel="noopener noreferrer">View</a>
+          </div>
+        </article>
+
+        <div class="group-label">Conference Papers</div>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-conf">Conference</span>
+                <span class="chip">2026</span>
+              </div>
+              <h3>Performance Evaluation of Hybrid Machine Learning Models for Heart Disease Prediction in U.S. Clinical Decision Support Systems</h3>
+              <p>IEEE International Conference on Sentiment Analysis and Deep Learning (ICSADL)</p>
+            </div>
+            <div class="pub-year">2026</div>
+          </div>
+          <div class="link-row">
+            <a class="mini-btn" href="https://doi.org/10.1109/ICSADL67539.2026.11452047" target="_blank" rel="noopener noreferrer">DOI</a>
+            <a class="mini-btn" href="https://ieeexplore.ieee.org/document/11452047" target="_blank" rel="noopener noreferrer">IEEE</a>
+          </div>
+        </article>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-conf">Conference</span>
+                <span class="chip">2025</span>
+              </div>
+              <h3>An ANN Network-Based Approach for Early Detection of Parkinson's Disease Through Image Processing</h3>
+              <p>IEEE Conference on Converging Technology</p>
+            </div>
+            <div class="pub-year">2025</div>
+          </div>
+          <div class="link-row">
+            <a class="mini-btn" href="https://doi.org/10.1109/ICCTEIE66144.2025.11341843" target="_blank" rel="noopener noreferrer">DOI</a>
+            <a class="mini-btn" href="https://ieeexplore.ieee.org/abstract/document/11341843" target="_blank" rel="noopener noreferrer">IEEE</a>
+          </div>
+        </article>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-conf">Conference</span>
+                <span class="chip">2025</span>
+              </div>
+              <h3>PneuNet: A Multi-Scale Attention-Enhanced CNN for Pediatric Pneumonia Detection from Chest X-rays</h3>
+              <p>IEEE DELCON</p>
+            </div>
+            <div class="pub-year">2025</div>
+          </div>
+          <div class="link-row">
+            <a class="mini-btn" href="https://doi.org/10.1109/DELCON68055.2025.11400229" target="_blank" rel="noopener noreferrer">DOI</a>
+            <a class="mini-btn" href="https://ieeexplore.ieee.org/abstract/document/11400229" target="_blank" rel="noopener noreferrer">IEEE</a>
+          </div>
+        </article>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-conf">Conference</span>
+                <span class="chip">2025</span>
+              </div>
+              <h3>Deep Learning-Based Multi-Class Brain Tumor Classification from MRI using a Novel MS-DSCCNet Architecture</h3>
+              <p>IEEE DELCON</p>
+            </div>
+            <div class="pub-year">2025</div>
+          </div>
+          <div class="link-row">
+            <a class="mini-btn" href="https://doi.org/10.1109/DELCON68055.2025.11400450" target="_blank" rel="noopener noreferrer">DOI</a>
+            <a class="mini-btn" href="https://ieeexplore.ieee.org/abstract/document/11400450" target="_blank" rel="noopener noreferrer">IEEE</a>
+          </div>
+        </article>
+
+        <div class="group-label">Manuscripts Under Review</div>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-review">Under Review</span>
+                <span class="chip">2026</span>
+              </div>
+              <h3>Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models</h3>
+              <p>Computer Methods and Programs in Biomedicine</p>
+            </div>
+            <div class="pub-year">2026</div>
+          </div>
+          <p>Manuscript under review.</p>
+        </article>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-review">Under Review</span>
+                <span class="chip">2026</span>
+              </div>
+              <h3>Calibration Under Domain Shift in Diabetic Retinopathy Screening: Temperature Scaling Transfer and Target-Side Calibration with Limited Labels</h3>
+              <p>Computerized Medical Imaging and Graphics</p>
+            </div>
+            <div class="pub-year">2026</div>
+          </div>
+          <p>Manuscript under review.</p>
+        </article>
+
+        <article class="pub-card">
+          <div class="pub-top">
+            <div>
+              <div class="chip-row">
+                <span class="chip chip-review">Under Review</span>
+                <span class="chip">2026</span>
+              </div>
+              <h3>Evaluation of lightweight AI models for early diabetic retinopathy detection in resource-constrained screening settings</h3>
+              <p>In review</p>
+            </div>
+            <div class="pub-year">2026</div>
+          </div>
+          <p>Manuscript under review.</p>
+        </article>
       </div>
     </section>
 
-    <section id="education" class="section">
-      <div class="section-block glass">
-        <div class="section-head">
-          <div>
-            <div class="section-chip">Background</div>
-            <h2>Education</h2>
+    <section class="section">
+      <div class="edu-exp-grid">
+        <div id="education">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Education</div>
+              <h2 class="section-title">Academic background</h2>
+            </div>
           </div>
-          <p>Formal training across management information systems, global business administration, and computer science.</p>
-        </div>
-        <div class="timeline">
-          <div class="entry">
-            <div class="entry-top"><div class="entry-title">MBA, Management Information Systems</div><div class="entry-meta">International American University · 2024–2026</div></div>
-            <p>Focus: database systems, business analytics, and data-driven decision-making.</p>
-          </div>
-          <div class="entry">
-            <div class="entry-top"><div class="entry-title">MSc, Global Business and Administration</div><div class="entry-meta">Kyungsung University · 2022–2023</div></div>
-            <p>Thesis: integrating artificial intelligence in business and healthcare decision systems.</p>
-          </div>
-          <div class="entry">
-            <div class="entry-top"><div class="entry-title">B.Tech, Computer Science and Engineering</div><div class="entry-meta">Lovely Professional University · 2017–2021</div></div>
-            <p>Projects included Android optimization and mobile application development.</p>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <section id="experience" class="section">
-      <div class="section-block glass">
-        <div class="section-head">
-          <div>
-            <div class="section-chip">Work</div>
-            <h2>Experience</h2>
+          <div class="timeline-col">
+            <article class="timeline-card">
+              <h3>MBA, Management Information Systems</h3>
+              <div class="meta">International American University · 2024–2026</div>
+              <p>Focus: Database systems, business analytics, and data-driven decision-making.</p>
+            </article>
+
+            <article class="timeline-card">
+              <h3>MSc, Global Business and Administration</h3>
+              <div class="meta">Kyungsung University · 2022–2023</div>
+              <p>Thesis: Integrating Artificial Intelligence in Business and Healthcare Decision Systems.</p>
+            </article>
+
+            <article class="timeline-card">
+              <h3>B.Tech, Computer Science and Engineering</h3>
+              <div class="meta">Lovely Professional University · 2017–2021</div>
+              <p>Background in software engineering, computing systems, and applied technical development.</p>
+            </article>
           </div>
-          <p>Research, applied analytics, teaching support, and early software engineering work.</p>
         </div>
-        <div class="grid-2">
-          <div class="timeline">
-            <div class="entry">
-              <div class="entry-top"><div class="entry-title">Independent Medical AI Researcher</div><div class="entry-meta">2023–Present · Los Angeles</div></div>
-              <p>Designed and evaluated medical imaging models, studied reliability failures, and authored peer-reviewed journal and conference publications.</p>
-            </div>
-            <div class="entry">
-              <div class="entry-top"><div class="entry-title">AI & Data Intern, Taskimpetus</div><div class="entry-meta">2024 · New Orleans</div></div>
-              <p>Supported AI-powered dashboards, exploratory data analysis, reproducible data pipelines, and internal analytics workflows using Python and SQL.</p>
+
+        <div id="experience">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Experience</div>
+              <h2 class="section-title">Research and applied work</h2>
             </div>
           </div>
-          <div class="timeline">
-            <div class="entry">
-              <div class="entry-top"><div class="entry-title">Teaching Assistant, Kyungsung University</div><div class="entry-meta">2022–2023 · Busan</div></div>
-              <p>Co-authored research, mentored students on preprocessing, model evaluation, and reproducible machine learning workflows.</p>
-            </div>
-            <div class="entry">
-              <div class="entry-top"><div class="entry-title">Jr. Software Engineer, KCIT</div><div class="entry-meta">2020–2021 · Dhaka</div></div>
-              <p>Collaborated on smart system integration and IoT-based automation projects.</p>
-            </div>
+
+          <div class="timeline-col">
+            <article class="timeline-card">
+              <h3>Independent Medical AI Researcher</h3>
+              <div class="meta">2023–Present · Los Angeles, USA</div>
+              <p>Designed and evaluated deep learning models for retinal, dermatological, radiological, and healthcare prediction tasks, with increasing focus on reliability, generalization, and deployment-facing evaluation.</p>
+            </article>
+
+            <article class="timeline-card">
+              <h3>AI & Data Intern</h3>
+              <div class="meta">Taskimpetus · 2024</div>
+              <p>Supported AI-driven analytics and automation work using Python and SQL, including exploratory analysis, reproducible data workflows, and internal dashboard-oriented tasks.</p>
+            </article>
+
+            <article class="timeline-card">
+              <h3>Teaching Assistant</h3>
+              <div class="meta">Kyungsung University · 2022–2023</div>
+              <p>Mentored students on preprocessing, evaluation, and reproducible ML workflows while contributing to co-authored research outputs.</p>
+            </article>
+
+            <article class="timeline-card">
+              <h3>Junior Software Engineer</h3>
+              <div class="meta">KCIT · 2020–2021</div>
+              <p>Worked on smart systems integration and software-oriented engineering tasks, forming the technical base for later AI and analytics research.</p>
+            </article>
           </div>
         </div>
       </div>
     </section>
 
     <section id="service" class="section">
-      <div class="section-block glass">
-        <div class="section-head">
-          <div>
-            <div class="section-chip">Recognition</div>
-            <h2>Peer review and certifications</h2>
-          </div>
-          <p>Editorial service and technical training relevant to medical AI and research evaluation.</p>
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Service</div>
+          <h2 class="section-title">Peer review and certifications</h2>
+          <p class="section-subtitle">
+            Reviewer activity and formal certification support the scholarly service side of my profile.
+          </p>
         </div>
-        <div class="grid-2">
-          <div class="card">
-            <div class="eyebrow pub">Peer review</div>
-            <h3>Verified peer reviews</h3>
-            <p>IAES International Journal of Robotics and Automation (IJRA), International Journal of Electrical and Computer Engineering (IJECE), and International Journal of Power Electronics and Drive Systems (IJPEDS).</p>
+      </div>
+
+      <div class="service-grid">
+        <article class="service-card" style="padding: 24px;">
+          <h3>Verified peer reviews</h3>
+          <div class="chip-row" style="margin: 12px 0 14px;">
+            <span class="chip">3 verified</span>
           </div>
-          <div class="card">
-            <div class="eyebrow pub">Certifications</div>
-            <h3>Selected certifications</h3>
-            <p>IBM Data Science Professional Certificate, Elsevier Certified Peer Reviewer Course, Google Cloud Generative AI for Healthcare, and Illinois Tech AI Integration in Healthcare Patient Data.</p>
-          </div>
-        </div>
+          <p>IAES International Journal of Robotics and Automation (IJRA)</p>
+          <p>International Journal of Electrical and Computer Engineering (IJECE)</p>
+          <p>International Journal of Power Electronics and Drive Systems (IJPEDS)</p>
+        </article>
+
+        <article class="service-card" style="padding: 24px;">
+          <h3>Certifications</h3>
+          <p>IBM Data Science Professional Certificate</p>
+          <p>Generative AI for Healthcare — Google Cloud</p>
+          <p>AI Integration in Healthcare Patient Data — Illinois Tech</p>
+          <p>Elsevier Researcher Academy — Certified Peer Reviewer Course</p>
+        </article>
       </div>
     </section>
 
     <section id="contact" class="section">
-      <div class="section-block glass">
-        <div class="section-head">
-          <div>
-            <div class="section-chip">Reach out</div>
-            <h2>Contact</h2>
-          </div>
-          <p>For academic collaboration, research discussion, or reviewer verification.</p>
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Contact</div>
+          <h2 class="section-title">Professional links</h2>
         </div>
-        <div class="contact-grid">
-          <div class="contact-box"><strong>Email</strong><a href="mailto:skrakibulislamrahat@gmail.com">skrakibulislamrahat@gmail.com</a></div>
-          <div class="contact-box"><strong>Phone</strong><span>+1 (323) 471-5980</span></div>
-          <div class="contact-box"><strong>ORCID</strong><a href="https://orcid.org/0009-0005-0744-8398" target="_blank">0009-0005-0744-8398</a></div>
-          <div class="contact-box"><strong>Location</strong><span>Los Angeles, California, USA</span></div>
-        </div>
+      </div>
+
+      <div class="contact-grid">
+        <article class="contact-card" style="padding: 24px;">
+          <h3>Email</h3>
+          <p><a href="mailto:skrakibulislamrahat@gmail.com">skrakibulislamrahat@gmail.com</a></p>
+        </article>
+
+        <article class="contact-card" style="padding: 24px;">
+          <h3>Google Scholar</h3>
+          <p><a href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank" rel="noopener noreferrer">View citation profile</a></p>
+        </article>
+
+        <article class="contact-card" style="padding: 24px;">
+          <h3>ORCID</h3>
+          <p><a href="https://orcid.org/0009-0005-0744-8398" target="_blank" rel="noopener noreferrer">0009-0005-0744-8398</a></p>
+        </article>
       </div>
     </section>
+
+    <div class="footer">
+      © 2026 SK Rakib Ul Islam Rahat
+    </div>
   </main>
 
-  <footer class="footer">
-    <div class="container footer-box">
-      <div>© 2026 SK Rakib Ul Islam Rahat</div>
-      <div>Medical AI Researcher · Reliability, Calibration, Dataset Shift</div>
+  <!-- hidden one-page resume for PDF export -->
+  <section id="resumeTemplate" aria-hidden="true">
+    <h1>SK Rakib Ul Islam Rahat</h1>
+    <div class="sub">
+      Medical AI Researcher · skrakibulislamrahat@gmail.com · ORCID: 0009-0005-0744-8398
     </div>
-  </footer>
-
-  <div class="hidden-resume" aria-hidden="true">
-    <div id="resumeTemplate" class="resume-page">
-      <div class="resume-header">
-        <div>
-          <h1>SK RAKIB UL ISLAM RAHAT</h1>
-          <div class="resume-sub">Medical AI Researcher · Medical Imaging · Reliability · Calibration · Dataset Shift</div>
-        </div>
-        <div class="resume-contact">
-          Los Angeles, California, USA<br>
-          skrakibulislamrahat@gmail.com<br>
-          +1 (323) 471-5980<br>
-          ORCID: 0009-0005-0744-8398
-        </div>
-      </div>
-
-      <div class="resume-section">
-        <h2>Profile</h2>
-        <p class="resume-p">Artificial intelligence researcher focused on medical imaging and clinical AI systems, with particular emphasis on model reliability, shortcut learning, calibration under domain shift, and generalization in healthcare datasets. Current work concentrates on diabetic retinopathy screening, artifact-driven bias, multimodal modeling, and deployment-relevant evaluation.</p>
-      </div>
-
-      <div class="resume-section">
-        <h2>Education</h2>
-        <div class="resume-row">
-          <div class="resume-row-head"><div class="resume-role">MBA, Management Information Systems — International American University</div><div class="resume-meta">2024–2026</div></div>
-        </div>
-        <div class="resume-row">
-          <div class="resume-row-head"><div class="resume-role">MSc, Global Business and Administration — Kyungsung University</div><div class="resume-meta">2022–2023</div></div>
-        </div>
-        <div class="resume-row">
-          <div class="resume-row-head"><div class="resume-role">B.Tech, Computer Science and Engineering — Lovely Professional University</div><div class="resume-meta">2017–2021</div></div>
-        </div>
-      </div>
-
-      <div class="resume-section">
-        <h2>Selected Publications</h2>
-        <div class="resume-row">
-          <div class="resume-role">Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity</div>
-          <div class="resume-p">Journal of Korea Multimedia Society, 2026. DOI: 10.9717/kmms.2026.29.3.524</div>
-        </div>
-        <div class="resume-row">
-          <div class="resume-role">TriGWONet a lightweight multibranch convolutional neural network using gray wolf optimization for accurate oral cancer image classification</div>
-          <div class="resume-p">Discover Artificial Intelligence, 2026. DOI: 10.1007/s44163-025-00776-x</div>
-        </div>
-        <div class="resume-row">
-          <div class="resume-role">Machine Learning-Based Hospital Readmission Prediction and Risk Analysis in the United States Healthcare System</div>
-          <div class="resume-p">Journal of Computer Science and Technology Studies, 2024. DOI: 10.32996/jcsts.2024.6.5.32</div>
-        </div>
-        <div class="resume-row">
-          <div class="resume-role">An ANN Network-Based Approach for Early Detection of Parkinson’s Disease Through Image Processing</div>
-          <div class="resume-p">IEEE ICCTEIE, 2025. DOI: 10.1109/ICCTEIE66144.2025.11341843</div>
-        </div>
-      </div>
-
-      <div class="resume-section">
-        <h2>Manuscripts Under Review</h2>
-        <div class="resume-p">
-          Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models (Computer Methods and Programs in Biomedicine); Calibration Under Domain Shift in Diabetic Retinopathy Screening (Computerized Medical Imaging and Graphics); Evaluation of lightweight AI models for early diabetic retinopathy detection in resource-constrained screening settings (in review, 2026).
-        </div>
-      </div>
-
-      <div class="resume-section">
-        <h2>Experience</h2>
-        <div class="resume-row">
-          <div class="resume-row-head"><div class="resume-role">Independent Medical AI Researcher</div><div class="resume-meta">2023–Present</div></div>
-          <ul class="resume-list">
-            <li>Designed and evaluated medical imaging models across fundus, dermatology, and radiology tasks.</li>
-            <li>Studied shortcut learning, artifact-driven bias, interpretability, and external validation.</li>
-          </ul>
-        </div>
-        <div class="resume-row">
-          <div class="resume-row-head"><div class="resume-role">AI & Data Intern, Taskimpetus</div><div class="resume-meta">2024</div></div>
-          <ul class="resume-list">
-            <li>Supported AI-powered dashboards, exploratory data analysis, and reproducible analytics pipelines using Python and SQL.</li>
-          </ul>
-        </div>
-        <div class="resume-row">
-          <div class="resume-row-head"><div class="resume-role">Teaching Assistant, Kyungsung University</div><div class="resume-meta">2022–2023</div></div>
-          <ul class="resume-list">
-            <li>Mentored students on preprocessing, evaluation, and reproducible machine learning workflows.</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="resume-section">
-        <h2>Service & Certifications</h2>
-        <div class="resume-cols">
-          <div class="resume-tags"><strong>Peer review:</strong> IJRA, IJECE, IJPEDS.</div>
-          <div class="resume-tags"><strong>Certifications:</strong> IBM Data Science, Elsevier Certified Peer Reviewer, Google Cloud Generative AI for Healthcare, Illinois Tech AI in Healthcare.</div>
-        </div>
-      </div>
+    <div class="sub">
+      Focus: medical AI reliability, calibration under domain shift, shortcut learning, fundus imaging, multimodal diagnostic systems
     </div>
-  </div>
+    <div class="line"></div>
+
+    <h2>Education</h2>
+    <div class="entry"><p><strong>MBA, Management Information Systems</strong> — International American University, 2024–2026</p></div>
+    <div class="entry"><p><strong>MSc, Global Business and Administration</strong> — Kyungsung University, 2022–2023</p></div>
+    <div class="entry"><p><strong>B.Tech, Computer Science and Engineering</strong> — Lovely Professional University, 2017–2021</p></div>
+
+    <h2>Selected Publications</h2>
+    <div class="entry"><p><strong>TriGWONet</strong>, Discover Artificial Intelligence, 2026. DOI: 10.1007/s44163-025-00776-x</p></div>
+    <div class="entry"><p><strong>Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity</strong>, Journal of Korea Multimedia Society, 2026.</p></div>
+    <div class="entry"><p><strong>Advancing diabetic retinopathy detection with AI and deep learning</strong>, BJNS, 2025. DOI: 10.32996/bjns.2025.5.2.1</p></div>
+    <div class="entry"><p><strong>Artificial intelligence for chronic kidney disease risk stratification</strong>, BJNS, 2025. DOI: 10.32996/bjns.2025.5.2.3</p></div>
+    <div class="entry"><p><strong>Breast Cancer Detection with Mammography and EHR</strong>, BJNS, 2025. DOI: 10.32996/bjns.2025.5.2.6</p></div>
+    <div class="entry"><p><strong>Hospital Readmission Prediction</strong>, JCSTS, 2024. DOI: 10.32996/jcsts.2024.6.5.32</p></div>
+
+    <h2>Conference Papers</h2>
+    <div class="entry"><p>Parkinson’s disease detection, IEEE, 2025. DOI: 10.1109/ICCTEIE66144.2025.11341843</p></div>
+    <div class="entry"><p>PneuNet, IEEE DELCON, 2025. DOI: 10.1109/DELCON68055.2025.11400229</p></div>
+    <div class="entry"><p>Brain tumor classification, IEEE DELCON, 2025. DOI: 10.1109/DELCON68055.2025.11400450</p></div>
+    <div class="entry"><p>Heart disease prediction, IEEE ICSADL, 2026. DOI: 10.1109/ICSADL67539.2026.11452047</p></div>
+
+    <h2>Under Review</h2>
+    <div class="entry"><p>Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models — CMPB</p></div>
+    <div class="entry"><p>Calibration Under Domain Shift in Diabetic Retinopathy Screening — CMIG</p></div>
+        <div class="entry"><p>Evaluation of lightweight AI models for early diabetic retinopathy detection in resource-constrained screening settings — In review</p></div>
+
+    <h2>Experience</h2>
+    <div class="entry"><p><strong>Independent Medical AI Researcher</strong> — 2023–Present</p></div>
+    <div class="entry"><p><strong>AI &amp; Data Intern</strong> — Taskimpetus, 2024</p></div>
+    <div class="entry"><p><strong>Teaching Assistant</strong> — Kyungsung University, 2022–2023</p></div>
+
+    <h2>Service &amp; Certifications</h2>
+    <div class="entry"><p>Verified peer reviews: IJRA, IJECE, IJPEDS</p></div>
+    <div class="entry"><p>IBM Data Science · Google Cloud Generative AI for Healthcare · Illinois Tech AI in Healthcare · Elsevier Certified Peer Reviewer</p></div>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script>
-    async function generateResumePDF() {
-      const btn = document.getElementById('downloadResumeBtn');
-      const original = btn.textContent;
-      btn.textContent = 'Generating PDF...';
-      btn.disabled = true;
+    async function downloadResume() {
+      const resume = document.getElementById("resumeTemplate");
+      const originalLeft = resume.style.left;
+      const originalTop = resume.style.top;
+      const originalZ = resume.style.zIndex;
 
-      try {
-        const element = document.getElementById('resumeTemplate');
-        const opt = {
-          margin: 0,
-          filename: 'SK_RAKIB_UL_ISLAM_RAHAT_Resume.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-          jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: ['avoid-all'] }
-        };
+      resume.style.left = "0";
+      resume.style.top = "0";
+      resume.style.zIndex = "9999";
 
-        await html2pdf().set(opt).from(element).save();
-      } catch (err) {
-        console.error(err);
-        alert('PDF generation failed. Make sure the page is fully loaded and try again.');
-      } finally {
-        btn.textContent = original;
-        btn.disabled = false;
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      const canvas = await html2canvas(resume, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+      });
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "a4"
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const imgData = canvas.toDataURL("image/png");
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      if (imgHeight <= pageHeight) {
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      } else {
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
       }
-    }
 
-    document.getElementById('downloadResumeBtn').addEventListener('click', generateResumePDF);
+      pdf.save("SK_RAKIB_UL_ISLAM_RAHAT_Resume.pdf");
+
+      resume.style.left = originalLeft;
+      resume.style.top = originalTop;
+      resume.style.zIndex = originalZ;
+    }
   </script>
 </body>
 </html>
