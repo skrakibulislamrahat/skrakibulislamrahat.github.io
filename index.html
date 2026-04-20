@@ -762,6 +762,167 @@
       .profile-name {
         font-size: 1.4rem;
       }
+
+      /* hidden academic resume template for PDF export */
+#resumeTemplate {
+  width: 900px;
+  min-height: 1273px;
+  background: #ffffff;
+  color: #111827;
+  padding: 44px 46px;
+  font-family: "Inter", Arial, sans-serif;
+  position: fixed;
+  left: -99999px;
+  top: 0;
+  z-index: -1;
+}
+
+#resumeTemplate * {
+  box-sizing: border-box;
+}
+
+#resumeTemplate .resume-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  border-bottom: 2px solid #dbe4f0;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+}
+
+#resumeTemplate .resume-name {
+  margin: 0 0 6px;
+  font-size: 30px;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+#resumeTemplate .resume-role {
+  margin: 0;
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+  max-width: 520px;
+}
+
+#resumeTemplate .resume-contact {
+  text-align: right;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: #334155;
+}
+
+#resumeTemplate .resume-contact strong {
+  color: #0f172a;
+}
+
+#resumeTemplate .resume-summary {
+  margin-bottom: 18px;
+  font-size: 12.8px;
+  line-height: 1.65;
+  color: #1f2937;
+}
+
+#resumeTemplate .resume-grid {
+  display: grid;
+  grid-template-columns: 1.45fr 0.9fr;
+  gap: 24px;
+}
+
+#resumeTemplate .resume-section {
+  margin-bottom: 16px;
+}
+
+#resumeTemplate .resume-section h2 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #1d4ed8;
+  border-bottom: 1px solid #dbe4f0;
+  padding-bottom: 6px;
+}
+
+#resumeTemplate .resume-entry {
+  margin-bottom: 10px;
+}
+
+#resumeTemplate .resume-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 2px;
+}
+
+#resumeTemplate .resume-entry-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.4;
+}
+
+#resumeTemplate .resume-entry-date {
+  font-size: 11.5px;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+#resumeTemplate .resume-entry-subtitle {
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+
+#resumeTemplate .resume-entry p {
+  margin: 0;
+  font-size: 11.8px;
+  line-height: 1.55;
+  color: #1f2937;
+}
+
+#resumeTemplate .resume-list {
+  margin: 0;
+  padding-left: 16px;
+}
+
+#resumeTemplate .resume-list li {
+  margin: 0 0 5px;
+  font-size: 11.8px;
+  line-height: 1.5;
+  color: #1f2937;
+}
+
+#resumeTemplate .skill-block {
+  display: grid;
+  gap: 8px;
+}
+
+#resumeTemplate .skill-line {
+  font-size: 11.8px;
+  line-height: 1.55;
+  color: #1f2937;
+}
+
+#resumeTemplate .skill-line strong {
+  color: #0f172a;
+}
+
+#resumeTemplate .resume-mini {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #1f2937;
+}
+
+#resumeTemplate .resume-doi {
+  color: #334155;
+  font-size: 11.4px;
+}
     }
   </style>
 </head>
@@ -1407,51 +1568,152 @@
     </div>
   </main>
 
-  <!-- hidden one-page resume for PDF export -->
-  <section id="resumeTemplate" aria-hidden="true">
-    <h1>SK Rakib Ul Islam Rahat</h1>
-    <div class="sub">
-      Medical AI Researcher · skrakibulislamrahat@gmail.com · ORCID: 0009-0005-0744-8398
+  <!-- hidden academic resume template for PDF export -->
+<section id="resumeTemplate" aria-hidden="true">
+  <div class="resume-header">
+    <div>
+      <h1 class="resume-name">SK Rakib Ul Islam Rahat</h1>
+      <p class="resume-role">
+        Medical AI Researcher focused on reliability, calibration under domain shift,
+        shortcut learning, fundus imaging, multimodal diagnostic systems, and deployment-facing model evaluation.
+      </p>
     </div>
-    <div class="sub">
-      Focus: medical AI reliability, calibration under domain shift, shortcut learning, fundus imaging, multimodal diagnostic systems
+    <div class="resume-contact">
+      <div><strong>Email:</strong> skrakibulislamrahat@gmail.com</div>
+      <div><strong>ORCID:</strong> 0009-0005-0744-8398</div>
+      <div><strong>Website:</strong> skrakibulislamrahat.github.io</div>
+      <div><strong>Location:</strong> Los Angeles, California, USA</div>
     </div>
-    <div class="line"></div>
+  </div>
 
-    <h2>Education</h2>
-    <div class="entry"><p><strong>MBA, Management Information Systems</strong> — International American University, 2024–2026</p></div>
-    <div class="entry"><p><strong>MSc, Global Business and Administration</strong> — Kyungsung University, 2022–2023</p></div>
-    <div class="entry"><p><strong>B.Tech, Computer Science and Engineering</strong> — Lovely Professional University, 2017–2021</p></div>
+  <div class="resume-summary">
+    Researcher working at the intersection of medical imaging, clinical AI, interpretability,
+    and robustness. Current work centers on diabetic retinopathy screening, artifact-driven shortcut learning,
+    calibration failure under dataset shift, and explainable multimodal learning for real-world deployment.
+  </div>
 
-    <h2>Selected Publications</h2>
-    <div class="entry"><p><strong>TriGWONet</strong>, Discover Artificial Intelligence, 2026. DOI: 10.1007/s44163-025-00776-x</p></div>
-    <div class="entry"><p><strong>Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity</strong>, Journal of Korea Multimedia Society, 2026. DOI: 10.9717/kmms.2026.29.3.524</p></div>
-    <div class="entry"><p><strong>Advancing diabetic retinopathy detection with AI and deep learning</strong>, BJNS, 2025. DOI: 10.32996/bjns.2025.5.2.1</p></div>
-    <div class="entry"><p><strong>Artificial intelligence for chronic kidney disease risk stratification</strong>, BJNS, 2025. DOI: 10.32996/bjns.2025.5.2.3</p></div>
-    <div class="entry"><p><strong>Breast Cancer Detection with Mammography and EHR</strong>, BJNS, 2025. DOI: 10.32996/bjns.2025.5.2.6</p></div>
-    <div class="entry"><p><strong>Hospital Readmission Prediction</strong>, JCSTS, 2024. DOI: 10.32996/jcsts.2024.6.5.32</p></div>
+  <div class="resume-grid">
+    <div>
+      <div class="resume-section">
+        <h2>Research Experience</h2>
 
-    <h2>Conference Papers</h2>
-    <div class="entry"><p>Parkinson’s disease detection, IEEE, 2025. DOI: 10.1109/ICCTEIE66144.2025.11341843</p></div>
-    <div class="entry"><p>PneuNet, IEEE DELCON, 2025. DOI: 10.1109/DELCON68055.2025.11400229</p></div>
-    <div class="entry"><p>Brain tumor classification, IEEE DELCON, 2025. DOI: 10.1109/DELCON68055.2025.11400450</p></div>
-    <div class="entry"><p>Heart disease prediction, IEEE ICSADL, 2026. DOI: 10.1109/ICSADL67539.2026.11452047</p></div>
+        <div class="resume-entry">
+          <div class="resume-entry-header">
+            <div class="resume-entry-title">Independent Medical AI Researcher</div>
+            <div class="resume-entry-date">2023–Present</div>
+          </div>
+          <div class="resume-entry-subtitle">Los Angeles, USA</div>
+          <p>
+            Designed and evaluated deep learning systems for retinal imaging and other healthcare prediction tasks,
+            with emphasis on external validation, interpretability, calibration, and model reliability under shift.
+          </p>
+        </div>
 
-    <h2>Under Review</h2>
-    <div class="entry"><p>Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models — CMPB</p></div>
-    <div class="entry"><p>Calibration Under Domain Shift in Diabetic Retinopathy Screening — CMIG</p></div>
-        <div class="entry"><p>Evaluation of lightweight AI models for early diabetic retinopathy detection in resource-constrained screening settings — In review</p></div>
+        <div class="resume-entry">
+          <div class="resume-entry-header">
+            <div class="resume-entry-title">AI &amp; Data Intern</div>
+            <div class="resume-entry-date">2024–Present</div>
+          </div>
+          <div class="resume-entry-subtitle">Taskimpetus</div>
+          <p>
+            Supported analytics and automation workflows using Python and SQL, including reproducible data processing,
+            exploratory analysis, and dashboard-oriented internal tasks.
+          </p>
+        </div>
 
-    <h2>Experience</h2>
-    <div class="entry"><p><strong>Independent Medical AI Researcher</strong> — 2023–Present</p></div>
-    <div class="entry"><p><strong>AI &amp; Data Intern</strong> — Taskimpetus, 2024</p></div>
-    <div class="entry"><p><strong>Teaching Assistant</strong> — Kyungsung University, 2022–2023</p></div>
+        <div class="resume-entry">
+          <div class="resume-entry-header">
+            <div class="resume-entry-title">Teaching Assistant</div>
+            <div class="resume-entry-date">2022–2023</div>
+          </div>
+          <div class="resume-entry-subtitle">Kyungsung University</div>
+          <p>
+            Mentored students on preprocessing, evaluation methodology, and machine learning workflows while contributing
+            to collaborative research outputs.
+          </p>
+        </div>
+      </div>
 
-    <h2>Service &amp; Certifications</h2>
-    <div class="entry"><p>Verified peer reviews: IJRA, IJECE, IJPEDS</p></div>
-    <div class="entry"><p>IBM Data Science · Google Cloud Generative AI for Healthcare · Illinois Tech AI in Healthcare · Elsevier Certified Peer Reviewer</p></div>
-  </section>
+      <div class="resume-section">
+        <h2>Selected Publications</h2>
+        <ul class="resume-list">
+          <li><strong>TriGWONet</strong>, Discover Artificial Intelligence, 2026.<br><span class="resume-doi">DOI: 10.1007/s44163-025-00776-x</span></li>
+          <li><strong>Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity</strong>, Journal of Korea Multimedia Society, 2026.<br><span class="resume-doi">DOI: 10.9717/kmms.2026.29.3.524</span></li>
+          <li><strong>Advancing diabetic retinopathy detection with AI and deep learning</strong>, BJNS, 2025.<br><span class="resume-doi">DOI: 10.32996/bjns.2025.5.2.1</span></li>
+          <li><strong>Machine Learning-Based Hospital Readmission Prediction and Risk Analysis in the United States Healthcare System</strong>, JCSTS, 2024.<br><span class="resume-doi">DOI: 10.32996/jcsts.2024.6.5.32</span></li>
+        </ul>
+      </div>
 
+      <div class="resume-section">
+        <h2>Manuscripts Under Review</h2>
+        <ul class="resume-list">
+          <li><strong>Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models</strong> — Computer Methods and Programs in Biomedicine</li>
+          <li><strong>Calibration Under Domain Shift in Diabetic Retinopathy Screening</strong> — Computerized Medical Imaging and Graphics</li>
+          <li><strong>Evaluation of lightweight AI models for early diabetic retinopathy detection in resource-constrained screening settings</strong> — In review</li>
+        </ul>
+      </div>
+    </div>
+
+    <div>
+      <div class="resume-section">
+        <h2>Education</h2>
+
+        <div class="resume-entry">
+          <div class="resume-entry-header">
+            <div class="resume-entry-title">MBA, Management Information Systems</div>
+            <div class="resume-entry-date">2024–2026</div>
+          </div>
+          <div class="resume-entry-subtitle">International American University</div>
+        </div>
+
+        <div class="resume-entry">
+          <div class="resume-entry-header">
+            <div class="resume-entry-title">MSc, Global Business and Administration</div>
+            <div class="resume-entry-date">2022–2023</div>
+          </div>
+          <div class="resume-entry-subtitle">Kyungsung University</div>
+        </div>
+
+        <div class="resume-entry">
+          <div class="resume-entry-header">
+            <div class="resume-entry-title">B.Tech, Computer Science and Engineering</div>
+            <div class="resume-entry-date">2017–2021</div>
+          </div>
+          <div class="resume-entry-subtitle">Lovely Professional University</div>
+        </div>
+      </div>
+
+      <div class="resume-section">
+        <h2>Technical Skills</h2>
+        <div class="skill-block">
+          <div class="skill-line"><strong>Programming:</strong> Python, SQL, Java</div>
+          <div class="skill-line"><strong>ML / DL:</strong> PyTorch, TensorFlow, scikit-learn, CNNs, multimodal learning</div>
+          <div class="skill-line"><strong>Medical AI:</strong> fundus imaging, interpretability, Grad-CAM, SHAP, calibration, external validation</div>
+          <div class="skill-line"><strong>Research Tools:</strong> Google Colab, Jupyter, Overleaf, LaTeX, Microsoft Word</div>
+          <div class="skill-line"><strong>Data Work:</strong> preprocessing, evaluation, visualization, reproducible workflows</div>
+        </div>
+      </div>
+
+      <div class="resume-section">
+        <h2>Selected Conference Papers</h2>
+        <ul class="resume-list">
+          <li>Heart disease prediction, IEEE ICSADL, 2026</li>
+          <li>Parkinson’s disease detection, IEEE, 2025</li>
+          <li>PneuNet, IEEE DELCON, 2025</li>
+          <li>Brain tumor classification, IEEE DELCON, 2025</li>
+        </ul>
+      </div>
+
+      <div class="resume-section">
+        <h2>Service &amp; Certifications</h2>
+        <div class="resume-mini">
+          Verified peer reviews: IJRA, IJECE, IJPEDS<br>
+          IBM Data Science · Google Cloud AI Healthcare · Illinois Tech AI Healthcare · Elsevier Certified Peer Reviewer
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
