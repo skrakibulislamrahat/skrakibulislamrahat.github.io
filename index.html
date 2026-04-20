@@ -348,6 +348,7 @@
 
     .about-grid,
     .featured-grid,
+    .visual-grid,
     .edu-exp-grid,
     .service-grid,
     .contact-grid {
@@ -360,6 +361,41 @@
     .edu-exp-grid { grid-template-columns: 1fr 1fr; }
     .service-grid { grid-template-columns: 1fr 1fr; }
     .contact-grid { grid-template-columns: 1fr 1fr 1fr; }
+
+    .visual-grid { grid-template-columns: 1fr 1fr; }
+
+.visual-card {
+  overflow: hidden;
+  padding: 0;
+}
+
+.visual-card img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255,255,255,0.02);
+}
+
+.visual-body {
+  padding: 20px 22px 22px;
+  display: grid;
+  gap: 10px;
+}
+
+.visual-body h3 {
+  margin: 0;
+  font-size: 1.08rem;
+  letter-spacing: -0.03em;
+  line-height: 1.35;
+}
+
+.visual-body p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.75;
+  font-size: 0.96rem;
+}
 
     .section-panel {
   padding: 22px;
@@ -636,6 +672,7 @@
       .hero-grid,
       .about-grid,
       .featured-grid,
+      .visual-grid,
       .edu-exp-grid,
       .service-grid,
       .contact-grid {
@@ -916,6 +953,40 @@
         </article>
       </div>
     </section>
+
+    <section id="visual-results" class="section">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Visual Results</div>
+      <h2 class="section-title">Selected visual evidence</h2>
+      <p class="section-subtitle">
+        Two representative figures from my current retinal AI work, highlighting reliability under domain shift and attribution-based shortcut auditing.
+      </p>
+    </div>
+  </div>
+
+  <div class="featured-grid visual-grid">
+    <article class="feature-card visual-card">
+      <img src="assets/fig_reliability_shift.png" alt="Reliability diagrams showing calibration behavior under domain shift from APTOS to Messidor-2" />
+      <div class="visual-body">
+        <h3>Reliability under domain shift</h3>
+        <p>
+          Calibration behavior changes sharply from in-domain APTOS to shifted Messidor-2, showing that source-fitted confidence does not transfer cleanly.
+        </p>
+      </div>
+    </article>
+
+    <article class="feature-card visual-card">
+      <img src="assets/fig_gradcam_audit.png" alt="Grad-CAM comparison showing reduced border-focused attention after artifact mitigation" />
+      <div class="visual-body">
+        <h3>Shortcut learning audit with Grad-CAM</h3>
+        <p>
+          Artifact mitigation reduces border-focused attention and shifts model evidence toward retinal regions rather than peripheral non-pathological cues.
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
 
     <section id="publications" class="section">
       <div class="section-head">
