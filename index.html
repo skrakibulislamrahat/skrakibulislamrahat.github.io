@@ -205,13 +205,14 @@
       color: var(--soft);
     }
 
-   .hero-side {
-  padding: 16px;
-  min-height: 600px;
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
-  gap: 10px;
-}
+    .hero-side {
+      padding: 16px;
+      min-height: 600px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 10px;
+      border: 1px solid rgba(99,102,241,0.25);
+    }
 
     .profile-card {
   display: grid;
@@ -286,7 +287,8 @@
 
     .stat strong {
       display: block;
-      font-size: 1.8rem;
+      font-size: 2.4rem;
+      font-weight: 800;
       letter-spacing: -0.04em;
       margin-bottom: 8px;
     }
@@ -297,9 +299,13 @@
     }
 
     .section {
-      padding: 40px 0 0;
+      padding: 60px 0 0;
     }
-
+    .section + .section {
+      border-top: 1px solid rgba(148,163,184,0.08);
+      margin-top: 40px;
+      padding-top: 40px;
+    }
     .section-head {
       display: flex;
       justify-content: space-between;
@@ -367,14 +373,17 @@
 .visual-card {
   overflow: hidden;
   padding: 0;
+  border: 1px solid rgba(148,163,184,0.15);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
 }
 
 .visual-card img {
   width: 100%;
   aspect-ratio: 16 / 10;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 14px;
   border-bottom: 1px solid var(--line);
-  background: rgba(255,255,255,0.02);
+  background: radial-gradient(circle at 50% 40%, rgba(99,102,241,0.08), rgba(0,0,0,0));
 }
 
 .visual-body {
@@ -951,13 +960,13 @@
         <div class="hero-main">
           <div>
             <div class="pill">Medical AI · Reliability · Calibration · Dataset Shift</div>
-            <h1 class="hero-title">Building medical AI that survives contact with real-world data.</h1>
+            <h1 class="hero-title">Building medical AI that survives contact with real-world data. </h1>
             <p class="hero-desc">
               I work on medical imaging and clinical AI systems, with emphasis on shortcut learning,
               artifact-driven bias, calibration under domain shift, multimodal diagnostic systems,
               and deployment-facing model evaluation.
             </p>
-
+            <p style="margin-top:10px;color:var(--soft);font-size:0.95rem;">Current work includes calibration under domain shift (CMIG) and artifact-driven shortcut auditing (CMPB).</p>
             <div class="hero-actions">
               <a class="btn btn-primary" href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank" rel="noopener noreferrer">Google Scholar</a>
               <button class="btn btn-secondary" onclick="downloadResume()">Download Resume</button>
@@ -1105,6 +1114,7 @@
           <div class="chip-row">
             <span class="chip chip-journal">Published</span>
             <span class="chip">KMMS</span>
+            <span class="chip" style="background:linear-gradient(135deg,#6366f1,#60a5fa);color:white;">Key Work</span>
           </div>
           <h3>Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity</h3>
           <p>
@@ -1126,7 +1136,7 @@
     </div>
   </div>
 
-  <div class="featured-grid visual-grid">
+  <div class="visual-grid">
     <article class="feature-card visual-card">
       <img src="assets/fig_reliability_shift.png" alt="Reliability diagrams showing calibration behavior under domain shift from APTOS to Messidor-2" />
       <div class="visual-body">
@@ -1524,15 +1534,16 @@
             <a class="mini-btn" href="https://coursera.org/verify/professional-cert/EC6IHGSG99HX" target="_blank" rel="noopener noreferrer">IBM Data Science</a>
             <a class="mini-btn" href="https://coursera.org/verify/P4N76QCC77D3" target="_blank" rel="noopener noreferrer">Google Cloud AI Healthcare</a>
             <a class="mini-btn" href="https://coursera.org/verify/IALUTM83NC4Q" target="_blank" rel="noopener noreferrer">Illinois Tech AI Healthcare</a>
-          </div> <a
-  class="mini-btn mini-btn-disabled"
-  href="javascript:void(0)"
-  title="Verification link not available"
-  aria-label="Elsevier Researcher Academy — Certified Peer Reviewer Course. Verification link not available."
-  onclick="return false;"
->
-  Elsevier Researcher Academy — Certified Peer Reviewer Course
-</a>       
+          </div>
+          <div style="margin-top:12px;">
+          <a class="mini-btn mini-btn-disabled"
+            href="javascript:void(0)"
+            title="Verification link not available"
+            aria-label="Elsevier Researcher Academy — Certified Peer Reviewer Course. Verification link not available."
+            onclick="return false;">
+              Elsevier Researcher Academy — Certified Peer Reviewer Course
+          </a>
+          </div>
         </article>
       </div>
     </section>
