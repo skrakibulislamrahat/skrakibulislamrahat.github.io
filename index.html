@@ -619,160 +619,7 @@
       text-align: center;
       font-size: 0.92rem;
     }
-
-    /* hidden resume template for PDF */
-    #resumeTemplate {
-      width: 794px;
-      min-height: 1123px;
-      background: white;
-      color: #111827;
-      padding: 44px 46px;
-      font-family: Arial, sans-serif;
-      position: fixed;
-      left: -99999px;
-      top: 0;
-      z-index: -1;
-    }
-
-    #resumeTemplate h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
-      letter-spacing: -0.03em;
-    }
-
-    #resumeTemplate .sub {
-      font-size: 13px;
-      color: #374151;
-      margin-bottom: 10px;
-    }
-
-    #resumeTemplate .line {
-      height: 1px;
-      background: #d1d5db;
-      margin: 14px 0 16px;
-    }
-
-    #resumeTemplate h2 {
-      margin: 14px 0 8px;
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #111827;
-    }
-
-    #resumeTemplate p,
-    #resumeTemplate li {
-      margin: 0;
-      font-size: 12px;
-      line-height: 1.5;
-      color: #111827;
-    }
-
-    #resumeTemplate ul {
-      margin: 0;
-      padding-left: 16px;
-    }
-
-    #resumeTemplate .entry {
-      margin-bottom: 8px;
-    }
-
-    @media (max-width: 1180px) {
-      .hero-grid,
-      .about-grid,
-      .featured-grid,
-      .visual-grid,
-      .edu-exp-grid,
-      .service-grid,
-      .contact-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-main,
-      .hero-side { min-height: auto; }
-    }
-
-    @media (max-width: 860px) {
-      .nav {
-        align-items: flex-start;
-        flex-direction: column;
-        padding: 18px 0;
-      }
-
-      .nav-links {
-        gap: 14px 18px;
-      }
-
-      .hero {
-        padding-top: 30px;
-      }
-
-      .hero-main {
-        padding: 24px;
-      }
-
-      .hero-side {
-        padding: 16px;
-      }
-
-      .profile-card {
-        grid-template-columns: 110px 1fr;
-        gap: 14px;
-        padding: 14px;
-      }
-
-      .profile-photo {
-        width: 110px;
-        height: 110px;
-        border-radius: 22px;
-      }
-
-      .hero-title {
-        font-size: clamp(3rem, 14vw, 4.6rem);
-      }
-
-      .hero-desc {
-        font-size: 1.06rem;
-      }
-
-      .stat-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .pub-top {
-        flex-direction: column;
-      }
-    }
-
-    @media (max-width: 540px) {
-      .container,
-      .nav {
-        width: min(var(--max), calc(100% - 24px));
-      }
-
-      .brand {
-        font-size: 1.08rem;
-      }
-
-      .pill {
-        font-size: 0.86rem;
-      }
-
-      .hero-actions,
-      .link-row {
-        width: 100%;
-      }
-
-      .btn,
-      .mini-btn {
-        width: 100%;
-      }
-
-      .profile-name {
-        font-size: 1.4rem;
-      }
-
-      /* hidden academic resume template for PDF export */
+     /* hidden academic resume template for PDF export */
 #resumeTemplate {
   width: 900px;
   min-height: 1273px;
@@ -932,6 +779,101 @@
   color: #334155;
   font-size: 11.4px;
 }
+
+    @media (max-width: 1180px) {
+      .hero-grid,
+      .about-grid,
+      .featured-grid,
+      .visual-grid,
+      .edu-exp-grid,
+      .service-grid,
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-main,
+      .hero-side { min-height: auto; }
+    }
+
+    @media (max-width: 860px) {
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 18px 0;
+      }
+
+      .nav-links {
+        gap: 14px 18px;
+      }
+
+      .hero {
+        padding-top: 30px;
+      }
+
+      .hero-main {
+        padding: 24px;
+      }
+
+      .hero-side {
+        padding: 16px;
+      }
+
+      .profile-card {
+        grid-template-columns: 110px 1fr;
+        gap: 14px;
+        padding: 14px;
+      }
+
+      .profile-photo {
+        width: 110px;
+        height: 110px;
+        border-radius: 22px;
+      }
+
+      .hero-title {
+        font-size: clamp(3rem, 14vw, 4.6rem);
+      }
+
+      .hero-desc {
+        font-size: 1.06rem;
+      }
+
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pub-top {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .container,
+      .nav {
+        width: min(var(--max), calc(100% - 24px));
+      }
+
+      .brand {
+        font-size: 1.08rem;
+      }
+
+      .pill {
+        font-size: 0.86rem;
+      }
+
+      .hero-actions,
+      .link-row {
+        width: 100%;
+      }
+
+      .btn,
+      .mini-btn {
+        width: 100%;
+      }
+
+      .profile-name {
+        font-size: 1.4rem;
+      }
     }
   </style>
 </head>
@@ -1631,18 +1573,6 @@
             exploratory analysis, and dashboard-oriented internal tasks.
           </p>
         </div>
-
-        <div class="resume-entry">
-          <div class="resume-entry-header">
-            <div class="resume-entry-title">Teaching Assistant</div>
-            <div class="resume-entry-date">2022–2023</div>
-          </div>
-          <div class="resume-entry-subtitle">Kyungsung University</div>
-          <p>
-            Mentored students on preprocessing, evaluation methodology, and machine learning workflows while contributing
-            to collaborative research outputs.
-          </p>
-        </div>
       </div>
 
       <div class="resume-section">
@@ -1651,7 +1581,6 @@
           <li><strong>TriGWONet</strong>, Discover Artificial Intelligence, 2026.<br><span class="resume-doi">DOI: 10.1007/s44163-025-00776-x</span></li>
           <li><strong>Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity</strong>, Journal of Korea Multimedia Society, 2026.<br><span class="resume-doi">DOI: 10.9717/kmms.2026.29.3.524</span></li>
           <li><strong>Advancing diabetic retinopathy detection with AI and deep learning</strong>, BJNS, 2025.<br><span class="resume-doi">DOI: 10.32996/bjns.2025.5.2.1</span></li>
-          <li><strong>Machine Learning-Based Hospital Readmission Prediction and Risk Analysis in the United States Healthcare System</strong>, JCSTS, 2024.<br><span class="resume-doi">DOI: 10.32996/jcsts.2024.6.5.32</span></li>
         </ul>
       </div>
 
@@ -1660,7 +1589,6 @@
         <ul class="resume-list">
           <li><strong>Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models</strong> — Computer Methods and Programs in Biomedicine</li>
           <li><strong>Calibration Under Domain Shift in Diabetic Retinopathy Screening</strong> — Computerized Medical Imaging and Graphics</li>
-          <li><strong>Evaluation of lightweight AI models for early diabetic retinopathy detection in resource-constrained screening settings</strong> — In review</li>
         </ul>
       </div>
     </div>
@@ -1710,16 +1638,14 @@
         <ul class="resume-list">
           <li>Heart disease prediction, IEEE ICSADL, 2026</li>
           <li>Parkinson’s disease detection, IEEE, 2025</li>
-          <li>PneuNet, IEEE DELCON, 2025</li>
-          <li>Brain tumor classification, IEEE DELCON, 2025</li>
         </ul>
       </div>
 
       <div class="resume-section">
         <h2>Service &amp; Certifications</h2>
         <div class="resume-mini">
-          Verified peer reviews: IJRA, IJECE, IJPEDS<br>
-          IBM Data Science · Google Cloud AI Healthcare · Illinois Tech AI Healthcare · Elsevier Certified Peer Reviewer
+          Peer reviews: IJRA, IJECE, IJPEDS<br>
+          IBM Data Science · Google Cloud AI Healthcare · Elsevier Certified Peer Reviewer
         </div>
       </div>
     </div>
@@ -1728,62 +1654,49 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <script>
-    async function downloadResume() {
-      const resume = document.getElementById("resumeTemplate");
-      const originalLeft = resume.style.left;
-      const originalTop = resume.style.top;
-      const originalZ = resume.style.zIndex;
+<script>
+  async function downloadResume() {
+    const resume = document.getElementById("resumeTemplate");
+    const originalLeft = resume.style.left;
+    const originalTop = resume.style.top;
+    const originalZ = resume.style.zIndex;
+    const originalWidth = resume.style.width;
 
-      resume.style.left = "0";
-      resume.style.top = "0";
-      resume.style.zIndex = "9999";
+    resume.style.left = "0";
+    resume.style.top = "0";
+    resume.style.zIndex = "9999";
+    resume.style.width = "820px";
 
-      await new Promise(resolve => setTimeout(resolve, 150));
+    await new Promise(resolve => setTimeout(resolve, 200));
 
-      const canvas = await html2canvas(resume, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff"
-      });
+    const canvas = await html2canvas(resume, {
+      scale: 2.2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      windowWidth: 820,
+      width: 820
+    });
 
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "pt",
-        format: "a4"
-      });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "pt",
+      format: "a4"
+    });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const imgData = canvas.toDataURL("image/png");
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      const imgData = canvas.toDataURL("image/png");
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    pdf.save("SK_RAKIB_UL_ISLAM_RAHAT_Resume.pdf");
 
-      if (imgHeight <= pageHeight) {
-        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-      } else {
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
-      }
-
-      pdf.save("SK_RAKIB_UL_ISLAM_RAHAT_Resume.pdf");
-
-      resume.style.left = originalLeft;
-      resume.style.top = originalTop;
-      resume.style.zIndex = originalZ;
-    }
+    resume.style.left = originalLeft;
+    resume.style.top = originalTop;
+    resume.style.zIndex = originalZ;
+    resume.style.width = originalWidth;
+  }
   </script>
 </body>
 </html>
