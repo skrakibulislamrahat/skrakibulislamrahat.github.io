@@ -1,4 +1,5 @@
 const DATA = window.SITE_DATA;
+let activePublicationFilter = "All";
 
 function escapeHTML(value) {
   return String(value ?? "")
@@ -14,14 +15,38 @@ function el(id) {
 }
 
 function linkButton(label, url, extraClass = "") {
+  const safeLabel = escapeHTML(label);
   if (!url) {
-    return `<span class="mini-btn mini-btn-disabled ${extraClass}">${escapeHTML(label)}</span>`;
+    return `<span class="mini-btn mini-btn-disabled ${extraClass}">${safeLabel}</span>`;
   }
-  return `<a class="mini-btn ${extraClass}" href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(label)}</a>`;
+  return `<a class="mini-btn ${extraClass}" href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">${safeLabel}</a>`;
 }
 
 function chip(label, cls = "") {
   return `<span class="chip ${cls}">${escapeHTML(label)}</span>`;
+}
+
+function contactCard(title, body) {
+  return `
+    <article class="contact-card glass-card">
+      <h3>${escapeHTML(title)}</h3>
+      <p>${body}</p>
+    </article>
+  `;
+}
+
+function allPublications() {
+  return Object.entries(DATA.publications).flatMap(([group, items]) =>
+    items.map(item => ({ ...item, group }))
+  );
+}
+
+function publicationTypeClass(type = "") {
+  const normalized = type.toLowerCase();
+  if (normalized.includes("journal")) return "chip-journal";
+  if (normalized.includes("conference")) return "chip-conf";
+  if (normalized.includes("review")) return "chip-review";
+  return "";
 }
 
 function initProfile() {
@@ -46,12 +71,6 @@ function initProfile() {
     linkButton("Email", `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(profile.email)}`, "btn btn-ghost")
   ].join("");
 
-  el("quickLinks").innerHTML = [
-    linkButton("Website", profile.website),
-    linkButton("ORCID", profile.orcid),
-    linkButton("Email", `mailto:${profile.email}`)
-  ].join("");
-
   el("contactGrid").innerHTML = [
     contactCard("Email", `<a href="mailto:${escapeHTML(profile.email)}">${escapeHTML(profile.email)}</a>`),
     contactCard("Google Scholar", `<a href="${escapeHTML(profile.scholar)}" target="_blank" rel="noopener noreferrer">View citation profile</a>`),
@@ -60,39 +79,75 @@ function initProfile() {
 }
 
 function initStats() {
-  el("statsGrid").innerHTML = DATA.stats.map(item => `
-    <div class="stat">
-      <strong>${escapeHTML(item.value)}</strong>
+  el("statsGrid").innerHTML = DATA.stats.map((item, index) => `
+    <article class="stat glass-card reveal-soft" style="--delay:${index * 80}ms">
+      <strong data-count="${escapeHTML(item.value)}">0</strong>
       <span>${escapeHTML(item.label)}</span>
-    </div>
+    </article>
   `).join("");
 }
 
+function initBento() {
+  const stats = DATA.stats || [];
+  const pubs = allPublications();
+  const publishedCount = pubs.filter(p => !String(p.type).toLowerCase().includes("review")).length;
+  const reviewCount = pubs.filter(p => String(p.type).toLowerCase().includes("review")).length;
+  const coreAreas = DATA.about.coreAreas.slice(0, 4);
+
+  el("bentoGrid").innerHTML = `
+    <article class="bento-card bento-wide glass-card">
+      <span class="dash-label">Research focus</span>
+      <h3>Medical AI reliability under real-world shift</h3>
+      <p>${escapeHTML(DATA.about.paragraphs[0])}</p>
+    </article>
+    <article class="bento-card glass-card">
+      <span class="bento-number">${escapeHTML(stats[0]?.value || "—")}</span>
+      <p>${escapeHTML(stats[0]?.label || "Citation metric")}</p>
+    </article>
+    <article class="bento-card glass-card">
+      <span class="bento-number">${publishedCount}</span>
+      <p>Published / indexed outputs listed</p>
+    </article>
+    <article class="bento-card glass-card">
+      <span class="bento-number">${reviewCount}</span>
+      <p>Current manuscripts under review</p>
+    </article>
+    <article class="bento-card bento-tall glass-card">
+      <span class="dash-label">Core methods</span>
+      <ul class="compact-list">
+        ${coreAreas.map(area => `<li>${escapeHTML(area)}</li>`).join("")}
+      </ul>
+    </article>
+  `;
+}
+
 function initLists() {
-  el("strengthsList").innerHTML = DATA.strengths.map(item => `<li>${escapeHTML(item)}</li>`).join("");
   el("aboutSubtitle").textContent = DATA.about.subtitle;
   el("aboutBody").innerHTML = DATA.about.paragraphs.map(p => `<p>${escapeHTML(p)}</p>`).join("");
   el("coreAreasList").innerHTML = DATA.about.coreAreas.map(item => `<li>${escapeHTML(item)}</li>`).join("");
 }
 
 function initFeatured() {
-  el("featuredGrid").innerHTML = DATA.featured.map(item => `
-    <article class="feature-card">
+  el("featuredGrid").innerHTML = DATA.featured.map((item, index) => `
+    <article class="feature-card glass-card reveal-soft" style="--delay:${index * 90}ms">
       <div class="chip-row">
         ${chip(item.status, item.status === "Published" ? "chip-journal" : "chip-review")}
         ${chip(item.venue)}
-        ${item.highlight ? chip(item.highlight, "chip-gradient") : ""}
+        ${item.highlight ? chip(item.highlight, "chip-accent") : ""}
       </div>
       <h3>${escapeHTML(item.title)}</h3>
       <p>${escapeHTML(item.description)}</p>
+      <div class="card-line"></div>
     </article>
   `).join("");
 }
 
 function initVisuals() {
-  el("visualGrid").innerHTML = DATA.visuals.map(item => `
-    <article class="feature-card visual-card">
-      <img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.alt)}" />
+  el("visualGrid").innerHTML = DATA.visuals.map((item, index) => `
+    <article class="visual-card glass-card reveal-soft" style="--delay:${index * 100}ms">
+      <div class="visual-image-wrap">
+        <img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.alt)}" />
+      </div>
       <div class="visual-body">
         <h3>${escapeHTML(item.title)}</h3>
         <p>${escapeHTML(item.description)}</p>
@@ -101,47 +156,73 @@ function initVisuals() {
   `).join("");
 }
 
-function publicationCard(item) {
-  const chipClass =
-    item.type === "Journal" ? "chip-journal" :
-    item.type === "Conference" ? "chip-conf" :
-    "chip-review";
+function initPublicationFilters() {
+  const groups = Object.keys(DATA.publications);
+  const filters = ["All", ...groups];
 
+  el("publicationFilters").innerHTML = filters.map(filter => `
+    <button class="filter-btn ${filter === activePublicationFilter ? "active" : ""}" type="button" data-filter="${escapeHTML(filter)}">
+      ${escapeHTML(filter)}
+    </button>
+  `).join("");
+
+  el("publicationFilters").addEventListener("click", event => {
+    const button = event.target.closest("button[data-filter]");
+    if (!button) return;
+    activePublicationFilter = button.dataset.filter;
+    initPublicationFilters();
+    initPublications();
+  }, { once: true });
+}
+
+function publicationCard(item, index) {
   const links = (item.links || []).map(link => linkButton(link.label, link.url)).join("");
-
   return `
-    <article class="pub-card">
+    <article class="pub-card glass-card reveal-soft" data-group="${escapeHTML(item.group)}" style="--delay:${Math.min(index, 6) * 50}ms">
       <div class="pub-top">
         <div>
           <div class="chip-row">
-            ${chip(item.type, chipClass)}
+            ${chip(item.type, publicationTypeClass(item.type))}
             ${chip(item.year)}
+            ${chip(item.group)}
           </div>
           <h3>${escapeHTML(item.title)}</h3>
           <p>${escapeHTML(item.venue)}</p>
+          ${item.description ? `<p>${escapeHTML(item.description)}</p>` : ""}
         </div>
         <div class="pub-year">${escapeHTML(item.year)}</div>
       </div>
-      ${item.description ? `<p>${escapeHTML(item.description)}</p>` : ""}
       ${links ? `<div class="link-row">${links}</div>` : ""}
     </article>
   `;
 }
 
 function initPublications() {
-  const groups = Object.entries(DATA.publications).map(([groupName, items]) => `
+  const entries = Object.entries(DATA.publications).filter(([group]) =>
+    activePublicationFilter === "All" || group === activePublicationFilter
+  );
+
+  const total = entries.reduce((sum, [, items]) => sum + items.length, 0);
+  el("publicationCount").textContent = `${total} item${total === 1 ? "" : "s"} shown`;
+
+  el("publicationsList").innerHTML = entries.map(([group, items]) => `
     <div class="pub-group">
-      <div class="group-label">${escapeHTML(groupName)}</div>
-      ${items.map(publicationCard).join("")}
+      <div class="group-label">${escapeHTML(group)}</div>
+      <div class="pub-list">
+        ${items.map((item, index) => publicationCard({ ...item, group }, index)).join("")}
+      </div>
     </div>
   `).join("");
 
-  el("publicationsList").innerHTML = groups;
+  requestAnimationFrame(() => {
+    document.querySelectorAll("#publicationsList .reveal-soft").forEach(card => card.classList.add("visible"));
+  });
 }
 
-function timelineCard(item) {
+function timelineCard(item, index) {
   return `
-    <article class="timeline-card">
+    <article class="timeline-card glass-card reveal-soft" style="--delay:${index * 70}ms">
+      <span class="timeline-dot"></span>
       <h3>${escapeHTML(item.title)}</h3>
       <div class="meta">${escapeHTML(item.meta)}</div>
       <p>${escapeHTML(item.description)}</p>
@@ -149,69 +230,62 @@ function timelineCard(item) {
   `;
 }
 
-function initTimeline() {
+function initEducationExperience() {
   el("educationList").innerHTML = DATA.education.map(timelineCard).join("");
   el("experienceList").innerHTML = DATA.experience.map(timelineCard).join("");
 }
 
-function contactCard(title, bodyHTML) {
-  return `
-    <article class="contact-card">
-      <h3>${escapeHTML(title)}</h3>
-      <p>${bodyHTML}</p>
-    </article>
-  `;
-}
-
 function initService() {
-  const reviews = DATA.service.reviews;
-  const reviewCard = `
-    <article class="service-card">
-      <h3>${escapeHTML(reviews.title)}</h3>
-      <div class="chip-row">${chip(reviews.count)}</div>
-      ${reviews.items.map(item => `<p>${escapeHTML(item)}</p>`).join("")}
-    </article>
-  `;
+  const review = DATA.service.reviews;
+  const certs = DATA.service.certifications;
 
-  const certCard = `
-    <article class="service-card">
+  el("serviceGrid").innerHTML = `
+    <article class="service-card glass-card">
+      <h3>${escapeHTML(review.title)}</h3>
+      <div class="chip-row">${chip(review.count, "chip-accent")}</div>
+      <ul class="list">
+        ${review.items.map(item => `<li>${escapeHTML(item)}</li>`).join("")}
+      </ul>
+    </article>
+    <article class="service-card glass-card">
       <h3>Certifications</h3>
       <div class="link-row">
-        ${DATA.service.certifications.map(item => linkButton(item.label, item.url)).join("")}
+        ${certs.map(item => linkButton(item.label, item.url)).join("")}
       </div>
     </article>
   `;
-
-  el("serviceGrid").innerHTML = reviewCard + certCard;
 }
 
-function initNav() {
-  const button = document.querySelector(".nav-toggle");
-  const links = document.querySelector(".nav-links");
+function initMobileNav() {
+  const toggle = document.querySelector(".nav-toggle");
+  const links = el("navLinks");
 
-  button.addEventListener("click", () => {
-    const isOpen = links.classList.toggle("nav-links-open");
-    button.setAttribute("aria-expanded", String(isOpen));
+  toggle.addEventListener("click", () => {
+    const isOpen = links.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(isOpen));
   });
 
-  links.querySelectorAll("a").forEach(a => {
-    a.addEventListener("click", () => {
-      links.classList.remove("nav-links-open");
-      button.setAttribute("aria-expanded", "false");
-    });
+  links.addEventListener("click", event => {
+    if (event.target.tagName === "A") {
+      links.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    }
   });
 }
 
 function init() {
+  if (!DATA) return;
   initProfile();
   initStats();
+  initBento();
   initLists();
   initFeatured();
   initVisuals();
+  initPublicationFilters();
   initPublications();
-  initTimeline();
+  initEducationExperience();
   initService();
-  initNav();
+  initMobileNav();
 }
 
 document.addEventListener("DOMContentLoaded", init);
