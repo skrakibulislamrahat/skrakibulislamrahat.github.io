@@ -1021,3 +1021,173 @@ img {
     font-size: clamp(2.05rem, 12vw, 3.2rem);
   }
 }
+/* ================================
+   V2.1 PROPORTION FIX
+   Makes the modern design cleaner,
+   less oversized, and more premium.
+================================ */
+
+.hero {
+  padding: 42px 0 0;
+}
+
+.hero-grid {
+  grid-template-columns: minmax(0, 1.08fr) minmax(380px, 0.82fr);
+  gap: 18px;
+}
+
+.hero-main {
+  min-height: 520px;
+  padding: clamp(30px, 4vw, 46px);
+}
+
+.hero-title {
+  max-width: 720px;
+  font-size: clamp(3rem, 5.4vw, 5.25rem);
+  line-height: 0.92;
+  letter-spacing: -0.07em;
+}
+
+.hero-title::after {
+  width: min(260px, 36vw);
+  margin-top: 24px;
+}
+
+.hero-desc {
+  max-width: 700px;
+  margin-top: 24px;
+  font-size: clamp(1rem, 1.15vw, 1.08rem);
+  line-height: 1.68;
+}
+
+.hero-note {
+  max-width: 680px;
+  font-size: 0.96rem;
+}
+
+.hero-dashboard {
+  gap: 12px;
+}
+
+.profile-card {
+  min-height: 210px;
+  grid-template-columns: 112px 1fr;
+  padding: 18px;
+}
+
+.profile-photo {
+  width: 112px;
+  height: 112px;
+}
+
+.profile-name {
+  font-size: clamp(1.55rem, 1.8vw, 2rem);
+}
+
+.dashboard-card {
+  min-height: 180px;
+  padding: 20px;
+}
+
+.dashboard-card p {
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+.stat {
+  padding: 18px 20px;
+  min-height: 116px;
+}
+
+.stat strong {
+  font-size: 2.15rem;
+}
+
+.stat span {
+  font-size: 0.9rem;
+}
+
+.bento-grid {
+  grid-template-columns: 1.35fr 0.75fr 0.75fr 0.75fr;
+}
+
+.bento-card {
+  min-height: 138px;
+  padding: 20px;
+}
+
+.bento-card h3 {
+  font-size: 1.2rem;
+}
+
+.bento-number {
+  font-size: 2.65rem;
+}
+
+.section {
+  padding-top: 64px;
+}
+
+.section-title {
+  font-size: clamp(2rem, 3.6vw, 3.45rem);
+  line-height: 1;
+}
+
+.feature-card {
+  min-height: 260px;
+}
+
+.nav {
+  width: min(1280px, calc(100% - 40px));
+}
+
+.section-shell,
+.footer {
+  width: min(1280px, calc(100% - 40px));
+}
+
+@media (min-width: 1400px) {
+  .hero-title {
+    font-size: 5.35rem;
+  }
+
+  .hero-main {
+    min-height: 540px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-main {
+    min-height: auto;
+  }
+
+  .hero-title {
+    max-width: 820px;
+    font-size: clamp(3rem, 9vw, 5.2rem);
+  }
+
+  .dashboard-card,
+  .profile-card,
+  .stat {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-title {
+    font-size: clamp(2.65rem, 14vw, 4.1rem);
+    line-height: 0.94;
+  }
+
+  .hero-main {
+    padding: 22px;
+  }
+
+  .profile-card {
+    grid-template-columns: 1fr;
+  }
+}
