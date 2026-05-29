@@ -28,7 +28,7 @@ window.SITE_DATA = {
   },
 
   stats: [
-    { value: "101", label: "Citations" },
+    { value: "105", label: "Citations" },
     { value: "6", label: "h-index" },
     { value: "5", label: "Verified peer reviews" }
   ],
