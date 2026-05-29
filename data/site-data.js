@@ -21,7 +21,7 @@ window.SITE_DATA = {
 
   hero: {
     pill: "Medical AI · Reliability · Calibration · Dataset Shift",
-    title: "Building medical AI that survives contact with real-world data.",
+    title: "Medical AI built for real-world data.",
     description:
       "I work on medical imaging and clinical AI systems, with emphasis on shortcut learning, artifact-driven bias, calibration under domain shift, multimodal diagnostic systems, and deployment-facing model evaluation.",
     note: "Current work includes calibration under domain shift (CMIG) and artifact-driven shortcut auditing (CMPB)."
