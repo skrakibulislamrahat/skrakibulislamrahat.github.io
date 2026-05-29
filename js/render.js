@@ -1,8 +1,17 @@
-const DATA = window.SITE_DATA;
+const RAW_DATA = window.SITE_DATA || window.siteData || {};
 let activePublicationFilter = "All";
+let publicationGroupsCache = [];
 
-function escapeHTML(value) {
-  return String(value ?? "")
+function $(id) {
+  return document.getElementById(id);
+}
+
+function safe(value, fallback = "") {
+  return value === undefined || value === null || value === "" ? fallback : value;
+}
+
+function esc(value) {
+  return String(safe(value))
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -10,247 +19,474 @@ function escapeHTML(value) {
     .replaceAll("'", "&#039;");
 }
 
-function el(id) {
-  return document.getElementById(id);
+function arr(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function titleCaseKey(key) {
+  return String(key)
+    .replace(/([A-Z])/g, " $1")
+    .replace(/[_-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function getProfile() {
+  const profile = RAW_DATA.profile || {};
+  return {
+    name: safe(profile.name, "SK Rakib Ul Islam Rahat"),
+    brandName: safe(profile.brandName, "SK RAKIB UL ISLAM RAHAT"),
+    title: safe(profile.title, "Medical AI Researcher"),
+    affiliation: safe(profile.affiliation, "International American University"),
+    location: safe(profile.location, "Los Angeles, USA"),
+    email: safe(profile.email, "skrakibulislamrahat@gmail.com"),
+    scholar: safe(profile.scholar, "https://scholar.google.com/citations?user=0X1eRi8AAAAJ"),
+    orcid: safe(profile.orcid, "https://orcid.org/0009-0005-0744-8398"),
+    orcidId: safe(profile.orcidId, "0009-0005-0744-8398"),
+    website: safe(profile.website, "https://skrakibulislamrahat.github.io/"),
+    headshot: safe(profile.headshot, "assets/headshot.png")
+  };
+}
+
+function getHero() {
+  const hero = RAW_DATA.hero || {};
+  return {
+    pill: safe(hero.pill, "Medical AI · Reliability · Calibration · Dataset Shift"),
+    title: safe(hero.title, "Building medical AI that survives contact with real-world data."),
+    description: safe(
+      hero.description,
+      "I work on medical imaging and clinical AI systems, with emphasis on shortcut learning, artifact-driven bias, calibration under domain shift, multimodal diagnostic systems, and deployment-facing model evaluation."
+    ),
+    note: safe(
+      hero.note,
+      "Current work includes calibration under domain shift and artifact-driven shortcut auditing."
+    )
+  };
+}
+
+function getStats() {
+  const stats = arr(RAW_DATA.stats);
+  if (stats.length) return stats;
+
+  return [
+    { value: "101", label: "Citations" },
+    { value: "6", label: "h-index" },
+    { value: "5", label: "Verified peer reviews" }
+  ];
+}
+
+function getAbout() {
+  const about = RAW_DATA.about || {};
+
+  return {
+    subtitle: safe(
+      about.subtitle,
+      "My work focuses on the gap between benchmark performance and real-world reliability in medical AI."
+    ),
+    paragraphs: arr(about.paragraphs).length
+      ? about.paragraphs
+      : [
+          "I investigate artifact-driven shortcut learning, fundus image bias, calibration under domain shift, multimodal retinal AI, and evaluation strategies that reflect actual clinical use rather than inflated in-dataset performance.",
+          "The goal is not just better scores, but models that remain interpretable, reliable, and defensible when conditions change."
+        ],
+    coreAreas: arr(about.coreAreas).length
+      ? about.coreAreas
+      : [
+          "Medical image analysis and fundus imaging",
+          "Probabilistic calibration and reliability",
+          "Shortcut learning and dataset artifact auditing",
+          "External validation and cross-dataset evaluation",
+          "Explainable AI with Grad-CAM and SHAP",
+          "Multimodal learning with clinical metadata"
+        ]
+  };
+}
+
+function getFeatured() {
+  const featured = arr(RAW_DATA.featured || RAW_DATA.featuredWork);
+  if (featured.length) return featured;
+
+  return [
+    {
+      status: "Under Review",
+      venue: "CMPB",
+      title: "Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models",
+      description: "Evaluation study showing how fundus models exploit non-pathological borders, padding, and overlays, with external validation and attribution-based auditing."
+    },
+    {
+      status: "Under Review",
+      venue: "CMIG",
+      title: "Calibration Under Domain Shift in Diabetic Retinopathy Screening",
+      description: "Controlled study of temperature scaling transfer from APTOS to Messidor-2, showing that source-fitted calibration does not reliably survive dataset shift."
+    },
+    {
+      status: "Published",
+      venue: "KMMS",
+      highlight: "Key Work",
+      title: "Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity",
+      description: "Explainable multimodal framework combining fundus images and structured clinical variables for diabetic retinopathy severity classification."
+    }
+  ];
+}
+
+function getVisuals() {
+  const visuals = arr(RAW_DATA.visuals || RAW_DATA.visualResults);
+  if (visuals.length) return visuals;
+
+  return [
+    {
+      image: "assets/fig_reliability_shift.png",
+      alt: "Reliability diagrams showing calibration behavior under domain shift",
+      title: "Reliability under domain shift",
+      description: "Calibration behavior changes sharply from in-domain APTOS to shifted Messidor-2."
+    },
+    {
+      image: "assets/fig_gradcam_audit.png",
+      alt: "Grad-CAM comparison showing shortcut learning audit",
+      title: "Shortcut learning audit with Grad-CAM",
+      description: "Artifact mitigation reduces border-focused attention and shifts model evidence toward retinal regions."
+    }
+  ];
+}
+
+function normalizePublications() {
+  const pubs = RAW_DATA.publications || {};
+
+  if (Array.isArray(pubs)) {
+    const grouped = {};
+    pubs.forEach(item => {
+      const group = safe(item.group || item.category || item.type, "Publications");
+      if (!grouped[group]) grouped[group] = [];
+      grouped[group].push(item);
+    });
+    return Object.entries(grouped).map(([group, items]) => ({ group, items }));
+  }
+
+  return Object.entries(pubs)
+    .filter(([, items]) => Array.isArray(items))
+    .map(([group, items]) => ({
+      group: titleCaseKey(group),
+      items
+    }));
 }
 
 function linkButton(label, url, extraClass = "") {
-  const safeLabel = escapeHTML(label);
   if (!url) {
-    return `<span class="mini-btn mini-btn-disabled ${extraClass}">${safeLabel}</span>`;
+    return `<span class="mini-btn mini-btn-disabled ${extraClass}">${esc(label)}</span>`;
   }
-  return `<a class="mini-btn ${extraClass}" href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">${safeLabel}</a>`;
-}
 
-function chip(label, cls = "") {
-  return `<span class="chip ${cls}">${escapeHTML(label)}</span>`;
-}
-
-function contactCard(title, body) {
   return `
-    <article class="contact-card glass-card">
-      <h3>${escapeHTML(title)}</h3>
-      <p>${body}</p>
-    </article>
+    <a class="mini-btn ${extraClass}" href="${esc(url)}" target="_blank" rel="noopener noreferrer">
+      ${esc(label)}
+    </a>
   `;
 }
 
-function allPublications() {
-  return Object.entries(DATA.publications).flatMap(([group, items]) =>
-    items.map(item => ({ ...item, group }))
-  );
+function actionButton(label, url, className) {
+  return `
+    <a class="btn ${className}" href="${esc(url)}" target="_blank" rel="noopener noreferrer">
+      ${esc(label)}
+    </a>
+  `;
 }
 
-function publicationTypeClass(type = "") {
-  const normalized = type.toLowerCase();
-  if (normalized.includes("journal")) return "chip-journal";
-  if (normalized.includes("conference")) return "chip-conf";
-  if (normalized.includes("review")) return "chip-review";
+function chip(label, className = "") {
+  if (!label) return "";
+  return `<span class="chip ${className}">${esc(label)}</span>`;
+}
+
+function pubTypeClass(type = "") {
+  const lower = String(type).toLowerCase();
+
+  if (lower.includes("journal")) return "chip-journal";
+  if (lower.includes("conference")) return "chip-conf";
+  if (lower.includes("review")) return "chip-review";
+  if (lower.includes("under")) return "chip-review";
+
   return "";
 }
 
 function initProfile() {
-  const { profile, hero } = DATA;
+  const profile = getProfile();
+  const hero = getHero();
 
   document.title = `${profile.name} | Medical AI`;
-  el("brandName").textContent = profile.brandName;
-  el("heroPill").textContent = hero.pill;
-  el("heroTitle").textContent = hero.title;
-  el("heroDescription").textContent = hero.description;
-  el("heroNote").textContent = hero.note;
-  el("profilePhoto").src = profile.headshot;
-  el("profilePhoto").alt = `${profile.name} headshot`;
-  el("profileName").textContent = profile.name;
-  el("profileMeta").textContent = `${profile.title} · ${profile.affiliation} · ${profile.location}`;
-  el("researchDirection").textContent = DATA.researchDirection;
-  el("footerText").textContent = `© ${new Date().getFullYear()} ${profile.name}`;
 
-  el("heroActions").innerHTML = [
-    linkButton("Google Scholar", profile.scholar, "btn btn-primary"),
-    `<a class="btn btn-secondary" href="resume.html" target="_blank" rel="noopener noreferrer">Download / Print Resume</a>`,
-    linkButton("Email", `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(profile.email)}`, "btn btn-ghost")
-  ].join("");
+  if ($("brandName")) $("brandName").textContent = profile.brandName;
+  if ($("heroPill")) $("heroPill").textContent = hero.pill;
+  if ($("heroTitle")) $("heroTitle").textContent = hero.title;
+  if ($("heroDescription")) $("heroDescription").textContent = hero.description;
+  if ($("heroNote")) $("heroNote").textContent = hero.note;
 
-  el("contactGrid").innerHTML = [
-    contactCard("Email", `<a href="mailto:${escapeHTML(profile.email)}">${escapeHTML(profile.email)}</a>`),
-    contactCard("Google Scholar", `<a href="${escapeHTML(profile.scholar)}" target="_blank" rel="noopener noreferrer">View citation profile</a>`),
-    contactCard("ORCID", `<a href="${escapeHTML(profile.orcid)}" target="_blank" rel="noopener noreferrer">${escapeHTML(profile.orcidId)}</a>`)
-  ].join("");
+  if ($("profilePhoto")) {
+    $("profilePhoto").src = profile.headshot;
+    $("profilePhoto").alt = `${profile.name} headshot`;
+  }
+
+  if ($("profileName")) $("profileName").textContent = profile.name;
+  if ($("profileMeta")) {
+    $("profileMeta").textContent = `${profile.title} · ${profile.affiliation} · ${profile.location}`;
+  }
+
+  if ($("researchDirection")) {
+    $("researchDirection").textContent = safe(
+      RAW_DATA.researchDirection,
+      "Medical AI reliability, fundus imaging, calibration, shortcut learning, domain shift, multimodal diagnostic systems, and healthcare-facing model evaluation."
+    );
+  }
+
+  if ($("heroActions")) {
+    $("heroActions").innerHTML = [
+      actionButton("Google Scholar", profile.scholar, "btn-primary"),
+      actionButton("Download / Print Resume", "resume.html", "btn-secondary"),
+      actionButton("Email", `mailto:${profile.email}`, "btn-ghost")
+    ].join("");
+  }
+
+  if ($("footerText")) {
+    $("footerText").textContent = `© ${new Date().getFullYear()} ${profile.name}`;
+  }
+
+  if ($("contactGrid")) {
+    $("contactGrid").innerHTML = `
+      <article class="contact-card glass-card">
+        <h3>Email</h3>
+        <p><a href="mailto:${esc(profile.email)}">${esc(profile.email)}</a></p>
+      </article>
+      <article class="contact-card glass-card">
+        <h3>Google Scholar</h3>
+        <p><a href="${esc(profile.scholar)}" target="_blank" rel="noopener noreferrer">View citation profile</a></p>
+      </article>
+      <article class="contact-card glass-card">
+        <h3>ORCID</h3>
+        <p><a href="${esc(profile.orcid)}" target="_blank" rel="noopener noreferrer">${esc(profile.orcidId)}</a></p>
+      </article>
+    `;
+  }
 }
 
 function initStats() {
-  el("statsGrid").innerHTML = DATA.stats.map((item, index) => `
+  const stats = getStats();
+
+  if (!$("statsGrid")) return;
+
+  $("statsGrid").innerHTML = stats.map((item, index) => `
     <article class="stat glass-card reveal-soft" style="--delay:${index * 80}ms">
-      <strong data-count="${escapeHTML(item.value)}">0</strong>
-      <span>${escapeHTML(item.label)}</span>
+      <strong data-count="${esc(item.value)}">${esc(item.value)}</strong>
+      <span>${esc(item.label)}</span>
     </article>
   `).join("");
 }
 
 function initBento() {
-  const stats = DATA.stats || [];
-  const pubs = allPublications();
-  const publishedCount = pubs.filter(p => !String(p.type).toLowerCase().includes("review")).length;
-  const reviewCount = pubs.filter(p => String(p.type).toLowerCase().includes("review")).length;
-  const coreAreas = DATA.about.coreAreas.slice(0, 4);
+  if (!$("bentoGrid")) return;
 
-  el("bentoGrid").innerHTML = `
+  const stats = getStats();
+  const about = getAbout();
+  const groups = normalizePublications();
+  const allItems = groups.flatMap(group => group.items);
+  const reviewCount = allItems.filter(item => {
+    const text = `${item.type || ""} ${item.status || ""} ${item.group || ""}`.toLowerCase();
+    return text.includes("review") || text.includes("under");
+  }).length;
+
+  $("bentoGrid").innerHTML = `
     <article class="bento-card bento-wide glass-card">
       <span class="dash-label">Research focus</span>
       <h3>Medical AI reliability under real-world shift</h3>
-      <p>${escapeHTML(DATA.about.paragraphs[0])}</p>
+      <p>${esc(about.paragraphs[0])}</p>
     </article>
+
     <article class="bento-card glass-card">
-      <span class="bento-number">${escapeHTML(stats[0]?.value || "—")}</span>
-      <p>${escapeHTML(stats[0]?.label || "Citation metric")}</p>
+      <span class="bento-number">${esc(stats[0]?.value || "—")}</span>
+      <p>${esc(stats[0]?.label || "Citation metric")}</p>
     </article>
+
     <article class="bento-card glass-card">
-      <span class="bento-number">${publishedCount}</span>
-      <p>Published / indexed outputs listed</p>
+      <span class="bento-number">${allItems.length || "—"}</span>
+      <p>Research outputs listed</p>
     </article>
+
     <article class="bento-card glass-card">
-      <span class="bento-number">${reviewCount}</span>
-      <p>Current manuscripts under review</p>
+      <span class="bento-number">${reviewCount || "—"}</span>
+      <p>Manuscripts under review</p>
     </article>
+
     <article class="bento-card bento-tall glass-card">
       <span class="dash-label">Core methods</span>
       <ul class="compact-list">
-        ${coreAreas.map(area => `<li>${escapeHTML(area)}</li>`).join("")}
+        ${about.coreAreas.slice(0, 4).map(item => `<li>${esc(item)}</li>`).join("")}
       </ul>
     </article>
   `;
 }
 
-function initLists() {
-  el("aboutSubtitle").textContent = DATA.about.subtitle;
-  el("aboutBody").innerHTML = DATA.about.paragraphs.map(p => `<p>${escapeHTML(p)}</p>`).join("");
-  el("coreAreasList").innerHTML = DATA.about.coreAreas.map(item => `<li>${escapeHTML(item)}</li>`).join("");
+function initAbout() {
+  const about = getAbout();
+
+  if ($("aboutSubtitle")) $("aboutSubtitle").textContent = about.subtitle;
+
+  if ($("aboutBody")) {
+    $("aboutBody").innerHTML = about.paragraphs.map(p => `<p>${esc(p)}</p>`).join("");
+  }
+
+  if ($("coreAreasList")) {
+    $("coreAreasList").innerHTML = about.coreAreas.map(item => `<li>${esc(item)}</li>`).join("");
+  }
 }
 
 function initFeatured() {
-  el("featuredGrid").innerHTML = DATA.featured.map((item, index) => `
+  if (!$("featuredGrid")) return;
+
+  $("featuredGrid").innerHTML = getFeatured().map((item, index) => `
     <article class="feature-card glass-card reveal-soft" style="--delay:${index * 90}ms">
       <div class="chip-row">
-        ${chip(item.status, item.status === "Published" ? "chip-journal" : "chip-review")}
+        ${chip(item.status, String(item.status).toLowerCase().includes("published") ? "chip-journal" : "chip-review")}
         ${chip(item.venue)}
-        ${item.highlight ? chip(item.highlight, "chip-accent") : ""}
+        ${chip(item.highlight, "chip-accent")}
       </div>
-      <h3>${escapeHTML(item.title)}</h3>
-      <p>${escapeHTML(item.description)}</p>
+      <h3>${esc(item.title)}</h3>
+      <p>${esc(item.description)}</p>
       <div class="card-line"></div>
     </article>
   `).join("");
 }
 
 function initVisuals() {
-  el("visualGrid").innerHTML = DATA.visuals.map((item, index) => `
+  if (!$("visualGrid")) return;
+
+  $("visualGrid").innerHTML = getVisuals().map((item, index) => `
     <article class="visual-card glass-card reveal-soft" style="--delay:${index * 100}ms">
       <div class="visual-image-wrap">
-        <img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.alt)}" />
+        <img src="${esc(item.image)}" alt="${esc(item.alt || item.title)}" />
       </div>
       <div class="visual-body">
-        <h3>${escapeHTML(item.title)}</h3>
-        <p>${escapeHTML(item.description)}</p>
+        <h3>${esc(item.title)}</h3>
+        <p>${esc(item.description)}</p>
       </div>
     </article>
   `).join("");
 }
 
-function initPublicationFilters() {
-  const groups = Object.keys(DATA.publications);
-  const filters = ["All", ...groups];
+function publicationCard(item, group, index) {
+  const year = safe(item.year, "");
+  const type = safe(item.type || item.status, group);
+  const venue = safe(item.venue || item.journal || item.conference, "");
+  const links = arr(item.links);
 
-  el("publicationFilters").innerHTML = filters.map(filter => `
-    <button class="filter-btn ${filter === activePublicationFilter ? "active" : ""}" type="button" data-filter="${escapeHTML(filter)}">
-      ${escapeHTML(filter)}
-    </button>
-  `).join("");
-
-  el("publicationFilters").addEventListener("click", event => {
-    const button = event.target.closest("button[data-filter]");
-    if (!button) return;
-    activePublicationFilter = button.dataset.filter;
-    initPublicationFilters();
-    initPublications();
-  }, { once: true });
-}
-
-function publicationCard(item, index) {
-  const links = (item.links || []).map(link => linkButton(link.label, link.url)).join("");
   return `
-    <article class="pub-card glass-card reveal-soft" data-group="${escapeHTML(item.group)}" style="--delay:${Math.min(index, 6) * 50}ms">
+    <article class="pub-card glass-card reveal-soft visible" style="--delay:${Math.min(index, 6) * 50}ms">
       <div class="pub-top">
         <div>
           <div class="chip-row">
-            ${chip(item.type, publicationTypeClass(item.type))}
-            ${chip(item.year)}
-            ${chip(item.group)}
+            ${chip(type, pubTypeClass(type))}
+            ${chip(year)}
+            ${chip(group)}
           </div>
-          <h3>${escapeHTML(item.title)}</h3>
-          <p>${escapeHTML(item.venue)}</p>
-          ${item.description ? `<p>${escapeHTML(item.description)}</p>` : ""}
+          <h3>${esc(item.title)}</h3>
+          ${venue ? `<p>${esc(venue)}</p>` : ""}
+          ${item.description ? `<p>${esc(item.description)}</p>` : ""}
         </div>
-        <div class="pub-year">${escapeHTML(item.year)}</div>
+        ${year ? `<div class="pub-year">${esc(year)}</div>` : ""}
       </div>
-      ${links ? `<div class="link-row">${links}</div>` : ""}
+
+      ${
+        links.length
+          ? `<div class="link-row">${links.map(link => linkButton(link.label, link.url)).join("")}</div>`
+          : ""
+      }
     </article>
   `;
 }
 
+function initPublicationFilters() {
+  if (!$("publicationFilters")) return;
+
+  const filters = ["All", ...publicationGroupsCache.map(group => group.group)];
+
+  $("publicationFilters").innerHTML = filters.map(filter => `
+    <button class="filter-btn ${filter === activePublicationFilter ? "active" : ""}" type="button" data-filter="${esc(filter)}">
+      ${esc(filter)}
+    </button>
+  `).join("");
+
+  document.querySelectorAll(".filter-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      activePublicationFilter = button.dataset.filter;
+      initPublicationFilters();
+      initPublications();
+    });
+  });
+}
+
 function initPublications() {
-  const entries = Object.entries(DATA.publications).filter(([group]) =>
-    activePublicationFilter === "All" || group === activePublicationFilter
+  if (!$("publicationsList")) return;
+
+  const visibleGroups = publicationGroupsCache.filter(group =>
+    activePublicationFilter === "All" || group.group === activePublicationFilter
   );
 
-  const total = entries.reduce((sum, [, items]) => sum + items.length, 0);
-  el("publicationCount").textContent = `${total} item${total === 1 ? "" : "s"} shown`;
+  const total = visibleGroups.reduce((sum, group) => sum + group.items.length, 0);
 
-  el("publicationsList").innerHTML = entries.map(([group, items]) => `
+  if ($("publicationCount")) {
+    $("publicationCount").textContent = `${total} item${total === 1 ? "" : "s"} shown`;
+  }
+
+  $("publicationsList").innerHTML = visibleGroups.map(group => `
     <div class="pub-group">
-      <div class="group-label">${escapeHTML(group)}</div>
+      <div class="group-label">${esc(group.group)}</div>
       <div class="pub-list">
-        ${items.map((item, index) => publicationCard({ ...item, group }, index)).join("")}
+        ${group.items.map((item, index) => publicationCard(item, group.group, index)).join("")}
       </div>
     </div>
   `).join("");
+}
 
-  requestAnimationFrame(() => {
-    document.querySelectorAll("#publicationsList .reveal-soft").forEach(card => card.classList.add("visible"));
-  });
+function initTimeline() {
+  const education = arr(RAW_DATA.education);
+  const experience = arr(RAW_DATA.experience);
+
+  if ($("educationList")) {
+    $("educationList").innerHTML = education.map((item, index) => timelineCard(item, index)).join("");
+  }
+
+  if ($("experienceList")) {
+    $("experienceList").innerHTML = experience.map((item, index) => timelineCard(item, index)).join("");
+  }
 }
 
 function timelineCard(item, index) {
   return `
     <article class="timeline-card glass-card reveal-soft" style="--delay:${index * 70}ms">
       <span class="timeline-dot"></span>
-      <h3>${escapeHTML(item.title)}</h3>
-      <div class="meta">${escapeHTML(item.meta)}</div>
-      <p>${escapeHTML(item.description)}</p>
+      <h3>${esc(item.title)}</h3>
+      <div class="meta">${esc(item.meta)}</div>
+      <p>${esc(item.description)}</p>
     </article>
   `;
 }
 
-function initEducationExperience() {
-  el("educationList").innerHTML = DATA.education.map(timelineCard).join("");
-  el("experienceList").innerHTML = DATA.experience.map(timelineCard).join("");
-}
-
 function initService() {
-  const review = DATA.service.reviews;
-  const certs = DATA.service.certifications;
+  if (!$("serviceGrid")) return;
 
-  el("serviceGrid").innerHTML = `
+  const service = RAW_DATA.service || {};
+  const reviews = service.reviews || {};
+  const certifications = arr(service.certifications || RAW_DATA.certifications);
+
+  $("serviceGrid").innerHTML = `
     <article class="service-card glass-card">
-      <h3>${escapeHTML(review.title)}</h3>
-      <div class="chip-row">${chip(review.count, "chip-accent")}</div>
+      <h3>${esc(safe(reviews.title, "Verified peer reviews"))}</h3>
+      <div class="chip-row">${chip(safe(reviews.count, "5 verified"), "chip-accent")}</div>
       <ul class="list">
-        ${review.items.map(item => `<li>${escapeHTML(item)}</li>`).join("")}
+        ${arr(reviews.items).map(item => `<li>${esc(item)}</li>`).join("")}
       </ul>
     </article>
+
     <article class="service-card glass-card">
       <h3>Certifications</h3>
       <div class="link-row">
-        ${certs.map(item => linkButton(item.label, item.url)).join("")}
+        ${certifications.map(item => linkButton(item.label, item.url)).join("")}
       </div>
     </article>
   `;
@@ -258,7 +494,9 @@ function initService() {
 
 function initMobileNav() {
   const toggle = document.querySelector(".nav-toggle");
-  const links = el("navLinks");
+  const links = $("navLinks");
+
+  if (!toggle || !links) return;
 
   toggle.addEventListener("click", () => {
     const isOpen = links.classList.toggle("open");
@@ -273,19 +511,29 @@ function initMobileNav() {
   });
 }
 
+function forceGeneratedItemsVisible() {
+  requestAnimationFrame(() => {
+    document.querySelectorAll(".reveal-soft").forEach(item => {
+      item.classList.add("visible");
+    });
+  });
+}
+
 function init() {
-  if (!DATA) return;
+  publicationGroupsCache = normalizePublications();
+
   initProfile();
   initStats();
   initBento();
-  initLists();
+  initAbout();
   initFeatured();
   initVisuals();
   initPublicationFilters();
   initPublications();
-  initEducationExperience();
+  initTimeline();
   initService();
   initMobileNav();
+  forceGeneratedItemsVisible();
 }
 
 document.addEventListener("DOMContentLoaded", init);
