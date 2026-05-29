@@ -283,41 +283,39 @@ function initBento() {
   if (!$("bentoGrid")) return;
 
   const stats = getStats();
-  const about = getAbout();
   const groups = normalizePublications();
   const allItems = groups.flatMap(group => group.items);
+
   const reviewCount = allItems.filter(item => {
     const text = `${item.type || ""} ${item.status || ""} ${item.group || ""}`.toLowerCase();
     return text.includes("review") || text.includes("under");
   }).length;
 
+  const publishedCount = Math.max(allItems.length - reviewCount, 0);
+
   $("bentoGrid").innerHTML = `
-    <article class="bento-card bento-wide glass-card">
-      <span class="dash-label">Research focus</span>
-      <h3>Medical AI reliability under real-world shift</h3>
-      <p>${esc(about.paragraphs[0])}</p>
-    </article>
-
     <article class="bento-card glass-card">
+      <span class="dash-label">Citations</span>
       <span class="bento-number">${esc(stats[0]?.value || "—")}</span>
-      <p>${esc(stats[0]?.label || "Citation metric")}</p>
+      <p>Google Scholar citation count</p>
     </article>
 
     <article class="bento-card glass-card">
+      <span class="dash-label">Research Output</span>
       <span class="bento-number">${allItems.length || "—"}</span>
-      <p>Research outputs listed</p>
+      <p>Listed publications and manuscripts</p>
     </article>
 
     <article class="bento-card glass-card">
-      <span class="bento-number">${reviewCount || "—"}</span>
-      <p>Manuscripts under review</p>
+      <span class="dash-label">Published Work</span>
+      <span class="bento-number">${publishedCount || "—"}</span>
+      <p>Published journal and conference outputs</p>
     </article>
 
-    <article class="bento-card bento-tall glass-card">
-      <span class="dash-label">Core methods</span>
-      <ul class="compact-list">
-        ${about.coreAreas.slice(0, 4).map(item => `<li>${esc(item)}</li>`).join("")}
-      </ul>
+    <article class="bento-card glass-card">
+      <span class="dash-label">Under Review</span>
+      <span class="bento-number">${reviewCount || "—"}</span>
+      <p>Current active manuscripts</p>
     </article>
   `;
 }
