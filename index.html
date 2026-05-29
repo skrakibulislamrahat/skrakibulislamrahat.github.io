@@ -12,42 +12,45 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
+  <div class="site-bg" aria-hidden="true">
+    <div class="orb orb-one"></div>
+    <div class="orb orb-two"></div>
+    <div class="orb orb-three"></div>
+    <div class="grid-glow"></div>
+  </div>
+
   <div class="nav-wrap">
     <nav class="nav">
-      <a href="#top" class="brand">
-        <span class="brand-dot"></span>
+      <a href="#top" class="brand" aria-label="Home">
+        <span class="brand-mark">R</span>
         <span id="brandName">SK RAKIB UL ISLAM RAHAT</span>
       </a>
       <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">Menu</button>
       <div class="nav-links" id="navLinks">
         <a href="#about">About</a>
-        <a href="#featured">Featured Work</a>
-        <a href="#visual-results">Visual Results</a>
+        <a href="#featured">Work</a>
+        <a href="#visual-results">Evidence</a>
         <a href="#publications">Publications</a>
-        <a href="#education">Education</a>
-        <a href="#experience">Experience</a>
+        <a href="#education">Timeline</a>
         <a href="#service">Service</a>
         <a href="#contact">Contact</a>
       </div>
     </nav>
   </div>
 
-  <main id="top" class="container">
-    <section class="hero">
+  <main id="top">
+    <section class="hero section-shell">
       <div class="hero-grid">
         <div class="hero-main reveal">
-          <div>
-            <div class="pill" id="heroPill"></div>
-            <h1 class="hero-title" id="heroTitle"></h1>
-            <p class="hero-desc" id="heroDescription"></p>
-            <p class="hero-note" id="heroNote"></p>
-            <div class="hero-actions" id="heroActions"></div>
-          </div>
-          <div class="stat-grid" id="statsGrid"></div>
+          <div class="pill" id="heroPill"></div>
+          <h1 class="hero-title" id="heroTitle"></h1>
+          <p class="hero-desc" id="heroDescription"></p>
+          <p class="hero-note" id="heroNote"></p>
+          <div class="hero-actions" id="heroActions"></div>
         </div>
 
-        <aside class="hero-side reveal">
-          <div class="profile-card">
+        <aside class="hero-dashboard reveal">
+          <div class="profile-card glass-card">
             <img class="profile-photo" id="profilePhoto" src="assets/headshot.png" alt="SK Rakib Ul Islam Rahat headshot" />
             <div>
               <h2 class="profile-name" id="profileName"></h2>
@@ -55,81 +58,78 @@
             </div>
           </div>
 
-          <div class="mini-card">
-            <h3>Research direction</h3>
+          <div class="dashboard-card glass-card">
+            <span class="dash-label">Research operating system</span>
             <p id="researchDirection"></p>
           </div>
 
-          <div class="mini-card">
-            <h3>Selected strengths</h3>
-            <ul class="list" id="strengthsList"></ul>
-          </div>
-
-          <div class="mini-card">
-            <h3>Quick links</h3>
-            <div class="link-row" id="quickLinks"></div>
-          </div>
+          <div class="stat-grid" id="statsGrid"></div>
         </aside>
       </div>
+
+      <div class="bento-grid reveal" id="bentoGrid"></div>
     </section>
 
-    <section id="about" class="section reveal">
-      <div class="section-head">
+    <section id="about" class="section section-shell reveal">
+      <div class="section-head split-head">
         <div>
-          <div class="eyebrow">About</div>
-          <h2 class="section-title">Research profile</h2>
-          <p class="section-subtitle" id="aboutSubtitle"></p>
+          <div class="eyebrow">Research Profile</div>
+          <h2 class="section-title">Built around reliability, not leaderboard theater.</h2>
         </div>
+        <p class="section-subtitle" id="aboutSubtitle"></p>
       </div>
+
       <div class="about-grid">
-        <div class="section-panel">
+        <article class="section-panel large-panel">
           <h3>What I work on</h3>
           <div id="aboutBody"></div>
-        </div>
-        <div class="section-panel">
+        </article>
+        <article class="section-panel">
           <h3>Core areas</h3>
           <ul class="list" id="coreAreasList"></ul>
-        </div>
+        </article>
       </div>
     </section>
 
-    <section id="featured" class="section reveal">
+    <section id="featured" class="section section-shell reveal">
       <div class="section-head">
         <div>
           <div class="eyebrow">Featured Work</div>
           <h2 class="section-title">Anchor projects and manuscripts</h2>
-          <p class="section-subtitle">These best represent my current research direction: reliability, artifact auditing, calibration, and clinically grounded diabetic retinopathy modeling.</p>
+          <p class="section-subtitle">Current work across shortcut learning, calibration transfer, multimodal diagnosis, and clinical deployment reliability.</p>
         </div>
       </div>
       <div class="featured-grid" id="featuredGrid"></div>
     </section>
 
-    <section id="visual-results" class="section reveal">
-      <div class="section-head">
+    <section id="visual-results" class="section section-shell reveal">
+      <div class="section-head split-head">
         <div>
-          <div class="eyebrow">Visual Results</div>
-          <h2 class="section-title">Selected visual evidence</h2>
-          <p class="section-subtitle">Representative figures from current retinal AI work, highlighting reliability under domain shift and attribution-based shortcut auditing.</p>
+          <div class="eyebrow">Visual Evidence</div>
+          <h2 class="section-title">Figures that show model behavior, not decoration.</h2>
         </div>
+        <p class="section-subtitle">Representative visual outputs from retinal AI work, focused on calibration behavior and attribution-based shortcut auditing.</p>
       </div>
       <div class="visual-grid" id="visualGrid"></div>
     </section>
 
-    <section id="publications" class="section reveal">
-      <div class="section-head">
+    <section id="publications" class="section section-shell reveal">
+      <div class="section-head split-head">
         <div>
           <div class="eyebrow">Publications</div>
-          <h2 class="section-title">Published work, conference papers, and current manuscripts</h2>
-          <p class="section-subtitle">Published articles, conference papers, and current manuscripts are listed separately.</p>
+          <h2 class="section-title">Research outputs</h2>
         </div>
+        <p class="section-subtitle">Use the filters to scan published journal papers, IEEE conference papers, and manuscripts under review.</p>
       </div>
+      <div class="filter-bar" id="publicationFilters"></div>
+      <div class="pub-count" id="publicationCount"></div>
       <div id="publicationsList"></div>
     </section>
 
-    <section class="section reveal">
+    <section class="section section-shell reveal">
       <div class="edu-exp-grid">
         <div id="education">
-          <div class="section-head">
+          <div class="section-head compact-head">
             <div>
               <div class="eyebrow">Education</div>
               <h2 class="section-title">Academic background</h2>
@@ -139,7 +139,7 @@
         </div>
 
         <div id="experience">
-          <div class="section-head">
+          <div class="section-head compact-head">
             <div>
               <div class="eyebrow">Experience</div>
               <h2 class="section-title">Research and applied work</h2>
@@ -150,28 +150,29 @@
       </div>
     </section>
 
-    <section id="service" class="section reveal">
-      <div class="section-head">
+    <section id="service" class="section section-shell reveal">
+      <div class="section-head split-head">
         <div>
           <div class="eyebrow">Service</div>
           <h2 class="section-title">Peer review and certifications</h2>
-          <p class="section-subtitle">Reviewer activity and formal certification support the scholarly service side of my profile.</p>
         </div>
+        <p class="section-subtitle">Scholarly service and professional training supporting the medical AI research profile.</p>
       </div>
       <div class="service-grid" id="serviceGrid"></div>
     </section>
 
-    <section id="contact" class="section reveal">
-      <div class="section-head">
+    <section id="contact" class="section section-shell reveal">
+      <div class="contact-panel">
         <div>
           <div class="eyebrow">Contact</div>
           <h2 class="section-title">Professional links</h2>
+          <p class="section-subtitle">For research collaboration, PhD opportunities, peer review, and medical AI work.</p>
         </div>
+        <div class="contact-grid" id="contactGrid"></div>
       </div>
-      <div class="contact-grid" id="contactGrid"></div>
     </section>
 
-    <div class="footer" id="footerText"></div>
+    <footer class="footer" id="footerText"></footer>
   </main>
 
   <script src="data/site-data.js"></script>
