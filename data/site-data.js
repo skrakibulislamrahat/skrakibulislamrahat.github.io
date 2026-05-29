@@ -33,8 +33,7 @@ window.SITE_DATA = {
     { value: "5", label: "Verified peer reviews" }
   ],
 
-  researchDirection:
-    "Medical AI reliability, fundus imaging, calibration, shortcut learning, domain shift, multimodal diagnostic systems, and healthcare-facing model evaluation.",
+  researchDirection: "Reliability-focused medical AI across retinal imaging, calibration, shortcut learning, external validation, and deployment-facing evaluation.",
 
   strengths: [
     "Medical imaging and clinical AI evaluation",
