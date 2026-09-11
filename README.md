@@ -18,6 +18,11 @@ Research on whether diabetic-retinopathy models exploit non-pathological image a
 
 Repository: [Exposing_Dataset_Artifacts](https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts)
 
+### Semantic transport failure across chest X-ray benchmarks
+Cross-dataset reliability study testing whether superficially similar pneumonia and opacity labels behave as interchangeable prediction tasks across Kaggle, RSNA, and CheXpert. The project includes five-seed DenseNet-121 training, calibration/high-confidence-error analysis, and source-only operating-point transfer.
+
+Repository: [Same Label, Different Disease](https://github.com/skrakibulislamrahat/TestRepo) *(repository rename pending)*
+
 ### Calibration and reliability under dataset shift
 Experimental work on probability calibration, seed stability, source-to-target transfer, and external evaluation on APTOS 2019 and Messidor-2.
 
@@ -38,7 +43,7 @@ Repository: [Multimodal_Framework_Research](https://github.com/skrakibulislamrah
 - **TriGWONet: A lightweight multibranch convolutional neural network using gray wolf optimization for accurate oral cancer image classification.** *Discover Artificial Intelligence*, 2026. DOI: https://doi.org/10.1007/s44163-025-00776-x
 - **Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity.** *Journal of Korea Multimedia Society*, 2026. DOI: https://doi.org/10.9717/kmms.2026.29.3.524
 
-The portfolio website contains the complete publication and service record.
+The portfolio website contains the broader publication and scholarly-service record.
 
 ## Links
 
@@ -48,4 +53,4 @@ The portfolio website contains the complete publication and service record.
 
 ## Site architecture
 
-The site is intentionally data-driven: `data/site-data.js` is the single source for the public profile, publications, education, experience, and service record. `index.html` renders the faculty-facing portfolio and `resume.html` generates a printable résumé from the same information.
+The site is data-driven: `data/site-data.js` is the source for the public profile, publications, education, experience, and service record. `index.html` renders the faculty-facing portfolio and `resume.html` generates a printable academic résumé from the same information.
