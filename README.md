@@ -1,29 +1,51 @@
-# Modular Portfolio Starter
+# SK Rakib Ul Islam Rahat — Research Portfolio
 
-This version keeps the same single-page portfolio idea but separates the code into maintainable files.
+Faculty-facing academic portfolio for **SK Rakib Ul Islam Rahat**, a **Computer Science PhD student at Wright State University** working on trustworthy artificial intelligence, medical imaging, reliable machine learning, and knowledge engineering.
 
-## File map
+## Research focus
 
-- `index.html` = page shell only
-- `data/site-data.js` = edit your profile, stats, publications, education, experience, links, certifications
-- `css/styles.css` = all portfolio design and animations
-- `js/render.js` = builds the homepage cards from `site-data.js`
-- `js/animations.js` = scroll reveal animation
-- `resume.html` = printable resume generated from the same data
-- `css/resume.css` = resume design
-- `js/resume.js` = builds the resume from `site-data.js`
-- `assets/` = put `headshot.png`, `fig_reliability_shift.png`, `fig_gradcam_audit.png`, `favicon.svg`
+- Trustworthy AI for medical imaging
+- Dataset shift and external validation
+- Probability calibration and high-confidence error
+- Shortcut learning and dataset artifact auditing
+- Explainable AI and model diagnostics
+- Knowledge engineering, semantic representations, and neurosymbolic AI
 
-## How to update
+## Selected research
 
-1. New paper? Edit `data/site-data.js`.
-2. New citations? Update the `stats` section in `data/site-data.js`.
-3. New CV content? Update `data/site-data.js`; `resume.html` will reuse the same data.
-4. Change colors/design? Edit the variables at the top of `css/styles.css`.
-5. Change animations? Edit `.reveal` in `css/styles.css` or `js/animations.js`.
+### Artifact-driven shortcut learning in retinal AI
+Research on whether diabetic-retinopathy models exploit non-pathological image artifacts such as borders, padding, and overlays, with external validation and attribution-based auditing.
 
-## Deploy on GitHub Pages
+Repository: [Exposing_Dataset_Artifacts](https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts)
 
-For the repository `skrakibulislamrahat.github.io`, place these files in the repository root and push to `main`.
+### Calibration and reliability under dataset shift
+Experimental work on probability calibration, seed stability, source-to-target transfer, and external evaluation on APTOS 2019 and Messidor-2.
 
-Keep this file if useful, or delete it before final deployment.
+Repository: [JBHI_1](https://github.com/skrakibulislamrahat/JBHI_1)
+
+### Lightweight diabetic-retinopathy screening models
+Five-fold evaluation of EfficientNet-B0, MobileNetV2, and SqueezeNet for resource-constrained retinal screening, including out-of-fold evaluation and pairwise statistical comparison.
+
+Repository: [Lightweight_DR_Detection_Models](https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models)
+
+### Explainable multimodal retinal-AI prototype
+Image + structured-feature fusion architecture with Grad-CAM and SHAP. The repository explicitly documents that the structured metadata used in the prototype are synthetic and should not be interpreted as patient-level clinical evidence.
+
+Repository: [Multimodal_Framework_Research](https://github.com/skrakibulislamrahat/Multimodal_Framework_Research)
+
+## Published work
+
+- **TriGWONet: A lightweight multibranch convolutional neural network using gray wolf optimization for accurate oral cancer image classification.** *Discover Artificial Intelligence*, 2026. DOI: https://doi.org/10.1007/s44163-025-00776-x
+- **Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity.** *Journal of Korea Multimedia Society*, 2026. DOI: https://doi.org/10.9717/kmms.2026.29.3.524
+
+The portfolio website contains the complete publication and service record.
+
+## Links
+
+- Portfolio: https://skrakibulislamrahat.github.io/
+- Google Scholar: https://scholar.google.com/citations?user=0X1eRi8AAAAJ
+- ORCID: https://orcid.org/0009-0005-0744-8398
+
+## Site architecture
+
+The site is intentionally data-driven: `data/site-data.js` is the single source for the public profile, publications, education, experience, and service record. `index.html` renders the faculty-facing portfolio and `resume.html` generates a printable résumé from the same information.
