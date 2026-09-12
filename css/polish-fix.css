@@ -1,0 +1,85 @@
+/* v6.3 — final readability and section-spacing polish. */
+
+/* Efficient-screening console: keep statistical notes readable at desktop widths. */
+.model-console {
+  overflow: hidden !important;
+}
+.model-console .stat-note {
+  margin: 14px 22px 0 !important;
+  padding: 14px 16px !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 5px !important;
+  align-items: start !important;
+  border: 1px solid rgba(183,243,107,.17) !important;
+  border-radius: 14px !important;
+  background: rgba(183,243,107,.045) !important;
+}
+.model-console .stat-note span,
+.model-console .stat-note strong,
+.model-console .stat-note small {
+  display: block !important;
+  grid-column: 1 !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+.model-console .stat-note span {
+  color: var(--muted) !important;
+  font-size: .64rem !important;
+}
+.model-console .stat-note strong {
+  color: var(--text) !important;
+  font-size: .80rem !important;
+  line-height: 1.35 !important;
+}
+.model-console .stat-note small {
+  color: var(--muted) !important;
+  font: 500 .59rem/1.45 "DM Mono", monospace !important;
+}
+.model-console .method-strip {
+  margin: 12px 22px 20px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 7px !important;
+}
+.model-console .method-strip span {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 27px !important;
+  padding: 6px 9px !important;
+  border: 1px solid rgba(216,234,222,.12) !important;
+  border-radius: 8px !important;
+  background: rgba(255,255,255,.025) !important;
+  color: var(--muted) !important;
+  font: 500 .55rem/1.2 "DM Mono", monospace !important;
+  letter-spacing: .02em !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+}
+
+/* Remove the artificial canyon between Research Practice and Contact. */
+.service-section {
+  padding-bottom: 28px !important;
+}
+.contact-section {
+  padding-top: 24px !important;
+  padding-bottom: 50px !important;
+}
+.contact-card {
+  margin-top: 0 !important;
+}
+
+@media (max-width: 820px) {
+  .service-section { padding-bottom: 22px !important; }
+  .contact-section { padding-top: 18px !important; padding-bottom: 42px !important; }
+}
+
+@media (max-width: 560px) {
+  .model-console .stat-note { margin: 10px 12px 0 !important; padding: 12px !important; }
+  .model-console .method-strip { margin: 10px 12px 14px !important; gap: 5px !important; }
+  .model-console .method-strip span { white-space: normal !important; }
+  .service-section { padding-bottom: 16px !important; }
+  .contact-section { padding-top: 14px !important; padding-bottom: 34px !important; }
+}
