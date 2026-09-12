@@ -3,179 +3,201 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SK Rakib Ul Islam Rahat | PhD Computer Science · Trustworthy AI</title>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=3">
-  <meta name="description" content="Wright State University Computer Science PhD student researching trustworthy AI, medical imaging, dataset shift, calibration, shortcut learning, and knowledge engineering." />
+  <title>SK Rakib Ul Islam Rahat | Trustworthy AI Research</title>
+  <meta name="description" content="Research portfolio of SK Rakib Ul Islam Rahat, Computer Science PhD student at Wright State University working on trustworthy AI, medical imaging, dataset shift, calibration, shortcut learning, and knowledge engineering." />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=4">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=4.0" />
 </head>
 <body>
-  <div class="site-bg" aria-hidden="true">
-    <div class="orb orb-one"></div>
-    <div class="orb orb-two"></div>
-    <div class="orb orb-three"></div>
-    <div class="grid-glow"></div>
+  <div class="ambient" aria-hidden="true">
+    <div class="ambient-grid"></div>
+    <div class="ambient-glow glow-a"></div>
+    <div class="ambient-glow glow-b"></div>
   </div>
 
-  <div class="nav-wrap">
-    <nav class="nav">
-      <a href="#top" class="brand" aria-label="Home">
+  <header class="site-header">
+    <nav class="nav shell" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="Home">
         <span class="brand-mark">R</span>
-        <span id="brandName">SK RAKIB UL ISLAM RAHAT</span>
+        <span class="brand-copy"><strong>RAHAT</strong><small>RESEARCH / 2026</small></span>
       </a>
-      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">Menu</button>
-      <div class="nav-links" id="navLinks">
-        <a href="#about">About</a>
-        <a href="#featured">Work</a>
-        <a href="#visual-results">Evidence</a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Toggle navigation">Menu</button>
+      <div class="nav-links">
+        <a href="#thesis">Thesis</a>
+        <a href="#research">Research</a>
+        <a href="#evidence">Evidence</a>
         <a href="#publications">Publications</a>
-        <a href="#education">Timeline</a>
-        <a href="#service">Service</a>
-        <a href="#contact">Contact</a>
+        <a href="#trajectory">Trajectory</a>
+        <a class="nav-cta" href="#contact">Contact</a>
       </div>
     </nav>
-  </div>
+  </header>
 
   <main id="top">
-    <section class="hero section-shell">
-      <div class="hero-grid">
-        <div class="hero-main reveal">
-          <div class="pill" id="heroPill"></div>
-          <h1 class="hero-title" id="heroTitle"></h1>
-          <p class="hero-desc" id="heroDescription"></p>
-          <p class="hero-note" id="heroNote"></p>
-          <div class="hero-actions" id="heroActions"></div>
+    <section class="hero shell">
+      <div class="hero-copy reveal">
+        <div class="hero-kicker"><span class="status-dot"></span> Wright State University · Computer Science PhD</div>
+        <h1>Reliable AI is not a leaderboard problem.</h1>
+        <p class="hero-lede">I study what happens after benchmark accuracy looks good: dataset shift, calibration failure, shortcut learning, semantic mismatch, high-confidence error, and the knowledge structures needed to make AI more defensible.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#research">Explore research <span>↓</span></a>
+          <a class="button" href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a>
+          <a class="button" href="https://github.com/skrakibulislamrahat" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
         </div>
+        <div class="signal-stats" id="signalStats"></div>
+      </div>
 
-        <aside class="hero-dashboard reveal">
-          <div class="profile-card glass-card">
-            <img class="profile-photo" id="profilePhoto" src="assets/headshot.png" alt="SK Rakib Ul Islam Rahat headshot" />
-            <div>
-              <h2 class="profile-name" id="profileName"></h2>
-              <p class="profile-meta" id="profileMeta"></p>
-            </div>
-          </div>
+      <aside class="hero-portrait reveal">
+        <div class="portrait-frame">
+          <img data-profile-photo src="assets/headshot.png" alt="SK Rakib Ul Islam Rahat headshot" />
+          <div class="portrait-scan" aria-hidden="true"></div>
+        </div>
+        <div class="identity-card">
+          <span class="mono-label">RESEARCHER</span>
+          <h2 data-profile-name>SK Rakib Ul Islam Rahat</h2>
+          <p data-profile-meta>PhD Student in Computer Science · Trustworthy AI Researcher · Wright State University</p>
+        </div>
+        <div class="focus-radar">
+          <span class="mono-label">CURRENT SIGNAL</span>
+          <div class="radar-line"><strong>Medical imaging</strong><span>reliability under shift</span></div>
+          <div class="radar-line"><strong>Knowledge engineering</strong><span>semantic + neurosymbolic reasoning</span></div>
+        </div>
+      </aside>
+    </section>
 
-          <div class="dashboard-card glass-card">
-            <span class="dash-label">Research direction</span>
-            <p id="researchDirection"></p>
-          </div>
+    <section class="thesis-section shell" id="thesis">
+      <div class="section-intro reveal">
+        <span class="section-label">Research thesis</span>
+        <h2>The interesting failures begin where the benchmark ends.</h2>
+        <p>My work follows one thread: a model is only useful when we understand what it learned, whether its confidence is warranted, and whether its prediction target still means the same thing when the data source changes.</p>
+      </div>
+
+      <div class="failure-map reveal" aria-label="Research map">
+        <div class="map-track" aria-hidden="true"></div>
+        <article class="map-node">
+          <span>01</span>
+          <strong>Artifacts</strong>
+          <p>What non-clinical cues did the model exploit?</p>
+        </article>
+        <article class="map-node">
+          <span>02</span>
+          <strong>Shift</strong>
+          <p>Does performance survive a new dataset or provenance?</p>
+        </article>
+        <article class="map-node">
+          <span>03</span>
+          <strong>Calibration</strong>
+          <p>Do confidence scores still correspond to reality?</p>
+        </article>
+        <article class="map-node accent-node">
+          <span>04</span>
+          <strong>Knowledge</strong>
+          <p>Can explicit semantics make reasoning more reliable?</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="research-section shell" id="research">
+      <div class="section-heading reveal">
+        <div>
+          <span class="section-label">Selected research</span>
+          <h2>Four projects. One reliability agenda.</h2>
+        </div>
+        <p>Each project is connected directly to its GitHub code, reproducibility notes, results or audit artifacts, and citation metadata.</p>
+      </div>
+      <div class="project-stack" id="projectStack"></div>
+    </section>
+
+    <section class="evidence-section shell" id="evidence">
+      <div class="section-heading reveal">
+        <div>
+          <span class="section-label">Visual evidence</span>
+          <h2>Show the behavior, not just the score.</h2>
+        </div>
+        <p>Representative outputs from ongoing reliability work in retinal AI.</p>
+      </div>
+
+      <div class="evidence-grid">
+        <figure class="evidence-card evidence-wide reveal">
+          <div class="evidence-image"><img src="assets/fig_reliability_shift.png" alt="Reliability diagrams showing calibration behavior under dataset shift" /></div>
+          <figcaption><span>Calibration under shift</span><strong>Confidence can drift even when discrimination still looks acceptable.</strong><p>Reliability diagrams expose changes that accuracy and AUROC alone can hide.</p></figcaption>
+        </figure>
+        <figure class="evidence-card reveal">
+          <div class="evidence-image"><img src="assets/fig_gradcam_audit.png" alt="Grad-CAM model attention audit" /></div>
+          <figcaption><span>Shortcut audit</span><strong>Where the network looks is part of the result.</strong><p>Attribution analysis tests whether evidence comes from retinal structure or peripheral artifacts.</p></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="publication-section shell" id="publications">
+      <div class="section-heading reveal publication-heading">
+        <div>
+          <span class="section-label">Publication vault</span>
+          <h2>Outputs, without the wall of text.</h2>
+        </div>
+        <a class="text-link" href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank" rel="noopener noreferrer">Full Scholar profile ↗</a>
+      </div>
+      <div class="publication-controls reveal">
+        <div class="publication-filters" id="publicationFilters"></div>
+        <button class="publication-toggle" id="publicationToggle" type="button">View all</button>
+      </div>
+      <div class="publication-rows" id="publicationRows"></div>
+    </section>
+
+    <section class="trajectory-section shell" id="trajectory">
+      <div class="section-heading reveal">
+        <div>
+          <span class="section-label">Trajectory</span>
+          <h2>From applied AI to reliability research.</h2>
+        </div>
+        <a class="text-link" href="resume.html" target="_blank" rel="noopener noreferrer">Open full résumé ↗</a>
+      </div>
+      <div class="trajectory-layout">
+        <div class="timeline" id="timelineGrid"></div>
+        <aside class="trajectory-note reveal">
+          <span class="mono-label">NOW / WSU</span>
+          <h3>Trustworthy AI + Knowledge Engineering</h3>
+          <p>Current doctoral direction connects reliability-focused medical AI with semantic representations, knowledge graphs, and knowledge-guided or neurosymbolic reasoning.</p>
+          <div class="trajectory-tags"><span>Dataset shift</span><span>Calibration</span><span>Semantic transport</span><span>Knowledge graphs</span><span>Neurosymbolic AI</span></div>
         </aside>
       </div>
-
-      <div class="bento-grid reveal" id="bentoGrid"></div>
     </section>
 
-    <section id="about" class="section section-shell reveal">
-      <div class="section-head split-head">
+    <section class="service-section shell">
+      <div class="section-heading reveal">
         <div>
-          <div class="eyebrow">Research Profile</div>
-          <h2 class="section-title">Reliability beyond benchmark performance.</h2>
-        </div>
-        <p class="section-subtitle" id="aboutSubtitle"></p>
-      </div>
-
-      <div class="about-grid">
-        <article class="section-panel large-panel">
-          <h3>What I work on</h3>
-          <div id="aboutBody"></div>
-        </article>
-        <article class="section-panel">
-          <h3>Core areas</h3>
-          <ul class="list" id="coreAreasList"></ul>
-        </article>
-      </div>
-    </section>
-
-    <section id="featured" class="section section-shell reveal">
-      <div class="section-head">
-        <div>
-          <div class="eyebrow">Featured Work</div>
-          <h2 class="section-title">Selected research and manuscripts</h2>
-          <p class="section-subtitle">Current work across shortcut learning, calibration transfer, semantic transport, multimodal diagnosis, external validation, and knowledge-guided reliability.</p>
+          <span class="section-label">Research practice</span>
+          <h2>Service, review, and methodological discipline.</h2>
         </div>
       </div>
-      <div class="featured-grid" id="featuredGrid"></div>
+      <div class="service-compact" id="serviceCompact"></div>
     </section>
 
-    <section id="visual-results" class="section section-shell reveal">
-      <div class="section-head split-head">
+    <section class="contact-section shell" id="contact">
+      <div class="contact-card reveal">
         <div>
-          <div class="eyebrow">Visual Evidence</div>
-          <h2 class="section-title">Model behavior, not decorative figures.</h2>
+          <span class="section-label">Contact</span>
+          <h2>Interested in reliable AI that survives contact with new data?</h2>
+          <p>Research collaboration, faculty discussion, peer review, and trustworthy AI work.</p>
         </div>
-        <p class="section-subtitle">Representative retinal-AI outputs focused on calibration behavior, domain shift, and attribution-based shortcut auditing.</p>
-      </div>
-      <div class="visual-grid" id="visualGrid"></div>
-    </section>
-
-    <section id="publications" class="section section-shell reveal">
-      <div class="section-head split-head">
-        <div>
-          <div class="eyebrow">Publications</div>
-          <h2 class="section-title">Research outputs</h2>
-        </div>
-        <p class="section-subtitle">Published journal articles, IEEE conference papers, and active manuscripts.</p>
-      </div>
-      <div class="filter-bar" id="publicationFilters"></div>
-      <div class="pub-count" id="publicationCount"></div>
-      <div id="publicationsList"></div>
-    </section>
-
-    <section class="section section-shell reveal">
-      <div class="edu-exp-grid">
-        <div id="education">
-          <div class="section-head compact-head">
-            <div>
-              <div class="eyebrow">Education</div>
-              <h2 class="section-title">Academic background</h2>
-            </div>
+        <div class="contact-actions">
+          <a class="contact-email" id="contactEmail" href="mailto:skrakibulislamrahat@gmail.com">skrakibulislamrahat@gmail.com</a>
+          <div class="contact-links">
+            <a href="https://github.com/skrakibulislamrahat" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            <a href="https://scholar.google.com/citations?user=0X1eRi8AAAAJ" target="_blank" rel="noopener noreferrer">Scholar ↗</a>
+            <a href="https://orcid.org/0009-0005-0744-8398" target="_blank" rel="noopener noreferrer">ORCID ↗</a>
           </div>
-          <div class="timeline-col" id="educationList"></div>
-        </div>
-
-        <div id="experience">
-          <div class="section-head compact-head">
-            <div>
-              <div class="eyebrow">Experience</div>
-              <h2 class="section-title">Research and applied work</h2>
-            </div>
-          </div>
-          <div class="timeline-col" id="experienceList"></div>
         </div>
       </div>
     </section>
-
-    <section id="service" class="section section-shell reveal">
-      <div class="section-head split-head">
-        <div>
-          <div class="eyebrow">Service</div>
-          <h2 class="section-title">Peer review and professional training</h2>
-        </div>
-        <p class="section-subtitle">Scholarly service and training supporting research in trustworthy medical AI.</p>
-      </div>
-      <div class="service-grid" id="serviceGrid"></div>
-    </section>
-
-    <section id="contact" class="section section-shell reveal">
-      <div class="contact-panel">
-        <div>
-          <div class="eyebrow">Contact</div>
-          <h2 class="section-title">Professional links</h2>
-          <p class="section-subtitle">For research collaboration, faculty discussion, peer review, and trustworthy AI work.</p>
-        </div>
-        <div class="contact-grid" id="contactGrid"></div>
-      </div>
-    </section>
-
-    <footer class="footer" id="footerText"></footer>
   </main>
 
-  <script src="data/site-data.js?v=3.1"></script>
-  <script src="js/render.js?v=3.1"></script>
-  <script src="js/faculty-profile.js?v=3.1"></script>
-  <script src="js/animations.js?v=3.1"></script>
+  <footer class="footer shell" id="footerText"></footer>
+
+  <script src="data/site-data.js?v=4.0"></script>
+  <script src="js/portfolio.js?v=4.0"></script>
 </body>
 </html>
