@@ -144,6 +144,13 @@ function renderProjects() {
       </div>
     </article>
   `).join("");
+
+  if (window.location.hash.startsWith("#project-")) {
+    requestAnimationFrame(() => {
+      const requested = document.querySelector(window.location.hash);
+      if (requested) requested.scrollIntoView({ block: "center" });
+    });
+  }
 }
 
 function renderPublications() {
