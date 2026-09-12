@@ -1,0 +1,175 @@
+/* v6.2 — harden figure modal + make HCER matrix fit its desktop instrument panel. */
+
+/* HCER matrix: fit all source/target labels at normal desktop widths. */
+.semantic-matrix-frame {
+  overflow: hidden !important;
+  min-width: 0 !important;
+}
+.semantic-matrix-frame .heatmap-scroll {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}
+.semantic-matrix-frame .heatmap-grid {
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  padding: 12px !important;
+  gap: 4px !important;
+  grid-template-columns: minmax(102px, 1.22fr) repeat(6, minmax(54px, 1fr)) !important;
+}
+.semantic-matrix-frame .hm-corner,
+.semantic-matrix-frame .hm-col,
+.semantic-matrix-frame .hm-row,
+.semantic-matrix-frame .hm-cell {
+  min-width: 0 !important;
+  min-height: 56px !important;
+}
+.semantic-matrix-frame .hm-corner,
+.semantic-matrix-frame .hm-col,
+.semantic-matrix-frame .hm-row {
+  font-size: .49rem !important;
+  overflow-wrap: anywhere;
+}
+.semantic-matrix-frame .hm-cell { font-size: .64rem !important; }
+.semantic-matrix-frame .hm-row { padding: 7px !important; }
+.semantic-matrix-frame .hm-col { padding: 5px 2px !important; }
+
+/* Expanded research figure must be a viewport modal, never normal document flow. */
+.figure-lightbox[hidden] { display: none !important; }
+.figure-lightbox:not([hidden]) {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  z-index: 2147483000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  margin: 0 !important;
+  padding: 28px !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  background: rgba(2, 8, 6, .985) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+.figure-lightbox:not([hidden]) .lightbox-inner {
+  position: relative !important;
+  width: min(1320px, calc(100vw - 72px)) !important;
+  height: min(900px, calc(100dvh - 72px)) !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  grid-template-rows: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  justify-items: center !important;
+  gap: 12px !important;
+  overflow: hidden !important;
+}
+.figure-lightbox:not([hidden]) #lightboxImage {
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: calc(100dvh - 132px) !important;
+  object-fit: contain !important;
+  margin: auto !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  box-shadow: 0 30px 100px rgba(0,0,0,.62) !important;
+}
+.figure-lightbox:not([hidden]) #lightboxCaption {
+  width: min(980px, 100%) !important;
+  margin: 0 auto !important;
+  color: #cbd8d1 !important;
+  text-align: center !important;
+  font-size: .8rem !important;
+  line-height: 1.5 !important;
+}
+.figure-lightbox:not([hidden]) .lightbox-close {
+  position: fixed !important;
+  top: 18px !important;
+  right: 18px !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 2147483001 !important;
+  width: 46px !important;
+  height: 46px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 1px solid rgba(255,255,255,.24) !important;
+  border-radius: 50% !important;
+  background: rgba(10,24,20,.96) !important;
+  color: #fff !important;
+  font: 400 1.6rem/1 Inter, sans-serif !important;
+  cursor: pointer !important;
+  box-shadow: 0 12px 35px rgba(0,0,0,.35) !important;
+}
+.figure-lightbox:not([hidden]) .lightbox-close:hover {
+  border-color: rgba(183,243,107,.58) !important;
+  color: var(--acid) !important;
+}
+body:has(.figure-lightbox:not([hidden])) { overflow: hidden !important; }
+
+@media (max-width: 1120px) {
+  .semantic-matrix-frame .heatmap-grid {
+    grid-template-columns: minmax(92px, 1.18fr) repeat(6, minmax(50px, 1fr)) !important;
+  }
+  .semantic-matrix-frame .hm-corner,
+  .semantic-matrix-frame .hm-col,
+  .semantic-matrix-frame .hm-row { font-size: .46rem !important; }
+}
+
+@media (max-width: 760px) {
+  /* On phones, deliberate horizontal inspection is better than crushing labels. */
+  .semantic-matrix-frame .heatmap-scroll {
+    overflow-x: auto !important;
+    overscroll-behavior-x: contain !important;
+  }
+  .semantic-matrix-frame .heatmap-grid {
+    width: 650px !important;
+    min-width: 650px !important;
+    grid-template-columns: 112px repeat(6, 84px) !important;
+    padding: 10px !important;
+  }
+  .semantic-matrix-frame .hm-corner,
+  .semantic-matrix-frame .hm-row {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 3 !important;
+    background: #0c1814 !important;
+  }
+  .semantic-matrix-frame .hm-corner { z-index: 4 !important; }
+
+  .figure-lightbox:not([hidden]) { padding: 58px 10px 16px !important; }
+  .figure-lightbox:not([hidden]) .lightbox-inner {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: calc(100dvh - 74px) !important;
+  }
+  .figure-lightbox:not([hidden]) #lightboxImage {
+    max-height: calc(100dvh - 138px) !important;
+    border-radius: 10px !important;
+  }
+  .figure-lightbox:not([hidden]) .lightbox-close {
+    top: 10px !important;
+    right: 10px !important;
+    width: 42px !important;
+    height: 42px !important;
+  }
+  .figure-lightbox:not([hidden]) #lightboxCaption {
+    font-size: .7rem !important;
+    padding: 0 4px !important;
+  }
+}
