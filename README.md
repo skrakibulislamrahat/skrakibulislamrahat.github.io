@@ -21,12 +21,12 @@ Repository: [Exposing_Dataset_Artifacts](https://github.com/skrakibulislamrahat/
 ### Semantic transport failure across chest X-ray benchmarks
 Cross-dataset reliability study testing whether superficially similar pneumonia and opacity labels behave as interchangeable prediction tasks across Kaggle, RSNA, and CheXpert. The project includes five-seed DenseNet-121 training, calibration/high-confidence-error analysis, and source-only operating-point transfer.
 
-Repository: [Same Label, Different Disease](https://github.com/skrakibulislamrahat/TestRepo) *(repository rename pending)*
+Repository: [semantic-shift-chest-xray](https://github.com/skrakibulislamrahat/semantic-shift-chest-xray)
 
 ### Calibration and reliability under dataset shift
 Experimental work on probability calibration, seed stability, source-to-target transfer, and external evaluation on APTOS 2019 and Messidor-2.
 
-Repository: [JBHI_1](https://github.com/skrakibulislamrahat/JBHI_1)
+Repository: [calibration-aware-dr-reliability](https://github.com/skrakibulislamrahat/calibration-aware-dr-reliability)
 
 ### Lightweight diabetic-retinopathy screening models
 Five-fold evaluation of EfficientNet-B0, MobileNetV2, and SqueezeNet for resource-constrained retinal screening, including out-of-fold evaluation and pairwise statistical comparison.
@@ -48,6 +48,7 @@ The portfolio website contains the broader publication and scholarly-service rec
 ## Links
 
 - Portfolio: https://skrakibulislamrahat.github.io/
+- GitHub: https://github.com/skrakibulislamrahat
 - Google Scholar: https://scholar.google.com/citations?user=0X1eRi8AAAAJ
 - ORCID: https://orcid.org/0009-0005-0744-8398
 
