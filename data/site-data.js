@@ -9,6 +9,7 @@ window.SITE_DATA = {
     "location": "Dayton, Ohio, USA",
     "email": "skrakibulislamrahat@gmail.com",
     "website": "https://skrakibulislamrahat.github.io/",
+    "github": "https://github.com/skrakibulislamrahat",
     "scholar": "https://scholar.google.com/citations?user=0X1eRi8AAAAJ",
     "orcid": "https://orcid.org/0009-0005-0744-8398",
     "orcidId": "0009-0005-0744-8398",
@@ -21,11 +22,11 @@ window.SITE_DATA = {
     "note": "Current doctoral work at Wright State University extends reliability-focused medical AI toward knowledge engineering, semantic representations, and neurosymbolic methods."
   },
   "stats": [
+    {"value": "100+", "label": "Citations"},
     {"value": "PhD", "label": "Computer Science · Wright State"},
-    {"value": "Medical AI", "label": "Primary research domain"},
     {"value": "5+", "label": "Verified peer reviews"}
   ],
-  "researchDirection": "Trustworthy AI at the intersection of medical imaging, reliability under dataset shift, calibration, knowledge engineering, and knowledge-guided/neurosymbolic reasoning.",
+  "researchDirection": "Trustworthy AI at the intersection of medical imaging, reliability under dataset shift, calibration, semantic transport, knowledge engineering, and knowledge-guided/neurosymbolic reasoning.",
   "strengths": [
     "Medical imaging and clinical AI evaluation",
     "External validation, calibration, and reliability under shift",
@@ -35,7 +36,7 @@ window.SITE_DATA = {
   "about": {
     "subtitle": "My work focuses on the gap between benchmark performance and real-world reliability. I study how models fail under dataset shift, what non-clinical cues they exploit, how probability estimates become miscalibrated, and how structured knowledge can support more reliable reasoning.",
     "paragraphs": [
-      "My current research centers on trustworthy medical AI: artifact-driven shortcut learning, retinal-image bias, calibration under domain shift, cross-dataset evaluation, high-confidence error analysis, and explainable model auditing.",
+      "My current research centers on trustworthy medical AI: artifact-driven shortcut learning, retinal-image bias, calibration under domain shift, semantic transport across chest X-ray benchmarks, cross-dataset evaluation, high-confidence error analysis, and explainable model auditing.",
       "As a Computer Science PhD student at Wright State University, I am expanding this work toward knowledge engineering, knowledge graphs, semantic representations, and knowledge-guided or neurosymbolic approaches to reliability and interpretability."
     ],
     "coreAreas": [
@@ -50,6 +51,7 @@ window.SITE_DATA = {
   "featured": [
     {"status": "Under Review", "venue": "CMPB", "title": "Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models", "description": "Evaluation study of non-pathological shortcuts in fundus models, including image borders, padding, and overlays, with attribution-based auditing and external validation."},
     {"status": "Under Review", "venue": "CMIG", "title": "Calibration Under Domain Shift in Diabetic Retinopathy Screening", "description": "Controlled evaluation of calibration transfer from APTOS to Messidor-2, including source-fitted temperature scaling and limited-label target-side recalibration."},
+    {"status": "Research Project", "venue": "Chest X-ray", "highlight": "Cross-Dataset Reliability", "title": "Same Label, Different Disease: Semantic Transport Failure Across Chest X-ray Benchmarks", "description": "Five-seed DenseNet-121 study testing whether superficially similar pneumonia and opacity labels transfer reliably across Kaggle, RSNA, and CheXpert, with calibration and high-confidence-error analysis."},
     {"status": "Published", "venue": "KMMS", "highlight": "Published Work", "title": "Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity", "description": "Explainable multimodal retinal-AI study with five-fold evaluation, external validation on Messidor-2, and interpretability analysis."}
   ],
   "visuals": [
@@ -71,7 +73,7 @@ window.SITE_DATA = {
       {"year": "2026", "type": "Conference", "title": "Performance Evaluation of Hybrid Machine Learning Models for Heart Disease Prediction in U.S. Clinical Decision Support Systems", "venue": "IEEE International Conference on Sentiment Analysis and Deep Learning (ICSADL)", "links": [{"label": "DOI", "url": "https://doi.org/10.1109/ICSADL67539.2026.11452047"}, {"label": "IEEE", "url": "https://ieeexplore.ieee.org/document/11452047"}]},
       {"year": "2025", "type": "Conference", "title": "An ANN Network-Based Approach for Early Detection of Parkinson's Disease Through Image Processing", "venue": "IEEE Conference on Converging Technology", "links": [{"label": "DOI", "url": "https://doi.org/10.1109/ICCTEIE66144.2025.11341843"}, {"label": "IEEE", "url": "https://ieeexplore.ieee.org/abstract/document/11341843"}]},
       {"year": "2025", "type": "Conference", "title": "PneuNet: A Multi-Scale Attention-Enhanced CNN for Pediatric Pneumonia Detection from Chest X-rays", "venue": "IEEE DELCON", "links": [{"label": "DOI", "url": "https://doi.org/10.1109/DELCON68055.2025.11400229"}, {"label": "IEEE", "url": "https://ieeexplore.ieee.org/abstract/document/11400229"}]},
-      {"year": "2025", "type": "Conference", "title": "Deep Learning-Based Multi-Class Brain Tumor Classification from MRI using a Novel MS-DSCCNet Architecture", "venue": "IEEE DELCON", "links": [{"label": "DOI", "url": "https://doi.org/10.1109/DELCON68055.2025.11400450"}, {"label": "IEEE", "url": "https://ieeexplore.ieee.org/abstract/document/11400450"}]}
+      {"year": "2025", "type": "Conference", "title": "Deep Learning-Based Multi-Class Brain Tumor Classification from MRI using a Novel MS-DSCCNet Architecture", "venue": "IEEE DELCON", "links": [{"label": "DOI", "url": "https://doi.org/10.1109/DELCON68055.2025.11400450"}, {"label": "IEEE", "url": "https://ieeplore.ieee.org/abstract/document/11400450"}]}
     ],
     "Manuscripts Under Review": [
       {"year": "2026", "type": "Under Review", "title": "Systematic Evidence of Artifact-Driven Shortcut Learning in Fundus Image Models", "venue": "Computer Methods and Programs in Biomedicine", "description": "Manuscript under review."},
