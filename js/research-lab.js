@@ -43,7 +43,6 @@
       const bar = row.querySelector('i b');
       if (!bar) return;
       const value = Number(row.dataset.value) || 0;
-      // Expand the visual range (90-100) so very close AUROCs remain legible.
       const visual = Math.max(0, Math.min(100, (value - 90) * 10));
       bar.style.width = '0';
       requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -153,12 +152,88 @@
     targets.forEach((target) => observer.observe(target));
   }
 
+  function installV6Styles() {
+    if (document.querySelector('link[data-research-v6]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'css/research-lab-v6.css?v=6.0';
+    link.dataset.researchV6 = 'true';
+    document.head.appendChild(link);
+  }
+
+  function patchV6Figures() {
+    const artifact = document.querySelector('[data-obs-panel="artifact"] .scientific-frame');
+    if (artifact) {
+      artifact.dataset.full = 'assets/fig_gradcam_audit.png';
+      const img = artifact.querySelector('img');
+      if (img) {
+        img.src = 'assets/fig_gradcam_audit.png';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+      }
+      document.querySelectorAll('[data-obs-panel="artifact"] .obs-metrics span').forEach((el) => {
+        if (el.textContent.includes('AUM')) el.textContent = el.textContent.replace('AUM', 'AUC');
+      });
+    }
+
+    const calibration = document.querySelector('[data-obs-panel="calibration"] .scientific-frame');
+    if (calibration) {
+      calibration.dataset.full = 'assets/fig_reliability_shift.png';
+      const img = calibration.querySelector('img');
+      if (img) {
+        img.src = 'assets/fig_reliability_shift.png';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+      }
+    }
+
+    const semantic = document.querySelector('[data-obs-panel="semantic"] .scientific-frame');
+    if (semantic) {
+      semantic.classList.remove('lightbox-trigger');
+      semantic.classList.add('semantic-matrix-frame');
+      semantic.removeAttribute('data-full');
+      semantic.removeAttribute('data-caption');
+      semantic.setAttribute('aria-label', 'High-confidence error transfer matrix');
+      semantic.innerHTML = `
+        <div class="figure-toolbar"><span>FIG / 02</span><span>HCER@0.90 TRANSFER MATRIX</span><span class="figure-status">LIVE MATRIX</span></div>
+        <div class="heatmap-scroll" tabindex="0" aria-label="Scrollable high-confidence error matrix">
+          <div class="heatmap-grid">
+            <div class="hm-corner">SOURCE ↓ / TARGET →</div>
+            <div class="hm-col">Kaggle<br>Pneumonia</div><div class="hm-col">RSNA<br>Opacity</div><div class="hm-col">CheXpert<br>Pneumonia</div><div class="hm-col">CheXpert<br>Opacity</div><div class="hm-col">CheXpert<br>Consolid.</div><div class="hm-col">CheXpert<br>Composite</div>
+            <div class="hm-row">Kaggle<br>Pneumonia</div><div class="hm-cell hm2">.072</div><div class="hm-cell hm5">.337</div><div class="hm-cell hm4">.199</div><div class="hm-cell hm1">.048</div><div class="hm-cell hm5">.325</div><div class="hm-cell hm0">.016</div>
+            <div class="hm-row">RSNA<br>Opacity</div><div class="hm-cell hm0">.015</div><div class="hm-cell hm1">.022</div><div class="hm-cell hm2">.094</div><div class="hm-cell hm3">.104</div><div class="hm-cell hm1">.026</div><div class="hm-cell hm3">.104</div>
+            <div class="hm-row">CheXpert<br>Pneumonia</div><div class="hm-cell hm1">.038</div><div class="hm-cell hm2">.050</div><div class="hm-cell hm1">.038</div><div class="hm-cell hm0">.013</div><div class="hm-cell hm0">.011</div><div class="hm-cell hm0">.012</div>
+            <div class="hm-row">CheXpert<br>Opacity</div><div class="hm-cell hm1">.036</div><div class="hm-cell hm1">.020</div><div class="hm-cell hm2">.055</div><div class="hm-cell hm1">.032</div><div class="hm-cell hm0">.009</div><div class="hm-cell hm1">.031</div>
+          </div>
+        </div>
+        <div class="heatmap-legend"><span>lower error</span><i></i><span>higher error</span></div>
+        <figcaption>High-confidence error rate at confidence ≥ 0.90. The matrix keeps the source/target structure visible instead of collapsing transfer into one score.</figcaption>`;
+    }
+  }
+
+  function initFigureFallbacks() {
+    document.querySelectorAll('.scientific-frame img').forEach((img) => {
+      img.addEventListener('error', () => {
+        const frame = img.closest('.scientific-frame');
+        if (!frame || frame.classList.contains('image-error')) return;
+        frame.classList.add('image-error');
+        const fallback = document.createElement('div');
+        fallback.className = 'figure-fallback';
+        fallback.innerHTML = '<div><strong>Figure unavailable</strong><br><span>The research links and metrics remain available.</span></div>';
+        img.after(fallback);
+      }, { once: true });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
+    installV6Styles();
+    patchV6Figures();
     initCursorField();
     initLabParallax();
     initObservatory();
     initLightbox();
     initSpotlightCards();
     initInstrumentObserver();
+    initFigureFallbacks();
   });
 })();
