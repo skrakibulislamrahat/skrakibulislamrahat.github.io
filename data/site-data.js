@@ -24,7 +24,7 @@ window.SITE_DATA = {
   "stats": [
     {"value": "100+", "label": "Citations"},
     {"value": "PhD", "label": "Computer Science · Wright State"},
-    {"value": "5+", "label": "Verified peer reviews"}
+    {"value": "9", "label": "Verified peer reviews"}
   ],
   "researchDirection": "Trustworthy AI at the intersection of medical imaging, reliability under dataset shift, calibration, semantic transport, knowledge engineering, and knowledge-guided/neurosymbolic reasoning.",
   "strengths": [
@@ -95,7 +95,17 @@ window.SITE_DATA = {
     {"title": "Junior Software Engineer", "meta": "KCIT · 2020–2021", "description": "Worked on software engineering, smart-system integration, and applied technical development."}
   ],
   "service": {
-    "reviews": {"title": "Verified peer reviews", "count": "5+ verified", "items": ["IAES International Journal of Robotics and Automation (IJRA)", "International Journal of Electrical and Computer Engineering (IJECE)", "International Journal of Power Electronics and Drive Systems (IJPEDS)"]},
+    "reviews": {
+      "title": "Verified peer reviews",
+      "count": "9 reviews · 5 journals",
+      "items": [
+        "3 × IAES International Journal of Robotics and Automation (IJRA)",
+        "2 × International Journal of Electrical and Computer Engineering (IJECE)",
+        "2 × International Journal of Power Electronics and Drive Systems (IJPEDS)",
+        "1 × Computer Methods in Biomechanics and Biomedical Engineering",
+        "1 × Information Fusion"
+      ]
+    },
     "certifications": [
       {"label": "IBM Data Science", "url": "https://coursera.org/verify/professional-cert/EC6IHGSG99HX"},
       {"label": "Google Cloud AI Healthcare", "url": "https://coursera.org/verify/P4N76QCC77D3"},
