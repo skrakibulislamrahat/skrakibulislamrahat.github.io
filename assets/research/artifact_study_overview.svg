@@ -1,151 +1,170 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
-  <title id="title">Fundus artifact robustness study overview</title>
-  <desc id="desc">Three-panel summary of internal versus external discrimination, same-input sensitivity, and audit signals from the 12-model APTOS to processed Messidor-2 study.</desc>
-
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Artifact robustness study overview</title>
+  <desc id="desc">Premium three-panel summary of generalization gap, same-input sensitivity, and audit signals in the 12-model APTOS to processed Messidor-2 study.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f9fcfa"/>
-      <stop offset="1" stop-color="#edf4f0"/>
+      <stop offset="0" stop-color="#061512"/><stop offset="0.52" stop-color="#071b17"/><stop offset="1" stop-color="#03110e"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c2a23"/><stop offset="1" stop-color="#082019"/>
     </linearGradient>
     <linearGradient id="blue" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#2f83bb"/>
-      <stop offset="1" stop-color="#69c8e9"/>
+      <stop offset="0" stop-color="#2d91d0"/><stop offset="1" stop-color="#55d7e8"/>
+    </linearGradient>
+    <linearGradient id="mint" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#21d7a4"/><stop offset="1" stop-color="#68f0bd"/>
     </linearGradient>
     <linearGradient id="orange" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#dc6a36"/>
-      <stop offset="1" stop-color="#f4a56e"/>
+      <stop offset="0" stop-color="#f06b38"/><stop offset="1" stop-color="#ffad72"/>
     </linearGradient>
-    <linearGradient id="green" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#1e9675"/>
-      <stop offset="1" stop-color="#41b896"/>
+    <linearGradient id="mintGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22e2a9" stop-opacity=".28"/><stop offset="1" stop-color="#22e2a9" stop-opacity="0"/>
     </linearGradient>
+    <radialGradient id="orb" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#7af0c5" stop-opacity=".22"/><stop offset=".55" stop-color="#2fb98e" stop-opacity=".08"/><stop offset="1" stop-color="#2fb98e" stop-opacity="0"/>
+    </radialGradient>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0b1914" flood-opacity=".08"/>
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000" flood-opacity=".30"/>
+    </filter>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
     <style>
-      .title{font:700 29px Inter,Arial,sans-serif;fill:#10241d}
-      .sub{font:500 13px Inter,Arial,sans-serif;fill:#708279}
-      .panel{fill:#ffffff;stroke:#dbe8e2;stroke-width:1.4}
-      .ptitle{font:700 17px Inter,Arial,sans-serif;fill:#17382c}
-      .kicker{font:700 10.5px Inter,Arial,sans-serif;fill:#768980;letter-spacing:2px;text-transform:uppercase}
-      .label{font:700 12px Inter,Arial,sans-serif;fill:#41574d}
-      .small{font:500 11.5px Inter,Arial,sans-serif;fill:#74857d}
-      .tiny{font:500 10px Inter,Arial,sans-serif;fill:#7d8d85}
-      .num{font:800 33px Inter,Arial,sans-serif;fill:#123126}
-      .metric{font:800 24px Inter,Arial,sans-serif;fill:#123126}
-      .pillDark{fill:#143126}
-      .pillLight{fill:#e9f7f1}
+      text{font-family:Inter,Arial,sans-serif}
+      .eyebrow{font-size:14px;font-weight:700;letter-spacing:4px;fill:#55e5bd}
+      .title{font-size:51px;font-weight:800;letter-spacing:-2px;fill:#f4fbf8}
+      .titleMint{fill:#9bf5d7}
+      .subtitle{font-size:18px;font-weight:500;fill:#bfd0c9}
+      .sectionTitle{font-size:27px;font-weight:800;fill:#f5faf8;letter-spacing:-.5px}
+      .sectionSub{font-size:16px;font-weight:500;fill:#b0c2ba}
+      .kicker{font-size:13px;font-weight:700;letter-spacing:3px;fill:#b8ccc4}
+      .label{font-size:15px;font-weight:700;fill:#e9f4ef}
+      .small{font-size:14px;font-weight:500;fill:#b1c3bb}
+      .tiny{font-size:12px;font-weight:500;fill:#91a79e}
+      .big{font-size:45px;font-weight:800;letter-spacing:-1.5px;fill:#9df4d7}
+      .bigWarm{font-size:45px;font-weight:800;letter-spacing:-1.5px;fill:#ffc3a6}
+      .metric{font-size:38px;font-weight:800;letter-spacing:-1px;fill:#d9fff0}
+      .panelBox{fill:url(#panel);stroke:#1c8e70;stroke-width:1.3}
+      .inner{fill:#0a201c;stroke:#2b6b5a;stroke-width:1}
+      .innerWarm{fill:#251a15;stroke:#85553d;stroke-width:1}
+      .track{fill:#24413a}
+      .badge{fill:#0b2a22;stroke:#20d69e;stroke-width:1.2}
+      .badgeText{font-size:15px;font-weight:800;fill:#b6ffe3}
     </style>
   </defs>
 
-  <rect width="1200" height="720" rx="30" fill="url(#bg)"/>
-  <rect x="10" y="10" width="1180" height="48" rx="20" fill="#071712" stroke="#e8efe9" stroke-width="1.5"/>
-  <text x="28" y="39" style="font:700 11px Inter,Arial,sans-serif;fill:#f3fff7;letter-spacing:2px">FIG / 01</text>
-  <text x="478" y="39" style="font:700 11px Inter,Arial,sans-serif;fill:#f3fff7;letter-spacing:2px">ARTIFACT ROBUSTNESS STUDY</text>
-  <text x="1098" y="39" style="font:700 11px Inter,Arial,sans-serif;fill:#b8ff6a;letter-spacing:1px">EXPAND ↗</text>
+  <rect width="1536" height="1024" fill="url(#bg)"/>
+  <circle cx="1450" cy="68" r="185" fill="url(#orb)"/>
+  <circle cx="1450" cy="68" r="95" fill="none" stroke="#53cfa8" stroke-opacity=".16"/>
+  <circle cx="1450" cy="68" r="132" fill="none" stroke="#53cfa8" stroke-opacity=".08"/>
+  <path d="M0 170 C250 100 360 210 610 150 S1050 110 1536 150" fill="none" stroke="#6ce7bf" stroke-opacity=".05" stroke-width="2"/>
 
-  <text x="58" y="104" class="title">Reduced background sensitivity did not guarantee external generalization</text>
-  <text x="58" y="132" class="sub">12 models · ResNet-18 + EfficientNet-B0 · RAW vs CLEAN · seeds 13, 42, 77 · APTOS 2019 → processed Messidor-2</text>
+  <text x="56" y="42" class="eyebrow">ARTIFACT ROBUSTNESS STUDY</text>
+  <text x="55" y="95" class="title">Reduced background sensitivity did not guarantee</text>
+  <text x="55" y="145" class="title titleMint">external generalization</text>
+  <text x="55" y="181" class="subtitle">12 models · ResNet-18 + EfficientNet-B0 · RAW vs CLEAN · seeds 13, 42, 77 · APTOS 2019 → processed Messidor-2</text>
+  <line x1="1125" y1="42" x2="1172" y2="42" stroke="#55e5bd" stroke-width="2"/>
+  <text x="1192" y="47" class="eyebrow" style="font-size:12px;letter-spacing:3px;fill:#91bdb0">OPHTHALMIC AI / GENERALIZATION</text>
 
-  <g filter="url(#shadow)"><rect class="panel" x="48" y="164" width="340" height="490" rx="24"/></g>
-  <text x="74" y="198" class="ptitle">1 · Generalization gap</text>
-  <text x="74" y="221" class="small">Internal ranking did not transfer.</text>
+  <g filter="url(#shadow)"><rect x="22" y="215" width="476" height="675" rx="28" class="panelBox"/></g>
+  <circle cx="72" cy="264" r="30" fill="#1b7f62" stroke="#67e5b7" stroke-width="1.4"/>
+  <text x="72" y="274" text-anchor="middle" style="font:800 30px Inter,Arial;fill:#f3fff8">1</text>
+  <text x="122" y="262" class="sectionTitle">Generalization gap</text>
+  <text x="122" y="290" class="sectionSub">Internal ranking did not transfer.</text>
+  <rect x="42" y="320" width="436" height="188" rx="20" class="inner"/>
+  <text x="67" y="354" class="kicker">APTOS TEST</text>
+  <text x="67" y="404" class="big">0.996–0.999</text>
+  <text x="67" y="436" class="label">AUC range · 12 variants</text>
+  <rect x="67" y="461" width="368" height="12" rx="6" class="track"/>
+  <rect x="67" y="461" width="361" height="12" rx="6" fill="url(#blue)"/>
+  <circle cx="432" cy="467" r="14" fill="#27d7a0" filter="url(#softGlow)"/>
+  <text x="67" y="491" class="tiny">0.0</text><text x="244" y="491" class="tiny">0.5</text><text x="421" y="491" class="tiny">1.0</text>
+  <line x1="260" y1="509" x2="260" y2="568" stroke="#5fe4ba" stroke-opacity=".5" stroke-width="2" stroke-dasharray="5 7"/>
+  <circle cx="260" cy="540" r="26" fill="#0f362b" stroke="#49dda9" stroke-width="1.5"/>
+  <path d="M260 527 V548 M251 540 L260 549 L269 540" fill="none" stroke="#e5fff4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="305" y="536" class="kicker">DOMAIN SHIFT</text>
+  <text x="305" y="561" class="small">same models</text>
+  <rect x="42" y="579" width="436" height="211" rx="20" class="innerWarm"/>
+  <text x="67" y="614" class="kicker" style="fill:#d7b6a4">PROCESSED MESSIDOR-2</text>
+  <text x="67" y="667" class="bigWarm">0.564–0.664</text>
+  <text x="67" y="699" class="label" style="fill:#f7d9ca">external AUC range</text>
+  <rect x="67" y="724" width="368" height="12" rx="6" fill="#44362e"/>
+  <rect x="67" y="724" width="236" height="12" rx="6" fill="url(#orange)"/>
+  <circle cx="304" cy="730" r="11" fill="#fff1d8" stroke="#ff8e52" stroke-width="3"/>
+  <text x="67" y="754" class="tiny" style="fill:#ceb7ab">0.0</text><text x="244" y="754" class="tiny" style="fill:#ceb7ab">0.5</text><text x="421" y="754" class="tiny" style="fill:#ceb7ab">1.0</text>
+  <text x="67" y="778" class="small" style="fill:#d8beb2">External AUC dropped across both models.</text>
+  <rect x="42" y="825" width="436" height="45" rx="22.5" class="badge"/>
+  <text x="260" y="854" text-anchor="middle" class="badgeText">Internal ≠ external performance</text>
 
-  <rect x="74" y="252" width="288" height="168" rx="18" fill="#eef7fb" stroke="#dae8f1"/>
-  <text x="95" y="282" class="kicker">APTOS TEST</text>
-  <text x="95" y="330" class="num">0.996–0.999</text>
-  <text x="95" y="357" class="label">AUC range · 12 variants</text>
-  <rect x="95" y="378" width="235" height="10" rx="5" fill="#dce9e4"/>
-  <rect x="95" y="378" width="235" height="10" rx="5" fill="url(#blue)"/>
-  <circle cx="342" cy="383" r="12" fill="#2cb795"/>
+  <g filter="url(#shadow)"><rect x="516" y="215" width="505" height="675" rx="28" class="panelBox"/></g>
+  <circle cx="567" cy="264" r="30" fill="#1b7f62" stroke="#67e5b7" stroke-width="1.4"/>
+  <text x="567" y="274" text-anchor="middle" style="font:800 30px Inter,Arial;fill:#f3fff8">2</text>
+  <text x="617" y="262" class="sectionTitle">Same-input sensitivity</text>
+  <text x="617" y="290" class="sectionSub">RAW vs CLEAN on identical inputs.</text>
+  <text x="548" y="332" class="kicker">APTOS · IDENTICAL RAW INPUTS</text>
+  <rect x="536" y="350" width="465" height="233" rx="20" class="inner"/>
+  <text x="557" y="384" class="label">ResNet-18</text><text x="835" y="384" class="small">0.0227 → 0.0204</text>
+  <rect x="557" y="402" width="250" height="12" rx="6" class="track"/><rect x="557" y="402" width="84" height="12" rx="6" fill="url(#blue)"/>
+  <rect x="557" y="421" width="250" height="12" rx="6" class="track"/><rect x="557" y="421" width="75" height="12" rx="6" fill="url(#mint)"/>
+  <rect x="873" y="393" width="103" height="34" rx="12" fill="#17372f" stroke="#436a5f"/><text x="924" y="416" text-anchor="middle" class="small">↓ 10.1%</text>
+  <line x1="557" y1="450" x2="980" y2="450" stroke="#24473d"/>
+  <text x="557" y="482" class="label">EfficientNet-B0</text><text x="835" y="482" class="small">0.1477 → 0.0748</text>
+  <rect x="557" y="500" width="250" height="12" rx="6" class="track"/><rect x="557" y="500" width="230" height="12" rx="6" fill="url(#orange)"/>
+  <rect x="557" y="519" width="250" height="12" rx="6" class="track"/><rect x="557" y="519" width="116" height="12" rx="6" fill="url(#mint)"/>
+  <rect x="873" y="491" width="103" height="34" rx="12" fill="#0f4939" stroke="#1ee5a6"/><text x="924" y="514" text-anchor="middle" style="font:800 15px Inter,Arial;fill:#7dffd2">↓ 49.4%</text>
+  <rect x="548" y="544" width="441" height="34" rx="17" fill="#0c4938" stroke="#1bd99f"/><text x="768" y="567" text-anchor="middle" class="badgeText">EfficientNet-B0 sensitivity ↓ 49.4%</text>
+  <text x="548" y="618" class="kicker">MESSIDOR-2 · COMMON INPUTS</text>
+  <rect x="536" y="636" width="465" height="173" rx="20" class="inner"/>
+  <text x="557" y="670" class="label">ResNet-18</text><text x="835" y="670" class="small">0.0258 → 0.0262</text>
+  <rect x="557" y="688" width="250" height="12" rx="6" class="track"/><rect x="557" y="688" width="77" height="12" rx="6" fill="url(#blue)"/>
+  <rect x="557" y="707" width="250" height="12" rx="6" class="track"/><rect x="557" y="707" width="78" height="12" rx="6" fill="url(#mint)"/>
+  <rect x="873" y="679" width="103" height="34" rx="12" fill="#4a2b1d" stroke="#9d5f40"/><text x="924" y="702" text-anchor="middle" style="font:800 15px Inter,Arial;fill:#ffb08a">↑ 1.6%</text>
+  <line x1="557" y1="734" x2="980" y2="734" stroke="#24473d"/>
+  <text x="557" y="764" class="label">EfficientNet-B0</text><text x="835" y="764" class="small">0.3326 → 0.1708</text>
+  <rect x="557" y="782" width="250" height="12" rx="6" class="track"/><rect x="557" y="782" width="225" height="12" rx="6" fill="url(#orange)"/>
+  <rect x="557" y="799" width="250" height="8" rx="4" class="track"/><rect x="557" y="799" width="116" height="8" rx="4" fill="url(#mint)"/>
+  <rect x="817" y="770" width="159" height="34" rx="12" fill="#0f4939" stroke="#1ee5a6"/><text x="897" y="793" text-anchor="middle" style="font:800 15px Inter,Arial;fill:#7dffd2">↓ 48.6%</text>
+  <rect x="536" y="825" width="465" height="45" rx="22.5" class="badge"/>
+  <text x="768" y="854" text-anchor="middle" class="badgeText">Lower sensitivity. No external gain.</text>
 
-  <g transform="translate(205 434)">
-    <circle cx="0" cy="0" r="24" fill="#143126"/>
-    <path d="M-9 -3 H9 M3 -9 L9 -3 L3 3" fill="none" stroke="#e9fff1" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-  </g>
-  <text x="246" y="438" class="kicker">DOMAIN SHIFT</text>
-  <text x="246" y="458" class="small">same models</text>
+  <g filter="url(#shadow)"><rect x="1039" y="215" width="475" height="675" rx="28" class="panelBox"/></g>
+  <circle cx="1090" cy="264" r="30" fill="#1b7f62" stroke="#67e5b7" stroke-width="1.4"/>
+  <text x="1090" y="274" text-anchor="middle" style="font:800 30px Inter,Arial;fill:#f3fff8">3</text>
+  <text x="1140" y="262" class="sectionTitle">Audit signals</text>
+  <text x="1140" y="290" class="sectionSub">Signals found in data and models.</text>
+  <rect x="1060" y="321" width="208" height="145" rx="20" fill="#0b2b27" stroke="#34796b"/>
+  <circle cx="1092" cy="353" r="23" fill="#174d46"/><path d="M1080 354 L1092 347 L1104 354 L1092 361 Z M1080 361 L1092 368 L1104 361" fill="none" stroke="#7debd0" stroke-width="2"/>
+  <text x="1125" y="347" class="kicker" style="letter-spacing:2px">BACKGROUND</text><text x="1125" y="368" class="kicker" style="letter-spacing:2px">ONLY AUC</text>
+  <text x="1080" y="416" class="metric">0.9705</text><text x="1080" y="443" class="small">APTOS test</text>
+  <rect x="1284" y="321" width="208" height="145" rx="20" fill="#0c2730" stroke="#356474"/>
+  <circle cx="1316" cy="353" r="23" fill="#17404d"/><ellipse cx="1316" cy="346" rx="9" ry="4" fill="none" stroke="#83dff0" stroke-width="2"/><path d="M1307 346 V360 C1307 365 1325 365 1325 360 V346 M1307 353 C1307 358 1325 358 1325 353" fill="none" stroke="#83dff0" stroke-width="2"/>
+  <text x="1349" y="347" class="kicker" style="letter-spacing:2px">SOURCE</text><text x="1349" y="368" class="kicker" style="letter-spacing:2px">AUC</text>
+  <text x="1304" y="416" class="metric">1.000</text><text x="1304" y="443" class="small">APTOS vs Messidor</text>
+  <rect x="1060" y="482" width="208" height="145" rx="20" fill="#2a211a" stroke="#775945"/>
+  <circle cx="1092" cy="514" r="23" fill="#5a3f2d"/><path d="M1085 502 H1098 L1104 508 V526 H1085 Z M1098 502 V508 H1104 M1090 514 H1099 M1090 520 H1099" fill="none" stroke="#ffd0ad" stroke-width="2"/>
+  <text x="1125" y="508" class="kicker" style="letter-spacing:2px">EXACT</text><text x="1125" y="529" class="kicker" style="letter-spacing:2px">DUPLICATES</text>
+  <text x="1080" y="578" class="metric" style="fill:#ffd0ad">69</text><text x="1080" y="605" class="small">cross-split pairs</text>
+  <rect x="1284" y="482" width="208" height="145" rx="20" fill="#152433" stroke="#405d7a"/>
+  <circle cx="1316" cy="514" r="23" fill="#293d56"/><circle cx="1316" cy="503" r="4" fill="none" stroke="#d6e4ff" stroke-width="2"/><circle cx="1307" cy="520" r="4" fill="none" stroke="#d6e4ff" stroke-width="2"/><circle cx="1325" cy="520" r="4" fill="none" stroke="#d6e4ff" stroke-width="2"/><path d="M1316 507 V513 M1316 513 L1308 517 M1316 513 L1324 517" stroke="#d6e4ff" stroke-width="2"/>
+  <text x="1349" y="508" class="kicker" style="letter-spacing:2px">TRAINED</text><text x="1349" y="529" class="kicker" style="letter-spacing:2px">VARIANTS</text>
+  <text x="1304" y="578" class="metric" style="fill:#dbe8ff">12</text><text x="1304" y="605" class="small">2×2×3 design</text>
+  <rect x="1060" y="650" width="432" height="156" rx="22" fill="#0a3026" stroke="#43e8ae" stroke-width="1.5"/>
+  <circle cx="1102" cy="692" r="26" fill="#124d3c"/><path d="M1092 679 H1112 V688 C1112 699 1092 699 1092 688 Z M1098 702 H1106 M1102 698 V704" fill="none" stroke="#7fffcf" stroke-width="3" stroke-linecap="round"/>
+  <text x="1143" y="684" class="kicker" style="fill:#72f6c8">KEY RESULT</text>
+  <line x1="1263" y1="679" x2="1468" y2="679" stroke="#45d8ad" stroke-opacity=".5"/>
+  <text x="1143" y="731" style="font:800 25px Inter,Arial;fill:#f0fff8">Sensitivity ↓ 49.4%</text>
+  <text x="1143" y="772" style="font:800 25px Inter,Arial;fill:#e8fff6">External AUC ↓ 0.0396</text>
+  <rect x="1060" y="825" width="432" height="45" rx="22.5" class="badge"/>
+  <text x="1276" y="854" text-anchor="middle" class="badgeText">Robustness ≠ generalization</text>
 
-  <rect x="74" y="482" width="288" height="156" rx="18" fill="#fff3ed" stroke="#f2dfd4"/>
-  <text x="95" y="512" class="kicker">PROCESSED MESSIDOR-2</text>
-  <text x="95" y="560" class="num">0.564–0.664</text>
-  <text x="95" y="587" class="label">external AUC range</text>
-  <rect x="95" y="608" width="235" height="10" rx="5" fill="#eee7e3"/>
-  <rect x="95" y="608" width="148" height="10" rx="5" fill="url(#orange)"/>
-  <text x="95" y="636" class="small">External AUC dropped across both models.</text>
-
-  <g filter="url(#shadow)"><rect class="panel" x="410" y="164" width="430" height="490" rx="24"/></g>
-  <text x="436" y="198" class="ptitle">2 · Same-input sensitivity</text>
-  <text x="436" y="221" class="small">RAW vs CLEAN on identical inputs.</text>
-
-  <text x="436" y="262" class="kicker">APTOS · IDENTICAL RAW INPUTS</text>
-  <rect x="436" y="278" width="378" height="126" rx="18" fill="#f7faf8" stroke="#e4ede8"/>
-
-  <text x="456" y="309" class="label">ResNet-18</text>
-  <text x="596" y="309" class="small">0.0227 → 0.0204</text>
-  <rect x="456" y="324" width="38" height="12" rx="6" fill="url(#blue)"/>
-  <rect x="456" y="340" width="34" height="12" rx="6" fill="url(#green)"/>
-
-  <text x="456" y="369" class="label">EfficientNet-B0</text>
-  <text x="596" y="369" class="small">0.1477 → 0.0748</text>
-  <rect x="456" y="384" width="210" height="12" rx="6" fill="url(#orange)"/>
-  <rect x="456" y="400" width="106" height="12" rx="6" fill="url(#green)"/>
-
-  <rect x="436" y="420" width="378" height="40" rx="14" class="pillLight"/>
-  <text x="456" y="446" style="font:800 16px Inter,Arial,sans-serif;fill:#1f7158">EfficientNet-B0 sensitivity ↓ 49.4%</text>
-
-  <text x="436" y="502" class="kicker">MESSIDOR-2 · COMMON INPUTS</text>
-  <rect x="436" y="518" width="378" height="126" rx="18" fill="#f7faf8" stroke="#e4ede8"/>
-
-  <text x="456" y="549" class="label">ResNet-18</text>
-  <text x="596" y="549" class="small">0.0258 → 0.0262</text>
-  <rect x="456" y="564" width="38" height="12" rx="6" fill="url(#blue)"/>
-  <rect x="456" y="580" width="39" height="12" rx="6" fill="url(#green)"/>
-
-  <text x="456" y="609" class="label">EfficientNet-B0</text>
-  <text x="596" y="609" class="small">0.3326 → 0.1708</text>
-  <rect x="456" y="624" width="210" height="12" rx="6" fill="url(#orange)"/>
-  <rect x="456" y="640" width="108" height="12" rx="6" fill="url(#green)"/>
-
-  <g filter="url(#shadow)"><rect class="panel" x="862" y="164" width="290" height="490" rx="24"/></g>
-  <text x="888" y="198" class="ptitle">3 · Audit signals</text>
-  <text x="888" y="221" class="small">Signals found in data and models.</text>
-
-  <rect x="888" y="258" width="114" height="104" rx="16" fill="#edf8f3"/>
-  <text x="905" y="286" class="kicker">BACKGROUND</text>
-  <text x="905" y="304" class="kicker">ONLY AUC</text>
-  <text x="905" y="336" class="metric">0.9705</text>
-  <text x="905" y="355" class="tiny">APTOS test</text>
-
-  <rect x="1018" y="258" width="114" height="104" rx="16" fill="#eef5fa"/>
-  <text x="1035" y="286" class="kicker">SOURCE</text>
-  <text x="1035" y="304" class="kicker">AUC</text>
-  <text x="1035" y="336" class="metric">1.000</text>
-  <text x="1035" y="355" class="tiny">APTOS vs Messidor</text>
-
-  <rect x="888" y="378" width="114" height="104" rx="16" fill="#fbf1eb"/>
-  <text x="905" y="406" class="kicker">EXACT</text>
-  <text x="905" y="424" class="kicker">DUPLICATES</text>
-  <text x="905" y="456" class="metric">69</text>
-  <text x="905" y="475" class="tiny">cross-split pairs</text>
-
-  <rect x="1018" y="378" width="114" height="104" rx="16" fill="#f2f0fa"/>
-  <text x="1035" y="406" class="kicker">TRAINED</text>
-  <text x="1035" y="424" class="kicker">VARIANTS</text>
-  <text x="1035" y="456" class="metric">12</text>
-  <text x="1035" y="475" class="tiny">2×2×3 design</text>
-
-  <rect x="888" y="506" width="244" height="112" rx="20" class="pillDark"/>
-  <text x="910" y="535" style="font:700 13px Inter,Arial,sans-serif;fill:#a9ffc8">KEY RESULT</text>
-  <text x="910" y="570" style="font:800 18px Inter,Arial,sans-serif;fill:#f5fff8">Sensitivity ↓ 49.4%</text>
-  <text x="910" y="603" style="font:800 18px Inter,Arial,sans-serif;fill:#f5fff8">External AUC ↓ 0.0396</text>
-
-  <rect x="74" y="668" width="288" height="34" rx="17" class="pillDark"/>
-  <text x="95" y="690" style="font:700 12px Inter,Arial,sans-serif;fill:#e4fff0">Internal ≠ external performance</text>
-
-  <rect x="436" y="668" width="378" height="34" rx="17" class="pillDark"/>
-  <text x="456" y="690" style="font:700 12px Inter,Arial,sans-serif;fill:#e4fff0">Lower sensitivity. No external gain.</text>
-
-  <rect x="888" y="668" width="244" height="34" rx="17" class="pillLight"/>
-  <text x="905" y="690" style="font:700 11px Inter,Arial,sans-serif;fill:#2b745d;letter-spacing:1px">ROBUSTNESS ≠ GENERALIZATION</text>
+  <rect x="22" y="911" width="1492" height="83" rx="24" fill="#0b2b24" stroke="#278b70"/>
+  <circle cx="70" cy="952" r="25" fill="#14523e"/><path d="M62 950 C62 941 78 941 78 950 C78 956 74 958 73 963 H67 C66 958 62 956 62 950 Z M67 968 H73" fill="none" stroke="#7dffd1" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="113" y="945" class="kicker" style="fill:#7cecc7">KEY TAKEAWAY</text>
+  <line x1="277" y1="929" x2="277" y2="977" stroke="#4a8d79"/>
+  <text x="310" y="948" style="font:800 18px Inter,Arial;fill:#f4fff9">Reduced nuisance response and cross-domain discrimination are separate properties.</text>
+  <text x="310" y="976" style="font:500 16px Inter,Arial;fill:#bcd1c8">EfficientNet-B0 became markedly less background-sensitive after CLEAN training while external AUC decreased.</text>
+  <line x1="1302" y1="929" x2="1302" y2="977" stroke="#4a8d79"/>
+  <text x="1334" y="944" style="font:700 10px Inter,Arial;fill:#6fae9a;letter-spacing:3px">SAME MODELS</text>
+  <text x="1334" y="961" style="font:700 10px Inter,Arial;fill:#6fae9a;letter-spacing:3px">DIFFERENT DOMAINS</text>
+  <text x="1334" y="978" style="font:700 10px Inter,Arial;fill:#6fae9a;letter-spacing:3px">DIFFERENT REALITIES</text>
 </svg>
