@@ -145,10 +145,10 @@
 
   <rect x="888" y="466" width="246" height="132" rx="20" fill="#132c23"/>
   <text x="910" y="494" style="font:700 13px Inter,Arial,sans-serif;fill:#a9ffc8">KEY RESULT</text>
-  <text x="910" y="523" style="font:800 18px Inter,Arial,sans-serif;fill:#f5fff8">EfficientNet-B0 became</text>
-  <text x="910" y="546" style="font:800 18px Inter,Arial,sans-serif;fill:#f5fff8">less background-sensitive,</text>
-  <text x="910" y="570" style="font:700 15px Inter,Arial,sans-serif;fill:#c5ddd1">while mean external AUC</text>
-  <text x="910" y="590" style="font:700 15px Inter,Arial,sans-serif;fill:#c5ddd1">fell by 0.0396.</text>
+  <text x="910" y="522" style="font:800 15px Inter,Arial,sans-serif;fill:#f5fff8">EfficientNet-B0 cut background</text>
+  <text x="910" y="544" style="font:800 15px Inter,Arial,sans-serif;fill:#f5fff8">sensitivity by 49.4%,</text>
+  <text x="910" y="568" style="font:700 14px Inter,Arial,sans-serif;fill:#c5ddd1">while mean external AUC</text>
+  <text x="910" y="588" style="font:700 14px Inter,Arial,sans-serif;fill:#c5ddd1">fell by 0.0396.</text>
 
   <rect x="888" y="616" width="246" height="30" rx="15" fill="#e9f7f1"/>
   <text x="905" y="636" style="font:700 10px Inter,Arial,sans-serif;fill:#2b745d;letter-spacing:.8px">ROBUSTNESS ≠ GENERALIZATION</text>
