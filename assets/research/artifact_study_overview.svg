@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">Fundus artifact robustness study overview</title>
+  <desc id="desc">Three-panel summary of internal versus external AUC, common-input background sensitivity, and audit facts for the 12-model APTOS to Messidor-2 study.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8fbfa"/><stop offset="1" stop-color="#eef5f1"/></linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2f7fb7"/><stop offset="1" stop-color="#70c5e8"/></linearGradient>
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d66732"/><stop offset="1" stop-color="#f2a46c"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#0b1914" flood-opacity=".10"/></filter>
+    <style>
+      .title{font:700 28px Inter,Arial,sans-serif;fill:#10241d}.sub{font:500 14px Inter,Arial,sans-serif;fill:#66766f}.panel{fill:#fff;stroke:#d8e6df;stroke-width:1.5}.ptitle{font:700 18px Inter,Arial,sans-serif;fill:#153329}.label{font:600 13px Inter,Arial,sans-serif;fill:#53655d}.small{font:500 12px Inter,Arial,sans-serif;fill:#708078}.num{font:800 31px Inter,Arial,sans-serif;fill:#122b22}.axis{stroke:#b8c8c0;stroke-width:1}.grid{stroke:#e8efeb;stroke-width:1}.blue{fill:#2f7fb7}.orange{fill:#d66732}.mint{fill:#1f9a79}.barblue{fill:url(#blue)}.barorange{fill:url(#orange)}
+    </style>
+  </defs>
+  <rect width="1200" height="680" rx="28" fill="url(#bg)"/>
+  <text x="48" y="55" class="title">Reduced background sensitivity did not guarantee external generalization</text>
+  <text x="48" y="82" class="sub">12 models · ResNet-18 + EfficientNet-B0 · RAW vs CLEAN · seeds 13, 42, 77 · APTOS 2019 → processed Messidor-2</text>
+
+  <g filter="url(#shadow)"><rect class="panel" x="42" y="116" width="355" height="498" rx="22"/></g>
+  <text x="68" y="152" class="ptitle">1 · Generalization gap</text>
+  <text x="68" y="176" class="small">Near-ceiling internal discrimination collapsed externally.</text>
+  <line x1="92" y1="515" x2="360" y2="515" class="axis"/><line x1="92" y1="230" x2="92" y2="515" class="axis"/>
+  <line x1="92" y1="458" x2="360" y2="458" class="grid"/><line x1="92" y1="401" x2="360" y2="401" class="grid"/><line x1="92" y1="344" x2="360" y2="344" class="grid"/><line x1="92" y1="287" x2="360" y2="287" class="grid"/>
+  <text x="65" y="520" class="small">0.55</text><text x="65" y="463" class="small">0.65</text><text x="65" y="406" class="small">0.75</text><text x="65" y="349" class="small">0.85</text><text x="65" y="292" class="small">0.95</text>
+  <rect x="133" y="236" width="66" height="279" rx="10" fill="#d9ebf4"/><rect x="248" y="425" width="66" height="90" rx="10" fill="#f8dfd2"/>
+  <rect x="143" y="239" width="20" height="276" rx="8" class="barblue"/><rect x="173" y="238" width="20" height="277" rx="8" fill="#1f9a79"/>
+  <rect x="258" y="451" width="20" height="64" rx="8" class="barblue"/><rect x="288" y="463" width="20" height="52" rx="8" class="barorange"/>
+  <text x="132" y="541" class="label">APTOS</text><text x="241" y="541" class="label">Messidor-2</text>
+  <text x="126" y="575" class="num">.996–.999</text><text x="246" y="575" class="num">.564–.664</text>
+  <text x="119" y="596" class="small">test AUC range</text><text x="244" y="596" class="small">external AUC range</text>
+
+  <g filter="url(#shadow)"><rect class="panel" x="422" y="116" width="355" height="498" rx="22"/></g>
+  <text x="448" y="152" class="ptitle">2 · Same-input sensitivity</text>
+  <text x="448" y="176" class="small">Strong effect for EfficientNet-B0, minimal for ResNet-18.</text>
+  <text x="456" y="222" class="label">APTOS · identical raw inputs</text>
+  <text x="456" y="257" class="small">ResNet-18</text><rect x="535" y="244" width="172" height="18" rx="9" fill="#edf3f0"/><rect x="535" y="244" width="26" height="18" rx="9" class="barblue"/><rect x="535" y="269" width="23" height="18" rx="9" fill="#1f9a79"/><text x="715" y="258" class="small">.0227 → .0204</text>
+  <text x="456" y="335" class="small">EfficientNet-B0</text><rect x="535" y="322" width="172" height="18" rx="9" fill="#edf3f0"/><rect x="535" y="322" width="164" height="18" rx="9" class="barorange"/><rect x="535" y="347" width="83" height="18" rx="9" fill="#1f9a79"/><text x="715" y="336" class="small">.1477 → .0748</text>
+  <text x="456" y="402" class="label">Messidor-2 · common representation</text>
+  <text x="456" y="437" class="small">ResNet-18</text><rect x="535" y="424" width="172" height="18" rx="9" fill="#edf3f0"/><rect x="535" y="424" width="28" height="18" rx="9" class="barblue"/><rect x="535" y="449" width="29" height="18" rx="9" fill="#1f9a79"/><text x="715" y="438" class="small">.0258 → .0262</text>
+  <text x="456" y="515" class="small">EfficientNet-B0</text><rect x="535" y="502" width="172" height="18" rx="9" fill="#edf3f0"/><rect x="535" y="502" width="172" height="18" rx="9" class="barorange"/><rect x="535" y="527" width="88" height="18" rx="9" fill="#1f9a79"/><text x="715" y="516" class="small">.3326 → .1708</text>
+  <rect x="450" y="558" width="299" height="34" rx="17" fill="#e8f6f1"/><text x="477" y="580" class="label">EfficientNet sensitivity ↓ 49.4% on APTOS, ↓ 48.6% externally</text>
+
+  <g filter="url(#shadow)"><rect class="panel" x="802" y="116" width="356" height="498" rx="22"/></g>
+  <text x="828" y="152" class="ptitle">3 · Audit signals</text>
+  <text x="828" y="176" class="small">The study separates shortcut response from transportability.</text>
+  <rect x="830" y="211" width="142" height="112" rx="16" fill="#eef8f4"/><text x="848" y="239" class="small">BACKGROUND-ONLY AUC</text><text x="848" y="282" class="num">0.9705</text><text x="848" y="304" class="small">APTOS test</text>
+  <rect x="988" y="211" width="142" height="112" rx="16" fill="#edf5fa"/><text x="1006" y="239" class="small">SOURCE AUC</text><text x="1006" y="282" class="num">1.000</text><text x="1006" y="304" class="small">APTOS vs Messidor</text>
+  <rect x="830" y="340" width="142" height="112" rx="16" fill="#fbf2ed"/><text x="848" y="368" class="small">EXACT DUPLICATE PAIRS</text><text x="848" y="411" class="num">69</text><text x="848" y="433" class="small">cross-split audit</text>
+  <rect x="988" y="340" width="142" height="112" rx="16" fill="#f2f1fb"/><text x="1006" y="368" class="small">TRAINED VARIANTS</text><text x="1006" y="411" class="num">12</text><text x="1006" y="433" class="small">2×2×3 design</text>
+  <rect x="830" y="478" width="300" height="94" rx="18" fill="#122b22"/>
+  <text x="850" y="511" style="font:700 15px Inter,Arial,sans-serif;fill:#dff7eb">Key result</text>
+  <text x="850" y="537" style="font:600 14px Inter,Arial,sans-serif;fill:#b9d6c9">EfficientNet became less background-sensitive,</text>
+  <text x="850" y="559" style="font:600 14px Inter,Arial,sans-serif;fill:#b9d6c9">while mean external AUC fell by 0.0396.</text>
+</svg>
