@@ -1,0 +1,19 @@
+/* Final artifact image-fit override. Keeps the 3:2 infographic edge-to-edge. */
+.project-preview {
+  background:#061512 !important;
+  border-color:rgba(112,223,175,.18) !important;
+}
+
+.project-preview img {
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:auto !important;
+  object-fit:cover !important;
+  background:#061512 !important;
+}
+
+[data-obs-panel="artifact"] .scientific-frame,
+[data-obs-panel="artifact"] .scientific-frame img {
+  background:#061512 !important;
+}
