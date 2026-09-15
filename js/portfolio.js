@@ -7,13 +7,15 @@ const PROJECTS = [
   {
     id: "artifacts",
     number: "01",
-    theme: "Shortcut learning · Fundus AI",
-    title: "Exposing Dataset Artifacts",
-    question: "Can a diabetic-retinopathy model look right for the wrong reason?",
-    summary: "A six-stage reproducibility pipeline that audits border and acquisition artifacts, compares artifact-retaining vs artifact-aware training, and tests external generalization on Messidor-2.",
-    signal: "6-stage public pipeline",
-    signalLabel: "auditable notebooks",
-    status: "Active research",
+    theme: "Shortcut robustness · Fundus AI",
+    title: "Reduced background sensitivity ≠ external generalization",
+    question: "Does making a model less sensitive to background artifacts actually make it generalize?",
+    summary: "A 12-model study across ResNet-18 and EfficientNet-B0 compares RAW and border-cropped training on a fixed APTOS split, then tests common-input nuisance sensitivity, calibration, leakage, attribution, and external discrimination on the processed Messidor-2 archive.",
+    signal: "−49.4% sensitivity",
+    signalLabel: "EfficientNet-B0 on identical raw APTOS inputs; mean external AUC fell by 0.0396",
+    status: "BSPC submission",
+    tags: ["12 models", "APTOS + Messidor-2", "same-input counterfactuals", "calibration", "leakage audit"],
+    visual: "assets/research/artifact_study_overview.svg",
     links: [
       ["Repository", "https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts"],
       ["Reproduce", "https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts/blob/main/REPRODUCIBILITY.md"],
@@ -123,7 +125,7 @@ function renderProjects() {
   if (!target) return;
 
   target.innerHTML = PROJECTS.map(project => `
-    <article class="project-card reveal" id="project-${esc(project.id)}">
+    <article class="project-card reveal ${project.id === "artifacts" ? "project-artifacts" : ""}" id="project-${esc(project.id)}">
       <div class="project-index">${esc(project.number)}</div>
       <div class="project-copy">
         <div class="project-topline">
@@ -133,6 +135,8 @@ function renderProjects() {
         <h3>${esc(project.title)}</h3>
         <p class="project-question">${esc(project.question)}</p>
         <p class="project-summary">${esc(project.summary)}</p>
+        ${Array.isArray(project.tags) && project.tags.length ? `<div class="project-tags">${project.tags.map(tag => `<span>${esc(tag)}</span>`).join("")}</div>` : ""}
+        ${project.visual ? `<figure class="project-preview"><img src="${esc(project.visual)}" alt="Summary graphic for ${esc(project.title)}" loading="lazy" decoding="async"><figcaption>Current reviewer-defense study: external discrimination, common-input background sensitivity, and dataset-audit signals.</figcaption></figure>` : ""}
         <div class="project-actions">
           ${project.links.map(([label, href], index) => `<a class="project-link ${index === 0 ? "primary" : ""}" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(label)} <span>↗</span></a>`).join("")}
         </div>
@@ -151,6 +155,78 @@ function renderProjects() {
       if (requested) requested.scrollIntoView({ block: "center" });
     });
   }
+}
+
+function installArtifactRefresh() {
+  if (!document.querySelector('link[data-artifact-refresh]')) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "css/artifact-refresh.css?v=1.0";
+    link.dataset.artifactRefresh = "true";
+    document.head.appendChild(link);
+  }
+
+  setTimeout(() => {
+    const tab = document.querySelector('.obs-tab[data-panel="artifact"]');
+    if (tab) {
+      const strong = tab.querySelector("strong");
+      const small = tab.querySelector("small");
+      if (strong) strong.textContent = "Artifact robustness";
+      if (small) small.textContent = "12 models · same-input tests";
+    }
+
+    const panel = document.querySelector('[data-obs-panel="artifact"]');
+    if (!panel) return;
+
+    const copy = panel.querySelector(".obs-copy");
+    if (copy) {
+      copy.innerHTML = `
+        <span class="obs-kicker">APTOS 2019 → processed Messidor-2 · 12 models</span>
+        <h3>Less background sensitivity did not mean better external generalization.</h3>
+        <p>ResNet-18 and EfficientNet-B0 were trained under RAW and border-cropped regimes with three matched seeds. The primary nuisance comparison holds the input fixed, while external evaluation uses the same processed Messidor-2 representation for every model.</p>
+        <div class="obs-metrics">
+          <div><span>APTOS test AUC</span><strong>.996–.999</strong><small>12 variants</small></div>
+          <div><span>Messidor-2 AUC</span><strong>.564–.664</strong><small>external range</small></div>
+          <div><span>EffB0 sensitivity</span><strong>−49.4%</strong><small>same raw APTOS inputs</small></div>
+          <div><span>EffB0 external ΔAUC</span><strong>−.0396</strong><small>CLEAN − RAW mean</small></div>
+        </div>
+        <div class="metric-bars" aria-label="Architecture-level external AUC means">
+          <div class="metric-bar-row"><span>RN18 / RAW</span><i><b data-width="63.47"></b></i><em>.6347</em></div>
+          <div class="metric-bar-row"><span>RN18 / CLEAN</span><i><b data-width="63.05"></b></i><em>.6305</em></div>
+          <div class="metric-bar-row"><span>EffB0 / RAW</span><i><b data-width="61.18"></b></i><em>.6118</em></div>
+          <div class="metric-bar-row"><span>EffB0 / CLEAN</span><i><b data-width="57.22"></b></i><em>.5722</em></div>
+        </div>
+        <div class="artifact-facts">
+          <div class="artifact-fact"><strong>0.9705</strong><span>background-only AUC</span></div>
+          <div class="artifact-fact"><strong>1.000</strong><span>APTOS vs Messidor source AUC</span></div>
+          <div class="artifact-fact"><strong>69</strong><span>exact cross-split duplicate pairs</span></div>
+        </div>
+        <div class="obs-links">
+          <a href="https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts" target="_blank" rel="noopener noreferrer">Repository ↗</a>
+          <a href="https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts/blob/main/REPRODUCIBILITY.md" target="_blank" rel="noopener noreferrer">Reproduce ↗</a>
+          <a href="https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts/blob/main/CITATION.cff" target="_blank" rel="noopener noreferrer">Cite ↗</a>
+        </div>`;
+    }
+
+    const figure = panel.querySelector(".scientific-frame");
+    if (figure) {
+      figure.dataset.full = "assets/research/artifact_study_overview.svg";
+      figure.dataset.caption = "Final 12-model artifact-robustness study: internal-to-external discrimination gap, common-input sensitivity, and audit signals.";
+      figure.classList.add("lightbox-trigger");
+      figure.innerHTML = `
+        <div class="figure-toolbar"><span>FIG / 01</span><span>ARTIFACT ROBUSTNESS STUDY</span><button type="button">Expand ↗</button></div>
+        <img src="assets/research/artifact_study_overview.svg" alt="Overview of external discrimination, background sensitivity, and audit results for the 12-model fundus study" loading="lazy" decoding="async">
+        <figcaption>Reduced nuisance response and cross-domain discrimination are separate properties. EfficientNet-B0 became markedly less background-sensitive after CLEAN training while external AUC decreased.</figcaption>`;
+    }
+
+    if (typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(() => {
+        panel.querySelectorAll(".metric-bar-row b[data-width]").forEach(bar => {
+          bar.style.width = `${Math.min(Number(bar.dataset.width) || 0, 100)}%`;
+        });
+      });
+    }
+  }, 0);
 }
 
 function renderPublications() {
@@ -299,6 +375,7 @@ function initContact() {
 function init() {
   setupProfile();
   renderProjects();
+  installArtifactRefresh();
   renderPublications();
   renderTimeline();
   renderService();
