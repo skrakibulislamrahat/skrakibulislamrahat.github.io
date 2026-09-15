@@ -64,13 +64,24 @@
         const active = tab.dataset.panel === id;
         tab.classList.toggle('active', active);
         tab.setAttribute('aria-selected', active ? 'true' : 'false');
+        tab.setAttribute('tabindex', active ? '0' : '-1');
         if (active && focus) tab.focus();
       });
+
       panels.forEach((panel) => {
         const active = panel.dataset.obsPanel === id;
         panel.hidden = !active;
         panel.classList.toggle('active', active);
-        if (active) animateBars(panel);
+
+        // artifact-refresh.css intentionally uses display: ... !important for its
+        // custom layout. Force hidden panels off with equal priority so the
+        // visual panel always matches the selected tab.
+        if (active) {
+          panel.style.removeProperty('display');
+          animateBars(panel);
+        } else {
+          panel.style.setProperty('display', 'none', 'important');
+        }
       });
     };
 
@@ -229,6 +240,27 @@
     }
   }
 
+  function finalizeArtifactPresentation() {
+    const clean = () => {
+      const panel = document.querySelector('[data-obs-panel="artifact"]');
+      const figure = panel?.querySelector('.scientific-frame');
+      if (!panel || !figure) return;
+
+      // The SVG contains its own FIG / 01 title strip. Remove the page-level
+      // duplicate so the visual has one clean hierarchy.
+      figure.querySelector(':scope > .figure-toolbar')?.remove();
+      figure.setAttribute('aria-label', 'Artifact robustness study figure. Click to expand.');
+
+      // Preserve the current observatory state after artifact-refresh.css loads.
+      if (panel.hidden) panel.style.setProperty('display', 'none', 'important');
+    };
+
+    clean();
+    // portfolio.js rebuilds the artifact figure in a zero-delay task; run once
+    // after that rebuild as well.
+    setTimeout(clean, 0);
+  }
+
   function initFigureFallbacks() {
     document.querySelectorAll('.scientific-frame img').forEach((img) => {
       img.addEventListener('error', () => {
@@ -251,6 +283,7 @@
     initLabParallax();
     initObservatory();
     initLightbox();
+    finalizeArtifactPresentation();
     initSpotlightCards();
     initInstrumentObserver();
     initFigureFallbacks();
