@@ -211,6 +211,24 @@
     }
   }
 
+  function patchPortfolioConsistency() {
+    const reviewCount = String(window.SITE_DATA?.service?.reviews?.count || '').match(/\d+/)?.[0];
+    if (reviewCount) {
+      document.querySelectorAll('.signal-stat').forEach((stat) => {
+        const label = stat.querySelector('span');
+        const value = stat.querySelector('strong');
+        if (label && value && /verified peer reviews/i.test(label.textContent || '')) {
+          value.textContent = reviewCount;
+        }
+      });
+    }
+
+    const calibrationCopy = document.querySelector('[data-obs-panel="calibration"] .obs-copy > p');
+    if (calibrationCopy) {
+      calibrationCopy.textContent = 'Temperature scaling changes APTOS ECE only marginally because the source model is already well calibrated; the large Messidor-2 calibration gap also remains almost unchanged after source-fitted scaling.';
+    }
+  }
+
   function initFigureFallbacks() {
     document.querySelectorAll('.scientific-frame img').forEach((img) => {
       img.addEventListener('error', () => {
@@ -228,6 +246,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     installV6Styles();
     patchV6Figures();
+    patchPortfolioConsistency();
     initCursorField();
     initLabParallax();
     initObservatory();
