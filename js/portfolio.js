@@ -9,10 +9,71 @@
   const link = (href, label, cls = '') => `<a class="${cls}" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`;
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const motionEase = 'cubic-bezier(.22,1,.36,1)';
-  function enter(element, distance = 14, delay = 0) {
-    if (!element || reducedMotion.matches || !element.animate) return;
+  let motionPreference = null;
+  try {motionPreference = localStorage.getItem('rahat-motion');} catch (_) {}
+  let motionEnabled = motionPreference ? motionPreference === 'on' : !reducedMotion.matches;
+  document.documentElement.dataset.motion = motionEnabled ? 'on' : 'off';
+  function enter(element, distance = 18, delay = 0) {
+    if (!element || !motionEnabled || !element.animate) return;
     element.getAnimations().forEach(animation => animation.cancel());
-    element.animate([{opacity:.25,transform:`translateY(${distance}px)`},{opacity:1,transform:'translateY(0)'}],{duration:520,delay,easing:motionEase});
+    return element.animate([{opacity:0,transform:`translateY(${distance}px)`},{opacity:1,transform:'translateY(0)'}],{duration:600,delay,easing:motionEase,fill:'backwards'});
+  }
+  const swaps = new Map();
+  function stopSwap(container) {
+    const state = swaps.get(container);
+    if (!state) return;
+    state.animations.forEach(animation => animation.cancel());
+    state.ghost?.remove();
+    container.style.height = '';container.style.overflow = '';
+    swaps.delete(container);
+  }
+  // Keep the old content long enough to fade out, while the new content takes its place.
+  // A new selection cancels the previous transition; the latest selection always wins.
+  function transitionContent(container, render) {
+    const from = container.getBoundingClientRect().height;
+    stopSwap(container);
+    if (!motionEnabled || !container.animate || !container.childElementCount) {render();return;}
+    const ghost = container.cloneNode(true);
+    ghost.removeAttribute('id');
+    ghost.querySelectorAll('[id]').forEach(element => element.removeAttribute('id'));
+    ghost.setAttribute('aria-hidden','true');ghost.inert = true;
+    ghost.classList.add('transition-ghost');
+    render();
+    const to = container.getBoundingClientRect().height;
+    const children = [...container.children].filter(element => !element.hidden);
+    container.append(ghost);
+    container.style.height = `${from}px`;container.style.overflow = 'hidden';
+    const height = container.animate([{height:`${from}px`},{height:`${to}px`}],{duration:560,easing:motionEase,fill:'both'});
+    const fade = ghost.animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-10px)'}],{duration:200,easing:'ease-out',fill:'forwards'});
+    const state = {ghost,animations:[height,fade]};swaps.set(container,state);
+    children.forEach((element,index) => {const animation = enter(element,20,100 + Math.min(index * 30,180));if(animation)state.animations.push(animation);});
+    fade.onfinish = () => ghost.remove();
+    height.onfinish = () => {if(swaps.get(container) === state){container.style.height='';container.style.overflow='';height.cancel();}};
+    // Entry animations may outlast the height change. Release references after they settle.
+    Promise.allSettled(state.animations.map(animation => animation.finished)).then(() => {if(swaps.get(container)===state)swaps.delete(container);});
+  }
+  window.addEventListener('resize', () => [...swaps.keys()].forEach(stopSwap), {passive:true});
+  function setupMotion() {
+    function sync() {
+      document.documentElement.dataset.motion = motionEnabled ? 'on' : 'off';
+      $$('[data-motion-toggle]').forEach(button => {
+        button.setAttribute('aria-pressed',String(motionEnabled));
+        button.querySelector('.motion-label').textContent = motionEnabled ? 'Motion on' : 'Motion off';
+        button.querySelector('span').textContent = motionEnabled ? 'Ⅱ' : '▷';
+      });
+      if (!motionEnabled) {
+        [...swaps.keys()].forEach(stopSwap);
+        document.getAnimations().forEach(animation => {if (!(animation instanceof CSSAnimation)) {try {animation.finish();} catch (_) {animation.cancel();}}});
+      }
+      document.dispatchEvent(new CustomEvent('motionchange'));
+    }
+    $$('[data-motion-toggle]').forEach(button => button.addEventListener('click', () => {
+      motionEnabled = !motionEnabled;motionPreference = motionEnabled ? 'on' : 'off';
+      try {localStorage.setItem('rahat-motion',motionPreference);} catch (_) {}
+      sync();
+    }));
+    reducedMotion.addEventListener('change', () => {if(!motionPreference){motionEnabled=!reducedMotion.matches;sync();}});
+    sync();
   }
   const themes = [
     ['What did the model actually learn?', 'Testing sensitivity to cues outside the retinal field.', '#c4f877'],
@@ -30,7 +91,7 @@
     for (let n = 0; n < 12; n++) lines += `<ellipse cx="240" cy="175" rx="${12+n*10.6}" ry="128" fill="none" stroke="currentColor" stroke-width=".65" opacity=".23" transform="rotate(-24 240 175)"/>`;
     let dots = '';
     for (let n=0;n<55;n++) {const a=n*2.399963;const r=144+((n*29)%43);dots+=`<circle cx="${240+Math.cos(a)*r*1.1}" cy="${175+Math.sin(a)*r*.79}" r="${n%7===0?2:1}" fill="currentColor" opacity="${.2+(n%5)/10}"/>`;}
-    $('#researchOrb').innerHTML = `<defs><radialGradient id="orbGlow"><stop stop-color="currentColor" stop-opacity=".17"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs><circle cx="240" cy="175" r="171" fill="url(#orbGlow)"/><g class="orb-field">${lines}<g class="orb-orbits"><ellipse cx="240" cy="175" rx="198" ry="57" fill="none" stroke="currentColor" stroke-width=".7" opacity=".35" transform="rotate(-24 240 175)"/><ellipse cx="240" cy="175" rx="183" ry="108" fill="none" stroke="currentColor" stroke-width=".6" opacity=".24" transform="rotate(29 240 175)"/><circle cx="56" cy="226" r="4" fill="currentColor"/><circle cx="398" cy="122" r="3" fill="currentColor"/></g><g class="orb-stars">${dots}</g><g class="orb-satellites"><circle cx="240" cy="45" r="4" fill="currentColor"/><circle cx="240" cy="305" r="2.5" fill="currentColor"/><circle cx="108" cy="175" r="2" fill="currentColor"/></g></g><circle cx="240" cy="175" r="71" fill="#0c1822" opacity=".85"/>`;
+    $('#researchOrb').innerHTML = `<defs><radialGradient id="orbGlow"><stop stop-color="currentColor" stop-opacity=".17"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs><circle cx="240" cy="175" r="171" fill="url(#orbGlow)"/><g class="orb-field"><g class="orb-mesh">${lines}</g><g class="orb-orbits"><ellipse cx="240" cy="175" rx="198" ry="57" fill="none" stroke="currentColor" stroke-width=".7" opacity=".35" transform="rotate(-24 240 175)"/><ellipse cx="240" cy="175" rx="183" ry="108" fill="none" stroke="currentColor" stroke-width=".6" opacity=".24" transform="rotate(29 240 175)"/><circle cx="56" cy="226" r="4" fill="currentColor"/><circle cx="398" cy="122" r="3" fill="currentColor"/></g><g class="orb-stars">${dots}</g><g class="orb-satellites"><circle cx="240" cy="45" r="4" fill="currentColor"/><circle cx="240" cy="305" r="2.5" fill="currentColor"/><circle cx="108" cy="175" r="2" fill="currentColor"/></g></g><circle cx="240" cy="175" r="71" fill="#0c1822" opacity=".85"/>`;
     const card = $('.constellation'), control = $('#orbControl');
     const destinations = [
       ['artifacts', 'Explore the artifact study'],
@@ -38,7 +99,7 @@
       ['calibration', 'Explore the calibration audit'],
       [null, 'Explore my doctoral direction']
     ];
-    let current = 0, angle = 0, gesture = null, ignoreClickUntil = 0, paused = false;
+    let current = 0, angle = 0, gesture = null, ignoreClickUntil = 0;
     function setTheme(index) {
       current = (index + themes.length) % themes.length;
       const theme = themes[current];
@@ -77,7 +138,7 @@
       }
       if (!gesture.horizontal) return;
       gesture.dx = dx;
-      if (!reducedMotion.matches) card.style.setProperty('--field-rotation', `${angle + Math.max(-65,Math.min(65,dx * .3))}deg`);
+      if (motionEnabled) card.style.setProperty('--field-rotation', `${angle + Math.max(-65,Math.min(65,dx * .3))}deg`);
     });
     function finishGesture(event) {
       if (!gesture || gesture.id !== event.pointerId) return;
@@ -100,21 +161,12 @@
       if (!study) return;
       event.preventDefault();
       selectStudy(study);
-      $('#evidence').scrollIntoView({behavior:reducedMotion.matches ? 'instant' : 'smooth'});
+      $('#evidence').scrollIntoView({behavior:!motionEnabled ? 'instant' : 'smooth'});
       $(`#tab-${study}`).focus({preventScroll:true});
     });
-    function syncMotion() {
-      card.classList.toggle('motion-paused', paused || reducedMotion.matches);
-      $('#toggleMotion').hidden = reducedMotion.matches;
-      $('#toggleMotion').setAttribute('aria-label', paused ? 'Play animation' : 'Pause animation');
-      $('#toggleMotion span').textContent = paused ? '▷' : 'Ⅱ';
-    }
-    $('#toggleMotion').addEventListener('click', () => {paused = !paused;syncMotion();});
-    reducedMotion.addEventListener('change', syncMotion);
-    syncMotion();
     card.style.setProperty('--accent', themes[0][2]);
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(entries => card.classList.toggle('orb-offscreen', !entries[0].isIntersecting),{threshold:0}).observe(card);
+      new IntersectionObserver(entries => card.classList.toggle('orb-offscreen', !entries[0].isIntersecting),{threshold:0,rootMargin:'100px'}).observe(control);
     }
   }
 
@@ -143,22 +195,34 @@
       tab.addEventListener('keydown',event=>{let n=index;if(event.key==='ArrowRight')n=(index+1)%tabs.length;else if(event.key==='ArrowLeft')n=(index+tabs.length-1)%tabs.length;else if(event.key==='Home')n=0;else if(event.key==='End')n=tabs.length-1;else return;event.preventDefault();selectStudy(tabs[n].dataset.study);tabs[n].focus();});
     });
   }
-  function selectStudy(id){$$('[data-study]').forEach(tab=>{const selected=tab.dataset.study===id;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$$('.evidence-panel').forEach(panel=>{const selected=panel.id===`panel-${id}`;const wasHidden=panel.hidden;panel.hidden=!selected;if(selected&&wasHidden)enter(panel,10);});}
+  function selectStudy(id) {
+    const next = $(`#panel-${id}`);
+    if (!next || !next.hidden) return;
+    $$('[data-study]').forEach(tab => {const selected=tab.dataset.study===id;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});
+    transitionContent($('#evidencePanels'), () => $$('.evidence-panel').forEach(panel => panel.hidden=panel!==next));
+    animateEvidence(next);
+  }
+  function animateEvidence(panel) {
+    if (!motionEnabled) return;
+    panel.querySelectorAll('.bar-fill').forEach((bar,index) => bar.animate([{transform:'scaleX(0)'},{transform:'scaleX(1)'}],{duration:850,delay:180+index*65,easing:motionEase,fill:'backwards'}));
+  }
   function renderPublications(){
     const filters=[['All','All'],['Journal Articles','Journals'],['Conference Papers','Conferences'],['Manuscripts','Manuscripts']];
     const pubs=Object.entries(data.publications).flatMap(([group,items])=>items.map(p=>({...p,group})));
     let current='All',expanded=false;
     $('#publicationFilters').innerHTML=filters.map(([key,label])=>`<button type="button" data-filter="${key}" aria-pressed="${key===current}">${label}</button>`).join('');
-    const draw=()=>{
+    const draw=(animated=false)=>{
       const filtered=pubs.filter(p=>current==='All'||p.group===current),visible=expanded?filtered:filtered.slice(0,5);
-      $('#publicationList').innerHTML=visible.map(p=>{const url=p.links?.[0]?.url;return `<article class="publication-row"><span class="publication-year">${esc(p.year)}</span><div>${p.group==='Manuscripts'?`<span class="pub-status">${esc(p.type)}</span>`:''}<h3>${url?link(url,p.title):esc(p.title)}</h3><p>${esc(p.venue)}${p.group==='Manuscripts'?' · '+esc(p.description):''}</p></div>${url?`<a class="publication-arrow" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Read ${esc(p.title)}">↗</a>`:'<span aria-hidden="true"></span>'}</article>`;}).join('');
+      const render=()=>{$('#publicationList').innerHTML=visible.map(p=>{const url=p.links?.[0]?.url;return `<article class="publication-row"><span class="publication-year">${esc(p.year)}</span><div>${p.group==='Manuscripts'?`<span class="pub-status">${esc(p.type)}</span>`:''}<h3>${url?link(url,p.title):esc(p.title)}</h3><p>${esc(p.venue)}${p.group==='Manuscripts'?' · '+esc(p.description):''}</p></div>${url?`<a class="publication-arrow" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Read ${esc(p.title)}">↗</a>`:'<span aria-hidden="true"></span>'}</article>`;}).join('');};
+      if(animated)transitionContent($('#publicationList'),render);else render();
       $('#publicationCount').textContent=`${visible.length} of ${filtered.length} entries`;
       $('#showPublications').hidden=filtered.length<=5;
+      $('#showPublications').setAttribute('aria-expanded',String(expanded));
       $('#showPublications').textContent=expanded?'Show fewer ↑':`View all ${filtered.length} entries ↓`;
       $$('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===current)));
     };
-    $$('[data-filter]').forEach(button=>button.addEventListener('click',()=>{current=button.dataset.filter;expanded=false;draw();}));
-    $('#showPublications').addEventListener('click',()=>{expanded=!expanded;draw();if(!expanded)$('#publications').scrollIntoView({behavior:'instant'});});
+    $$('[data-filter]').forEach(button=>button.addEventListener('click',()=>{if(current===button.dataset.filter)return;current=button.dataset.filter;expanded=false;draw(true);}));
+    $('#showPublications').addEventListener('click',()=>{expanded=!expanded;draw(true);});
     draw();
   }
   function renderProfile(){
@@ -171,23 +235,45 @@
     $('#reviewJournals').innerHTML=data.service.reviews.items.map(j=>`<li>${esc(j)}</li>`).join('');
     $('#certifications').innerHTML=data.service.certifications.map(c=>c.url?link(c.url,c.label):`<span>${esc(c.label)}</span>`).join('');
   }
-  function setupNavigation(){
-    const toggle=$('.menu-toggle'),nav=$('#navigation');
-    function close(){nav.classList.remove('open');toggle.setAttribute('aria-expanded','false');toggle.querySelector('span').textContent='+';}
-    toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));nav.classList.toggle('open',open);toggle.querySelector('span').textContent=open?'−':'+';});
-    $$('#navigation a').forEach(a=>a.addEventListener('click',close));
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&nav.classList.contains('open')){close();toggle.focus();}});
-    document.addEventListener('click',e=>{if(!e.target.closest('.site-header'))close();});
-    matchMedia('(min-width:681px)').addEventListener('change',close);
-    if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){$$('#navigation a').forEach(a=>{if(a.hash===`#${e.target.id}`)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});}});},{rootMargin:'-15% 0px -60% 0px',threshold:0});$$('main section[id]').forEach(s=>observer.observe(s));}
+  function setupNavigation() {
+    const toggle=$('.menu-toggle'),nav=$('#navigation'),desktop=matchMedia('(min-width:681px)');
+    let animation;
+    function setMenu(open, instant=false) {
+      if(animation){animation.cancel();animation=null;}
+      toggle.setAttribute('aria-expanded',String(open));toggle.querySelector('span').textContent=open?'−':'+';
+      if(instant || !motionEnabled || desktop.matches){nav.classList.toggle('open',open);return;}
+      if(open)nav.classList.add('open');
+      const frames=open?[{opacity:0,transform:'translateY(-12px)'},{opacity:1,transform:'translateY(0)'}]:[{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-12px)'}];
+      animation=nav.animate(frames,{duration:230,easing:motionEase});
+      animation.onfinish=()=>{nav.classList.toggle('open',open);animation=null;};
+    }
+    toggle.addEventListener('click',()=>setMenu(toggle.getAttribute('aria-expanded')!=='true'));
+    $$('#navigation a').forEach(a=>a.addEventListener('click',()=>setMenu(false)));
+    $('.brand').addEventListener('click',()=>setMenu(false));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&toggle.getAttribute('aria-expanded')==='true'){setMenu(false);toggle.focus();}});
+    document.addEventListener('click',e=>{if(!e.target.closest('.site-header')&&toggle.getAttribute('aria-expanded')==='true')setMenu(false);});
+    desktop.addEventListener('change',()=>setMenu(false,true));
+    if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){$$('#navigation a').forEach(a=>{if(a.hash===`#${e.target.id}`)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});}});},{rootMargin:'-15% 0px -60% 0px',threshold:0});$$('main section[id]').forEach(section=>observer.observe(section));}
   }
   function setupFigures(){
     const figures={semantic:['assets/research/semantic_hcer_verified.svg','High-confidence errors after task transfer','Five reported source–target pairs, reproduced from semantic-shift-chest-xray/RESULTS.md. Lower HCER is better.'],calibration:['assets/research/calibration_seed0_verified.png','External reliability · Messidor-2 · seed 0','Original finalized figure: metrics_fixed/seed_0_messidor2_reliability_predconf_fixed.png. ResNet-18 CCR, uncalibrated, N = 1,058.']};
-    const dialog=$('#figureDialog');let opener;
-    $$('[data-figure]').forEach(b=>b.addEventListener('click',()=>{opener=b;const [src,title,caption]=figures[b.dataset.figure];$('#dialogImage').src=src;$('#dialogImage').alt=title;$('#figureTitle').textContent=title;$('#dialogCaption').textContent=caption;dialog.showModal();}));
-    $('#closeFigure').addEventListener('click',()=>dialog.close());
-    dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
-    dialog.addEventListener('close',()=>{if(opener)opener.focus({preventScroll:true});});
+    const dialog=$('#figureDialog');let opener,closing=false;
+    function closeFigure() {
+      if(closing || !dialog.open)return;
+      if(!motionEnabled){dialog.close();return;}
+      closing=true;dialog.getAnimations().forEach(animation=>animation.cancel());
+      const animation=dialog.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.96)'}],{duration:200,easing:'ease-in',fill:'forwards'});
+      animation.onfinish=()=>{dialog.close();animation.cancel();closing=false;};
+    }
+    $$('[data-figure]').forEach(button=>button.addEventListener('click',()=>{
+      opener=button;const [src,title,caption]=figures[button.dataset.figure];
+      $('#dialogImage').src=src;$('#dialogImage').alt=title;$('#figureTitle').textContent=title;$('#dialogCaption').textContent=caption;
+      dialog.showModal();if(motionEnabled)dialog.animate([{opacity:0,transform:'translateY(16px) scale(.95)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:360,easing:motionEase});
+    }));
+    $('#closeFigure').addEventListener('click',closeFigure);
+    dialog.addEventListener('cancel',event=>{event.preventDefault();closeFigure();});
+    dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)closeFigure();}});
+    dialog.addEventListener('close',()=>{closing=false;if(opener)opener.focus({preventScroll:true});});
   }
   function setupJournals() {
     const details = $('.journal-details'), summary = details.querySelector('summary'), content = $('#journalContent');
@@ -199,7 +285,7 @@
       content.style.height = '';
     }
     summary.addEventListener('click', event => {
-      if (!content.animate || reducedMotion.matches) return;
+      if (!content.animate || !motionEnabled) return;
       event.preventDefault();
       const from = details.open ? content.getBoundingClientRect().height : 0;
       expanded = !expanded;
@@ -219,65 +305,139 @@
       summary.setAttribute('aria-expanded', String(expanded));
       details.classList.toggle('is-expanded', expanded);
     });
-    reducedMotion.addEventListener('change', () => {if (reducedMotion.matches) settle();});
+    document.addEventListener('motionchange', () => {if (!motionEnabled) settle();});
     window.addEventListener('resize', () => {if (animation) settle();}, {passive:true});
   }
   function setupScrollMotion() {
     if (!('IntersectionObserver' in window)) return;
+    const visibleProjects = new Set();
+    const projectObserver = new IntersectionObserver(entries=>entries.forEach(entry=>{
+      entry.target.classList.toggle('in-view',entry.isIntersecting);
+      if(entry.isIntersecting)visibleProjects.add(entry.target);else visibleProjects.delete(entry.target);
+    }),{threshold:.12});
+    $$('.project').forEach(project=>projectObserver.observe(project));
     const observer = new IntersectionObserver(entries => {
-      const visible = entries.filter(entry => entry.isIntersecting);
-      visible.forEach((entry,index) => {
-        observer.unobserve(entry.target);
-        enter(entry.target, 18, Math.min(index * 65, 195));
+      entries.filter(entry=>entry.isIntersecting).forEach((entry,index)=>{
+        observer.unobserve(entry.target);enter(entry.target,28,Math.min(index*80,240));
+        if(entry.target.id==='evidencePanels')animateEvidence(entry.target);
       });
     }, {threshold:.08});
-    $$('.section-heading,.project,.education-item,.service-card,.contact-panel').forEach(element => observer.observe(element));
-    const progress = document.createElement('div');
-    progress.className = 'reading-progress';
-    progress.setAttribute('aria-hidden','true');
-    $('.site-header').append(progress);
-    let scheduled = false;
+    $$('.section-heading,.project,.education-item,.service-card,.contact-panel,#evidencePanels,.metrics-strip').forEach(element=>observer.observe(element));
+    const progress=document.createElement('div');progress.className='reading-progress';progress.setAttribute('aria-hidden','true');$('.site-header').append(progress);
+    let scheduled=false;
     function update() {
-      scheduled = false;
-      const distance = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      progress.style.transform = `scaleX(${distance > 0 ? Math.max(0,Math.min(1,window.scrollY / distance)) : 0})`;
+      scheduled=false;
+      const distance=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+      progress.style.transform=`scaleX(${distance>0?Math.max(0,Math.min(1,window.scrollY/distance)):0})`;
+      visibleProjects.forEach(project=>{
+        const rect=project.getBoundingClientRect();
+        const travel=Math.max(-1,Math.min(1,(window.innerHeight*.5-rect.top-rect.height*.5)/window.innerHeight));
+        project.style.setProperty('--graphic-drift',motionEnabled?`${travel*26}px`:'0px');
+        project.style.setProperty('--scan-position',`${Math.round(50+travel*70)}%`);
+      });
     }
-    function schedule() {if (!scheduled) {scheduled = true;requestAnimationFrame(update);}}
-    window.addEventListener('scroll', schedule, {passive:true});
-    window.addEventListener('resize', schedule, {passive:true});
-    if ('ResizeObserver' in window) new ResizeObserver(schedule).observe(document.body);
+    function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(update);}}
+    window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule,{passive:true});
+    document.addEventListener('motionchange',schedule);
+    if('ResizeObserver'in window)new ResizeObserver(schedule).observe(document.body);
     update();
   }
   function setupGlow() {
-    const finePointer = matchMedia('(hover:hover) and (pointer:fine)');
-    const aura = $('.pointer-aura');let pointer = {x:-1000,y:-1000},scheduled = false;
-    document.addEventListener('pointermove', event => {
-      if (!finePointer.matches || reducedMotion.matches || event.pointerType === 'touch') return;
-      pointer = {x:event.clientX,y:event.clientY};
-      if (!scheduled) {scheduled = true;requestAnimationFrame(() => {aura.style.setProperty('--pointer-x',`${pointer.x}px`);aura.style.setProperty('--pointer-y',`${pointer.y}px`);scheduled = false;});}
-    }, {passive:true});
-    $$('.glow-card').forEach(card => {
-      let queued = false, timer;
-      function light(event) {
-        if (queued) return;
-        queued = true;
-        requestAnimationFrame(() => {
-          const r = card.getBoundingClientRect();
-          card.style.setProperty('--mx', `${event.clientX-r.left}px`);
-          card.style.setProperty('--my', `${event.clientY-r.top}px`);
-          queued = false;
-        });
+    const aura=$('.pointer-aura'),canvas=$('#touchLight'),context=canvas.getContext('2d');
+    let pointer={x:-1000,y:-1000},queued=false,litCard=null,cardTimer;
+    let particles=[],finger={x:0,y:0},lastPoint=null,active=false,lastTouch=0,frame=0;
+    function resize(){const dpr=Math.min(window.devicePixelRatio||1,1.5);canvas.width=Math.round(window.innerWidth*dpr);canvas.height=Math.round(window.innerHeight*dpr);context?.setTransform(dpr,0,0,dpr,0,0);}
+    resize();window.addEventListener('resize',resize,{passive:true});
+    function lightCard(x,y) {
+      const card=document.elementFromPoint(x,y)?.closest('.glow-card');
+      if(litCard && litCard!==card)litCard.classList.remove('is-touched');
+      litCard=card;
+      if(!card)return;
+      const rect=card.getBoundingClientRect();card.style.setProperty('--mx',`${x-rect.left}px`);card.style.setProperty('--my',`${y-rect.top}px`);card.classList.add('is-touched');
+      clearTimeout(cardTimer);cardTimer=setTimeout(()=>{litCard?.classList.remove('is-touched');litCard=null;},700);
+    }
+    function paint(now) {
+      frame=0;if(!context)return;
+      context.clearRect(0,0,window.innerWidth,window.innerHeight);
+      if(!motionEnabled || document.hidden){particles=[];return;}
+      particles=particles.filter(p=>now-p.born<650);
+      const alpha=active?1:Math.max(0,1-(now-lastTouch)/420);
+      if(alpha>0){
+        const glow=context.createRadialGradient(finger.x,finger.y,0,finger.x,finger.y,155);
+        glow.addColorStop(0,`rgba(174,250,165,${.18*alpha})`);glow.addColorStop(.35,`rgba(103,216,219,${.07*alpha})`);glow.addColorStop(1,'rgba(103,216,219,0)');
+        context.fillStyle=glow;context.fillRect(0,0,window.innerWidth,window.innerHeight);
       }
-      card.addEventListener('pointermove', light, {passive:true});
-      card.addEventListener('pointerdown', event => {
-        light(event);
-        clearTimeout(timer);
-        card.classList.add('is-touched');
-        timer = setTimeout(() => card.classList.remove('is-touched'), 900);
-      }, {passive:true});
-    });
+      particles.forEach(p=>{const age=(now-p.born)/650;context.beginPath();context.arc(p.x,p.y-age*8,1.5+(1-age)*2,0,Math.PI*2);context.fillStyle=`rgba(196,248,119,${(1-age)*.6})`;context.fill();});
+      if(active||particles.length||alpha>0)frame=requestAnimationFrame(paint);
+    }
+    function touch(x,y){
+      finger={x,y};active=true;lastTouch=performance.now();lightCard(x,y);
+      if(!motionEnabled)return;
+      if(!lastPoint||Math.hypot(x-lastPoint.x,y-lastPoint.y)>12){particles.push({x,y,born:lastTouch});particles=particles.slice(-24);lastPoint={x,y};}
+      if(!frame)frame=requestAnimationFrame(paint);
+    }
+    // Passive Touch Events continue during native phone scrolling, after pointercancel.
+    document.addEventListener('touchstart',event=>{const point=event.touches[0];if(point)touch(point.clientX,point.clientY);},{passive:true});
+    document.addEventListener('touchmove',event=>{const point=event.touches[0];if(point)touch(point.clientX,point.clientY);},{passive:true});
+    function release(){active=false;lastPoint=null;lastTouch=performance.now();}
+    document.addEventListener('touchend',release,{passive:true});document.addEventListener('touchcancel',release,{passive:true});
+    document.addEventListener('pointermove',event=>{
+      if(event.pointerType==='touch')return;
+      pointer={x:event.clientX,y:event.clientY};
+      if(!queued){queued=true;requestAnimationFrame(()=>{queued=false;aura.style.setProperty('--pointer-x',`${pointer.x}px`);aura.style.setProperty('--pointer-y',`${pointer.y}px`);lightCard(pointer.x,pointer.y);});}
+    },{passive:true});
+    document.addEventListener('pointerdown',event=>lightCard(event.clientX,event.clientY),{passive:true});
+    window.addEventListener('scroll',()=>{if(active)lightCard(finger.x,finger.y);},{passive:true});
+    document.addEventListener('motionchange',()=>{if(!motionEnabled){particles=[];active=false;if(frame)cancelAnimationFrame(frame);frame=0;context?.clearRect(0,0,canvas.width,canvas.height);}});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){release();particles=[];}});
   }
-  drawOrb();renderProjects();renderEvidence();renderPublications();renderProfile();setupNavigation();setupFigures();setupGlow();setupJournals();setupScrollMotion();
+  function setupPressFeedback() {
+    function pulse(target,x,y) {
+      if(!motionEnabled||!target.animate)return;
+      const rect=target.getBoundingClientRect(),ring=document.createElement('span');
+      ring.className='tap-ring';ring.setAttribute('aria-hidden','true');
+      ring.style.left=`${x-rect.left}px`;ring.style.top=`${y-rect.top}px`;target.classList.add('pressable');target.append(ring);
+      const scale=Math.max(rect.width,rect.height)/10;
+      const animation=ring.animate([{opacity:.3,transform:'translate(-50%,-50%) scale(0)'},{opacity:0,transform:`translate(-50%,-50%) scale(${scale})`}],{duration:650,easing:'ease-out'});
+      animation.onfinish=()=>ring.remove();animation.oncancel=()=>ring.remove();
+    }
+    const selector='button:not(.orb-stage):not([data-hello]),.button,.theme-explore,.publication-arrow,.nav-cv';
+    document.addEventListener('pointerdown',event=>{const target=event.target.closest(selector);if(target)pulse(target,event.clientX,event.clientY);},{passive:true});
+    document.addEventListener('click',event=>{if(event.detail!==0)return;const target=event.target.closest(selector);if(target){const rect=target.getBoundingClientRect();pulse(target,rect.left+rect.width/2,rect.top+rect.height/2);}});
+  }
+  function setupPlay() {
+    const toast=$('#playfulToast'),shower=$('#retinaShower');let toastTimer,lastRain=-5000,taps=0;
+    function say(message) {
+      clearTimeout(toastTimer);toast.textContent=message;toast.classList.add('visible');
+      toastTimer=setTimeout(()=>toast.classList.remove('visible'),3400);
+    }
+    function rain() {
+      if(!motionEnabled){say('The retinas are resting. Switch Motion on to wake them up.');return;}
+      const now=performance.now();if(now-lastRain<2400)return;lastRain=now;
+      say('A 100% chance of retinas. No patient data involved.');
+      for(let i=0;i<9;i++){
+        const retina=document.createElement('img');retina.src='assets/retina-doodle.svg';retina.alt='';retina.width=36;retina.height=36;shower.append(retina);
+        const size=26+Math.random()*20,x=18+Math.random()*Math.max(0,window.innerWidth-72),drift=(Math.random()-.5)*60;
+        retina.style.width=`${size}px`;retina.style.height=`${size}px`;
+        const animation=retina.animate([
+          {transform:`translate3d(${x}px,-60px,0) rotate(-25deg)`,opacity:0},
+          {opacity:.88,offset:.12},
+          {opacity:.88,offset:.78},
+          {transform:`translate3d(${x+drift}px,${window.innerHeight+60}px,0) rotate(${160+Math.random()*120}deg)`,opacity:0}
+        ],{duration:1900+Math.random()*650,delay:i*75,easing:'cubic-bezier(.32,.02,.74,.63)',fill:'backwards'});
+        animation.onfinish=()=>retina.remove();animation.oncancel=()=>retina.remove();
+      }
+    }
+    $$('[data-hello]').forEach(button=>button.addEventListener('click',()=>{
+      const messages=['Ouch. That’s a researcher, not a button.','My confidence is uncalibrated before coffee.','Fine. A tiny retinal shower. For science.'];
+      const n=taps++%3;say(messages[n]);
+      if(motionEnabled)$('.portrait-button').animate([{transform:'rotate(0)'},{transform:'rotate(-9deg) scale(.96)'},{transform:'rotate(7deg)'},{transform:'rotate(0)'}],{duration:450,easing:'ease-out'});
+      if(n===2)rain();
+    }));
+    $('#retinaRain').addEventListener('click',rain);
+    document.addEventListener('motionchange',()=>{if(!motionEnabled){shower.getAnimations({subtree:true}).forEach(animation=>animation.cancel());shower.replaceChildren();}});
+  }
+  drawOrb();renderProjects();renderEvidence();renderPublications();renderProfile();setupNavigation();setupFigures();setupGlow();setupJournals();setupScrollMotion();setupPlay();setupPressFeedback();setupMotion();
   // Keep previous public deep links useful after the redesign.
   const aliases={'#thesis':'#research','#trajectory':'#about','#project-semantic-shift':'#project-semantic'};
   const target=aliases[location.hash]||location.hash;
