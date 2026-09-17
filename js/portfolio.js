@@ -7,6 +7,13 @@
   const $$ = (selector) => [...document.querySelectorAll(selector)];
   const esc = (value = '') => String(value).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const link = (href, label, cls = '') => `<a class="${cls}" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`;
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const motionEase = 'cubic-bezier(.22,1,.36,1)';
+  function enter(element, distance = 14, delay = 0) {
+    if (!element || reducedMotion.matches || !element.animate) return;
+    element.getAnimations().forEach(animation => animation.cancel());
+    element.animate([{opacity:.25,transform:`translateY(${distance}px)`},{opacity:1,transform:'translateY(0)'}],{duration:520,delay,easing:motionEase});
+  }
   const themes = [
     ['What did the model actually learn?', 'Testing sensitivity to cues outside the retinal field.', '#c4f877'],
     ['Does the evidence travel?', 'Evaluating the same model beyond its development dataset.', '#67d8db'],
@@ -23,14 +30,94 @@
     for (let n = 0; n < 12; n++) lines += `<ellipse cx="240" cy="175" rx="${12+n*10.6}" ry="128" fill="none" stroke="currentColor" stroke-width=".65" opacity=".23" transform="rotate(-24 240 175)"/>`;
     let dots = '';
     for (let n=0;n<55;n++) {const a=n*2.399963;const r=144+((n*29)%43);dots+=`<circle cx="${240+Math.cos(a)*r*1.1}" cy="${175+Math.sin(a)*r*.79}" r="${n%7===0?2:1}" fill="currentColor" opacity="${.2+(n%5)/10}"/>`;}
-    $('#researchOrb').innerHTML = `<defs><radialGradient id="orbGlow"><stop stop-color="currentColor" stop-opacity=".17"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs><circle cx="240" cy="175" r="171" fill="url(#orbGlow)"/>${lines}<g class="orb-orbits"><ellipse cx="240" cy="175" rx="198" ry="57" fill="none" stroke="currentColor" stroke-width=".7" opacity=".35" transform="rotate(-24 240 175)"/><ellipse cx="240" cy="175" rx="183" ry="108" fill="none" stroke="currentColor" stroke-width=".6" opacity=".24" transform="rotate(29 240 175)"/><circle cx="56" cy="226" r="4" fill="currentColor"/><circle cx="398" cy="122" r="3" fill="currentColor"/></g><g class="orb-stars">${dots}</g><circle cx="240" cy="175" r="71" fill="#0c1822" opacity=".85"/>`;
-    $$('.theme-switch button').forEach(button => button.addEventListener('click', () => {
-      const t = themes[Number(button.dataset.theme)];
-      $$('.theme-switch button').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
-      $('.constellation').style.setProperty('--accent', t[2]);
-      $('#themeQuestion').textContent=t[0]; $('#themeDescription').textContent=t[1];
-    }));
+    $('#researchOrb').innerHTML = `<defs><radialGradient id="orbGlow"><stop stop-color="currentColor" stop-opacity=".17"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs><circle cx="240" cy="175" r="171" fill="url(#orbGlow)"/><g class="orb-field">${lines}<g class="orb-orbits"><ellipse cx="240" cy="175" rx="198" ry="57" fill="none" stroke="currentColor" stroke-width=".7" opacity=".35" transform="rotate(-24 240 175)"/><ellipse cx="240" cy="175" rx="183" ry="108" fill="none" stroke="currentColor" stroke-width=".6" opacity=".24" transform="rotate(29 240 175)"/><circle cx="56" cy="226" r="4" fill="currentColor"/><circle cx="398" cy="122" r="3" fill="currentColor"/></g><g class="orb-stars">${dots}</g><g class="orb-satellites"><circle cx="240" cy="45" r="4" fill="currentColor"/><circle cx="240" cy="305" r="2.5" fill="currentColor"/><circle cx="108" cy="175" r="2" fill="currentColor"/></g></g><circle cx="240" cy="175" r="71" fill="#0c1822" opacity=".85"/>`;
+    const card = $('.constellation'), control = $('#orbControl');
+    const destinations = [
+      ['artifacts', 'Explore the artifact study'],
+      ['semantic', 'Explore dataset shift'],
+      ['calibration', 'Explore the calibration audit'],
+      [null, 'Explore my doctoral direction']
+    ];
+    let current = 0, angle = 0, gesture = null, ignoreClickUntil = 0, paused = false;
+    function setTheme(index) {
+      current = (index + themes.length) % themes.length;
+      const theme = themes[current];
+      $$('.theme-switch button').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.theme) === current)));
+      card.style.setProperty('--accent', theme[2]);
+      angle = current * 38;
+      card.style.setProperty('--field-rotation', `${angle}deg`);
+      $('#themeQuestion').textContent = theme[0];
+      $('#themeDescription').textContent = theme[1];
+      $('#themeIndex').textContent = `0${current + 1} / 04`;
+      $('#themeExplore span').textContent = destinations[current][1];
+      $('#themeExplore').href = destinations[current][0] ? '#evidence' : '#about';
+      enter($('.theme-caption'), 7);
+    }
+    $$('.theme-switch button').forEach(button => button.addEventListener('click', () => setTheme(Number(button.dataset.theme))));
+    control.addEventListener('click', event => {
+      if (event.detail && performance.now() < ignoreClickUntil) return;
+      setTheme(current + 1);
+    });
+    control.addEventListener('keydown', event => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      event.preventDefault();
+      setTheme(current + (event.key === 'ArrowRight' ? 1 : -1));
+    });
+    control.addEventListener('pointerdown', event => {
+      if (!event.isPrimary || event.button !== 0) return;
+      gesture = {id:event.pointerId, x:event.clientX, y:event.clientY, dx:0, horizontal:false};
+    });
+    control.addEventListener('pointermove', event => {
+      if (!gesture || gesture.id !== event.pointerId) return;
+      const dx = event.clientX - gesture.x, dy = event.clientY - gesture.y;
+      if (!gesture.horizontal && Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+        gesture.horizontal = true;
+        control.setPointerCapture(event.pointerId);
+        card.classList.add('is-dragging');
+      }
+      if (!gesture.horizontal) return;
+      gesture.dx = dx;
+      if (!reducedMotion.matches) card.style.setProperty('--field-rotation', `${angle + Math.max(-65,Math.min(65,dx * .3))}deg`);
+    });
+    function finishGesture(event) {
+      if (!gesture || gesture.id !== event.pointerId) return;
+      const completed = event.type === 'pointerup' && gesture.horizontal;
+      const dx = gesture.dx;
+      gesture = null;
+      card.classList.remove('is-dragging');
+      if (control.hasPointerCapture(event.pointerId)) control.releasePointerCapture(event.pointerId);
+      if (completed) {
+        ignoreClickUntil = performance.now() + 500;
+        setTheme(current + (Math.abs(dx) > 30 ? (dx < 0 ? 1 : -1) : 0));
+      } else card.style.setProperty('--field-rotation', `${angle}deg`);
+    }
+    control.addEventListener('pointerup', finishGesture);
+    control.addEventListener('pointercancel', finishGesture);
+    // Pointer capture is acquired only for a horizontal gesture: vertical scrolling remains native.
+    control.addEventListener('pointerleave', event => {if (gesture && !gesture.horizontal) finishGesture(event);});
+    $('#themeExplore').addEventListener('click', event => {
+      const study = destinations[current][0];
+      if (!study) return;
+      event.preventDefault();
+      selectStudy(study);
+      $('#evidence').scrollIntoView({behavior:reducedMotion.matches ? 'instant' : 'smooth'});
+      $(`#tab-${study}`).focus({preventScroll:true});
+    });
+    function syncMotion() {
+      card.classList.toggle('motion-paused', paused || reducedMotion.matches);
+      $('#toggleMotion').hidden = reducedMotion.matches;
+      $('#toggleMotion').setAttribute('aria-label', paused ? 'Play animation' : 'Pause animation');
+      $('#toggleMotion span').textContent = paused ? '▷' : 'Ⅱ';
+    }
+    $('#toggleMotion').addEventListener('click', () => {paused = !paused;syncMotion();});
+    reducedMotion.addEventListener('change', syncMotion);
+    syncMotion();
+    card.style.setProperty('--accent', themes[0][2]);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(entries => card.classList.toggle('orb-offscreen', !entries[0].isIntersecting),{threshold:0}).observe(card);
+    }
   }
+
   const graphics = [
     `<rect x="107" y="15" width="85" height="85" rx="10" fill="none" stroke="currentColor" stroke-dasharray="4 5" opacity=".65"/><circle cx="150" cy="57" r="29" fill="currentColor" opacity=".09"/><circle cx="150" cy="57" r="25" fill="none" stroke="currentColor"/><path d="M143 40l12 19 14 6M155 59l-14 17M153 57l-19-4" stroke="currentColor" fill="none"/><path d="M220 57h50m-6-5 6 5-6 5" stroke="currentColor"/><rect x="298" y="15" width="85" height="85" rx="10" fill="none" stroke="currentColor" opacity=".18"/><circle cx="340" cy="57" r="35" stroke="currentColor" fill="currentColor" fill-opacity=".06"/><path d="M330 34l14 25 18 8M344 59l-17 22M342 55l-23-3" stroke="currentColor" fill="none"/>`,
     `<path d="M90 56h100M300 56h100M190 56l36-22 42 44 32-22" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="90" cy="56" r="28" fill="currentColor" fill-opacity=".07" stroke="currentColor"/><circle cx="400" cy="56" r="28" fill="currentColor" fill-opacity=".07" stroke="currentColor"/><rect x="220" y="28" width="50" height="56" rx="9" fill="#101822" stroke="currentColor" stroke-dasharray="3 4"/><path d="M80 56h20m-10-10v20M390 56h20" stroke="currentColor"/><path d="M240 48c0-7 12-7 12 0 0 5-6 4-6 10m0 7v1" stroke="currentColor" fill="none"/>`,
@@ -56,7 +143,7 @@
       tab.addEventListener('keydown',event=>{let n=index;if(event.key==='ArrowRight')n=(index+1)%tabs.length;else if(event.key==='ArrowLeft')n=(index+tabs.length-1)%tabs.length;else if(event.key==='Home')n=0;else if(event.key==='End')n=tabs.length-1;else return;event.preventDefault();selectStudy(tabs[n].dataset.study);tabs[n].focus();});
     });
   }
-  function selectStudy(id){$$('[data-study]').forEach(tab=>{const selected=tab.dataset.study===id;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$$('.evidence-panel').forEach(panel=>panel.hidden=panel.id!==`panel-${id}`);}
+  function selectStudy(id){$$('[data-study]').forEach(tab=>{const selected=tab.dataset.study===id;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$$('.evidence-panel').forEach(panel=>{const selected=panel.id===`panel-${id}`;const wasHidden=panel.hidden;panel.hidden=!selected;if(selected&&wasHidden)enter(panel,10);});}
   function renderPublications(){
     const filters=[['All','All'],['Journal Articles','Journals'],['Conference Papers','Conferences'],['Manuscripts','Manuscripts']];
     const pubs=Object.entries(data.publications).flatMap(([group,items])=>items.map(p=>({...p,group})));
@@ -102,13 +189,95 @@
     dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
     dialog.addEventListener('close',()=>{if(opener)opener.focus({preventScroll:true});});
   }
-  function setupGlow(){
-    if(!matchMedia('(hover:hover) and (pointer:fine)').matches||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-    const aura=$('.pointer-aura');let pointer={x:-1000,y:-1000},scheduled=false;
-    document.addEventListener('pointermove',event=>{pointer={x:event.clientX,y:event.clientY};if(!scheduled){scheduled=true;requestAnimationFrame(()=>{aura.style.setProperty('--pointer-x',`${pointer.x}px`);aura.style.setProperty('--pointer-y',`${pointer.y}px`);scheduled=false;});}},{passive:true});
-    $$('.glow-card').forEach(card=>{let queued=false;card.addEventListener('pointermove',e=>{if(queued)return;queued=true;requestAnimationFrame(()=>{const r=card.getBoundingClientRect();card.style.setProperty('--mx',`${e.clientX-r.left}px`);card.style.setProperty('--my',`${e.clientY-r.top}px`);queued=false;});},{passive:true});});
+  function setupJournals() {
+    const details = $('.journal-details'), summary = details.querySelector('summary'), content = $('#journalContent');
+    let animation = null, expanded = details.open;
+    summary.setAttribute('aria-expanded', String(expanded));
+    function settle() {
+      if (animation) {animation.cancel();animation = null;}
+      details.open = expanded;
+      content.style.height = '';
+    }
+    summary.addEventListener('click', event => {
+      if (!content.animate || reducedMotion.matches) return;
+      event.preventDefault();
+      const from = details.open ? content.getBoundingClientRect().height : 0;
+      expanded = !expanded;
+      summary.setAttribute('aria-expanded', String(expanded));
+      details.classList.toggle('is-expanded', expanded);
+      if (animation) animation.cancel();
+      details.open = true;
+      content.style.height = 'auto';
+      const to = expanded ? content.scrollHeight : 0;
+      content.style.height = `${from}px`;
+      animation = content.animate([{height:`${from}px`,opacity:from ? 1 : 0},{height:`${to}px`,opacity:expanded ? 1 : 0}],{duration:420,easing:motionEase,fill:'both'});
+      animation.onfinish = settle;
+    });
+    details.addEventListener('toggle', () => {
+      if (animation) return;
+      expanded = details.open;
+      summary.setAttribute('aria-expanded', String(expanded));
+      details.classList.toggle('is-expanded', expanded);
+    });
+    reducedMotion.addEventListener('change', () => {if (reducedMotion.matches) settle();});
+    window.addEventListener('resize', () => {if (animation) settle();}, {passive:true});
   }
-  drawOrb();renderProjects();renderEvidence();renderPublications();renderProfile();setupNavigation();setupFigures();setupGlow();
+  function setupScrollMotion() {
+    if (!('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries.filter(entry => entry.isIntersecting);
+      visible.forEach((entry,index) => {
+        observer.unobserve(entry.target);
+        enter(entry.target, 18, Math.min(index * 65, 195));
+      });
+    }, {threshold:.08});
+    $$('.section-heading,.project,.education-item,.service-card,.contact-panel').forEach(element => observer.observe(element));
+    const progress = document.createElement('div');
+    progress.className = 'reading-progress';
+    progress.setAttribute('aria-hidden','true');
+    $('.site-header').append(progress);
+    let scheduled = false;
+    function update() {
+      scheduled = false;
+      const distance = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      progress.style.transform = `scaleX(${distance > 0 ? Math.max(0,Math.min(1,window.scrollY / distance)) : 0})`;
+    }
+    function schedule() {if (!scheduled) {scheduled = true;requestAnimationFrame(update);}}
+    window.addEventListener('scroll', schedule, {passive:true});
+    window.addEventListener('resize', schedule, {passive:true});
+    if ('ResizeObserver' in window) new ResizeObserver(schedule).observe(document.body);
+    update();
+  }
+  function setupGlow() {
+    const finePointer = matchMedia('(hover:hover) and (pointer:fine)');
+    const aura = $('.pointer-aura');let pointer = {x:-1000,y:-1000},scheduled = false;
+    document.addEventListener('pointermove', event => {
+      if (!finePointer.matches || reducedMotion.matches || event.pointerType === 'touch') return;
+      pointer = {x:event.clientX,y:event.clientY};
+      if (!scheduled) {scheduled = true;requestAnimationFrame(() => {aura.style.setProperty('--pointer-x',`${pointer.x}px`);aura.style.setProperty('--pointer-y',`${pointer.y}px`);scheduled = false;});}
+    }, {passive:true});
+    $$('.glow-card').forEach(card => {
+      let queued = false, timer;
+      function light(event) {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+          const r = card.getBoundingClientRect();
+          card.style.setProperty('--mx', `${event.clientX-r.left}px`);
+          card.style.setProperty('--my', `${event.clientY-r.top}px`);
+          queued = false;
+        });
+      }
+      card.addEventListener('pointermove', light, {passive:true});
+      card.addEventListener('pointerdown', event => {
+        light(event);
+        clearTimeout(timer);
+        card.classList.add('is-touched');
+        timer = setTimeout(() => card.classList.remove('is-touched'), 900);
+      }, {passive:true});
+    });
+  }
+  drawOrb();renderProjects();renderEvidence();renderPublications();renderProfile();setupNavigation();setupFigures();setupGlow();setupJournals();setupScrollMotion();
   // Keep previous public deep links useful after the redesign.
   const aliases={'#thesis':'#research','#trajectory':'#about','#project-semantic-shift':'#project-semantic'};
   const target=aliases[location.hash]||location.hash;
