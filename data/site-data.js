@@ -27,8 +27,8 @@ window.SITE_DATA = {
       "label": "Citations"
     },
     {
-      "value": "12",
-      "label": "Published works"
+      "value": "13",
+      "label": "Published + accepted"
     },
     {
       "value": "10",
@@ -100,6 +100,16 @@ window.SITE_DATA = {
     }
   ],
   "publications": {
+    "Accepted Articles": [
+      {
+        "year": "2026",
+        "type": "Accepted",
+        "title": "Multi-Stream Contextual and Frequency-Aware Deep Learning with Evidential Uncertainty for Alzheimer’s MRI Slice Classification",
+        "venue": "Discover Artificial Intelligence (Springer Nature)",
+        "acceptedDate": "September 17, 2026",
+        "description": "Accepted September 17, 2026. MS-AtroNet combines CNN, VMamba-S, wavelet features, and evidential uncertainty for four-class MRI slice classification. Evaluation is at image level; patient-level clinical validation remains necessary."
+      }
+    ],
     "Journal Articles": [
       {
         "year": "2026",

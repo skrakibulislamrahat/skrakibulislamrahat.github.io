@@ -38,6 +38,10 @@ Image + structured-feature fusion architecture with Grad-CAM and SHAP. The repos
 
 Repository: [Multimodal_Framework_Research](https://github.com/skrakibulislamrahat/Multimodal_Framework_Research)
 
+## Accepted for publication
+
+- **Multi-Stream Contextual and Frequency-Aware Deep Learning with Evidential Uncertainty for Alzheimer’s MRI Slice Classification.** *Discover Artificial Intelligence*, accepted September 17, 2026.
+
 ## Published work
 
 - **TriGWONet: A lightweight multibranch convolutional neural network using gray wolf optimization for accurate oral cancer image classification.** *Discover Artificial Intelligence*, 2026. DOI: https://doi.org/10.1007/s44163-025-00776-x
@@ -66,7 +70,7 @@ pointer-aware and motion respects `prefers-reduced-motion`.
 
 Update `data/site-data.js` for the academic profile, review total, publications,
 and project descriptions. Counts include completed peer-review rounds. Submitted
-manuscripts are separated from published work.
+manuscripts and accepted articles are separated from published work. The portfolio summary counts published and accepted works together, with an explicit label.
 
 Rebuild both the static HTML CV and the downloadable PDF from the same data:
 

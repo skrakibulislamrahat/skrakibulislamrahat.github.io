@@ -210,13 +210,13 @@
     panel.querySelectorAll('.bar-fill').forEach((bar,index) => bar.animate([{transform:'scaleX(0)'},{transform:'scaleX(1)'}],{duration:850,delay:180+index*65,easing:motionEase,fill:'backwards'}));
   }
   function renderPublications(){
-    const filters=[['All','All'],['Journal Articles','Journals'],['Conference Papers','Conferences'],['Manuscripts','Manuscripts']];
+    const filters=[['All','All'],['Accepted Articles','Accepted'],['Journal Articles','Journals'],['Conference Papers','Conferences'],['Manuscripts','Manuscripts']];
     const pubs=Object.entries(data.publications).flatMap(([group,items])=>items.map(p=>({...p,group})));
     let current='All',expanded=false;
     $('#publicationFilters').innerHTML=filters.map(([key,label])=>`<button type="button" data-filter="${key}" aria-pressed="${key===current}">${label}</button>`).join('');
     const draw=(animated=false)=>{
       const filtered=pubs.filter(p=>current==='All'||p.group===current),visible=expanded?filtered:filtered.slice(0,5);
-      const render=()=>{$('#publicationList').innerHTML=visible.map(p=>{const url=p.links?.[0]?.url;return `<article class="publication-row"><span class="publication-year">${esc(p.year)}</span><div>${p.group==='Manuscripts'?`<span class="pub-status">${esc(p.type)}</span>`:''}<h3>${url?link(url,p.title):esc(p.title)}</h3><p>${esc(p.venue)}${p.group==='Manuscripts'?' · '+esc(p.description):''}</p></div>${url?`<a class="publication-arrow" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Read ${esc(p.title)}">↗</a>`:'<span aria-hidden="true"></span>'}</article>`;}).join('');};
+      const render=()=>{$('#publicationList').innerHTML=visible.map(p=>{const url=p.links?.[0]?.url;return `<article class="publication-row"><span class="publication-year">${esc(p.year)}</span><div>${(p.group==='Manuscripts'||p.group==='Accepted Articles')?`<span class="pub-status">${esc(p.type)}</span>`:''}<h3>${url?link(url,p.title):esc(p.title)}</h3><p>${esc(p.venue)}${(p.group==='Manuscripts'||p.group==='Accepted Articles')?' · '+esc(p.description):''}</p></div>${url?`<a class="publication-arrow" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Read ${esc(p.title)}">↗</a>`:'<span aria-hidden="true"></span>'}</article>`;}).join('');};
       if(animated)transitionContent($('#publicationList'),render);else render();
       $('#publicationCount').textContent=`${visible.length} of ${filtered.length} entries`;
       $('#showPublications').hidden=filtered.length<=5;
@@ -230,7 +230,7 @@
   }
   function renderProfile(){
     const stats=data.stats.map(s=>({...s}));
-    stats[1].value=String((data.publications['Journal Articles']||[]).length+(data.publications['Conference Papers']||[]).length);
+    stats[1].value=String((data.publications['Journal Articles']||[]).length+(data.publications['Conference Papers']||[]).length+(data.publications['Accepted Articles']||[]).length);
     stats[2].value=String(data.service.reviews.total);
     $('#metrics').innerHTML=stats.map(s=>`<div><strong>${esc(s.value)}</strong><span>${esc(s.label)}</span></div>`).join('')+'<p>Medical imaging.<br>Reliable ML.<br><span>Knowledge engineering.</span></p>';
     $('#education').innerHTML=data.education.map((e,i)=>{const [school,date]=e.meta.split(' · ');return `<article class="education-item"><span>${esc(date)}</span><h3>${esc(e.title)}</h3><p>${esc(school)}</p>${i===0?`<small>Advisor: ${esc(data.profile.advisor)}</small>`:''}</article>`;}).join('');
