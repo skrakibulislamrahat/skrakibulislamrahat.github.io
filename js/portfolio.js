@@ -105,7 +105,7 @@
   function setupGlow(){
     if(!matchMedia('(hover:hover) and (pointer:fine)').matches||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
     const aura=$('.pointer-aura');let pointer={x:-1000,y:-1000},scheduled=false;
-    document.addEventListener('pointermove',event=>{pointer={x:event.clientX,y:event.clientY};if(!scheduled){scheduled=true;requestAnimationFrame(()=>{aura.style.transform=`translate(${pointer.x-300}px,${pointer.y-300}px)`;scheduled=false;});}},{passive:true});
+    document.addEventListener('pointermove',event=>{pointer={x:event.clientX,y:event.clientY};if(!scheduled){scheduled=true;requestAnimationFrame(()=>{aura.style.setProperty('--pointer-x',`${pointer.x}px`);aura.style.setProperty('--pointer-y',`${pointer.y}px`);scheduled=false;});}},{passive:true});
     $$('.glow-card').forEach(card=>{let queued=false;card.addEventListener('pointermove',e=>{if(queued)return;queued=true;requestAnimationFrame(()=>{const r=card.getBoundingClientRect();card.style.setProperty('--mx',`${e.clientX-r.left}px`);card.style.setProperty('--my',`${e.clientY-r.top}px`);queued=false;});},{passive:true});});
   }
   drawOrb();renderProjects();renderEvidence();renderPublications();renderProfile();setupNavigation();setupFigures();setupGlow();
