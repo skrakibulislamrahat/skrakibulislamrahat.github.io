@@ -47,10 +47,10 @@
     const fade = ghost.animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-10px)'}],{duration:200,easing:'ease-out',fill:'forwards'});
     const state = {ghost,animations:[height,fade]};swaps.set(container,state);
     children.forEach((element,index) => {const animation = enter(element,20,100 + Math.min(index * 30,180));if(animation)state.animations.push(animation);});
-    fade.onfinish = () => ghost.remove();
-    height.onfinish = () => {if(swaps.get(container) === state){container.style.height='';container.style.overflow='';height.cancel();}};
+    fade.finished.then(() => ghost.remove(), () => {});
+    height.finished.then(() => {if(swaps.get(container) === state){container.style.height='';container.style.overflow='';height.cancel();}}, () => {});
     // Entry animations may outlast the height change. Release references after they settle.
-    Promise.allSettled(state.animations.map(animation => animation.finished)).then(() => {if(swaps.get(container)===state)swaps.delete(container);});
+    Promise.allSettled(state.animations.map(animation => animation.finished)).then(() => {if(swaps.get(container)===state)stopSwap(container);});
   }
   window.addEventListener('resize', () => [...swaps.keys()].forEach(stopSwap), {passive:true});
   function setupMotion() {

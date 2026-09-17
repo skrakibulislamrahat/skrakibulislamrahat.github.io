@@ -7,7 +7,7 @@ width.addEventListener('change',()=>{frame.width=width.value;setTimeout(audit,25
 document.getElementById('motionAudit').addEventListener('click',async()=>{
  const button=document.getElementById('motionAudit');button.disabled=true;
  const d=frame.contentDocument,w=frame.contentWindow,checks=[];
- const record=(name,passed,detail)=>checks.push({name,passed,detail});
+ const record=(name,passed,detail)=>{checks.push({name,passed,detail});document.getElementById('summary').textContent=`Checking: ${name}`;document.getElementById('results').textContent=JSON.stringify({width:w.innerWidth,checks},null,2);};
  const next=()=>new Promise(resolve=>w.requestAnimationFrame(resolve));
  const settle=async()=>{await next();await next();await Promise.allSettled(d.getAnimations().filter(a=>a.effect?.getTiming().iterations!==Infinity).map(a=>a.finished));await next();};
  const motion=d.querySelector('[data-motion-toggle]');const wasOn=motion.getAttribute('aria-pressed')==='true';
