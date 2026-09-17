@@ -13,10 +13,13 @@
   try {motionPreference = localStorage.getItem('rahat-motion');} catch (_) {}
   let motionEnabled = motionPreference ? motionPreference === 'on' : !reducedMotion.matches;
   document.documentElement.dataset.motion = motionEnabled ? 'on' : 'off';
+  const entrances = new WeakMap();
   function enter(element, distance = 18, delay = 0) {
     if (!element || !motionEnabled || !element.animate) return;
-    element.getAnimations().forEach(animation => animation.cancel());
-    return element.animate([{opacity:0,transform:`translateY(${distance}px)`},{opacity:1,transform:'translateY(0)'}],{duration:600,delay,easing:motionEase,fill:'backwards'});
+    entrances.get(element)?.cancel();
+    const animation = element.animate([{opacity:0,transform:`translateY(${distance}px)`},{opacity:1,transform:'translateY(0)'}],{duration:600,delay,easing:motionEase,fill:'backwards'});
+    entrances.set(element,animation);
+    return animation;
   }
   const swaps = new Map();
   function stopSwap(container) {

@@ -15,16 +15,17 @@ document.getElementById('motionAudit').addEventListener('click',async()=>{
  try{
   if(!wasOn)motion.click();
   const tabs=[...d.querySelectorAll('[data-study]')];
-  tabs[1].click();await next();await next();
+  tabs[1].click();
   record('Evidence transitions animate',d.querySelector('#evidencePanels').getAnimations().length>0);
   for(const i of [2,3,0,2]){tabs[i].click();await next();}
   await settle();
   const shown=[...d.querySelectorAll('#evidencePanels > .evidence-panel')].filter(e=>!e.hidden);
   record('Rapid tabs keep the latest selection',shown.length===1&&shown[0].id==='panel-calibration',shown.map(e=>e.id));
   record('Panel returns to natural height',d.querySelector('#evidencePanels').style.height===''&&!d.querySelector('.transition-ghost'));
+  d.querySelector('[data-open-study=artifacts]').click();await settle();record('Study navigation and scroll reveal coexist',!d.getElementById('panel-artifacts').hidden&&d.getElementById('evidencePanels').style.height==='');
   d.querySelector('[data-filter="All"]').click();await settle();
   const more=d.getElementById('showPublications');if(more.getAttribute('aria-expanded')==='true'){more.click();await settle();}
-  more.click();await next();await next();
+  more.click();
   record('Show all animates the list height',d.getElementById('publicationList').getAnimations().length>0);
   await settle();
   record('All 15 entries are visible',d.querySelectorAll('#publicationList > .publication-row').length===15);
