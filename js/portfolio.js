@@ -1,387 +1,116 @@
-const SITE = window.SITE_DATA || {};
-
-const PROFILE = SITE.profile || {};
-const PUBLICATIONS = SITE.publications || {};
-
-const PROJECTS = [
-  {
-    id: "artifacts",
-    number: "01",
-    theme: "Shortcut robustness · Fundus AI",
-    title: "Reduced background sensitivity ≠ external generalization",
-    question: "Does making a model less sensitive to background artifacts actually make it generalize?",
-    summary: "A 12-model study across ResNet-18 and EfficientNet-B0 compares RAW and border-cropped training on a fixed APTOS split, then tests common-input nuisance sensitivity, calibration, leakage, attribution, and external discrimination on the processed Messidor-2 archive.",
-    signal: "−49.4% sensitivity",
-    signalLabel: "EfficientNet-B0 on identical raw APTOS inputs; mean external AUC fell by 0.0396",
-    status: "BSPC submission",
-    tags: ["12 models", "APTOS + Messidor-2", "same-input counterfactuals", "calibration", "leakage audit"],
-    visual: "assets/research/artifact_study_overview.svg",
-    links: [
-      ["Repository", "https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts"],
-      ["Reproduce", "https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts/blob/main/REPRODUCIBILITY.md"],
-      ["Data", "https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts/blob/main/DATA_AVAILABILITY.md"],
-      ["Cite", "https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts/blob/main/CITATION.cff"]
-    ]
-  },
-  {
-    id: "semantic-shift",
-    number: "02",
-    theme: "Semantic shift · Chest X-ray",
-    title: "Same Label, Different Disease",
-    question: "Do labels that sound clinically similar actually transport as the same prediction task?",
-    summary: "Five-seed DenseNet-121 experiments across Kaggle, RSNA, and CheXpert test semantic transport, source-only operating-point transfer, calibration, and high-confidence failure.",
-    signal: "0.476 ECE",
-    signalLabel: "Kaggle pneumonia → RSNA lung opacity",
-    status: "Research project",
-    links: [
-      ["Repository", "https://github.com/skrakibulislamrahat/semantic-shift-chest-xray"],
-      ["Reproduce", "https://github.com/skrakibulislamrahat/semantic-shift-chest-xray/blob/main/REPRODUCIBILITY.md"],
-      ["Results", "https://github.com/skrakibulislamrahat/semantic-shift-chest-xray/blob/main/RESULTS.md"],
-      ["Cite", "https://github.com/skrakibulislamrahat/semantic-shift-chest-xray/blob/main/CITATION.cff"]
-    ]
-  },
-  {
-    id: "calibration",
-    number: "03",
-    theme: "Calibration · Dataset shift",
-    title: "Calibration-Aware DR Reliability",
-    question: "When discrimination survives a shift, do the probabilities still deserve trust?",
-    summary: "An experiment-audit bundle preserving seeds, split definitions, environment snapshots, finalized metrics, predictions, tables, and figures for traceable reliability analysis.",
-    signal: "Audit-ready",
-    signalLabel: "configs → splits → predictions → figures",
-    status: "Artifact bundle",
-    links: [
-      ["Repository", "https://github.com/skrakibulislamrahat/calibration-aware-dr-reliability"],
-      ["Audit index", "https://github.com/skrakibulislamrahat/calibration-aware-dr-reliability/blob/main/ARTIFACT_INDEX.md"],
-      ["Metrics", "https://github.com/skrakibulislamrahat/calibration-aware-dr-reliability/tree/main/metrics_fixed"],
-      ["Cite", "https://github.com/skrakibulislamrahat/calibration-aware-dr-reliability/blob/main/CITATION.cff"]
-    ]
-  },
-  {
-    id: "lightweight",
-    number: "04",
-    theme: "Efficient AI · Retinal screening",
-    title: "Lightweight DR Detection Models",
-    question: "Can compact models stay competitive without hiding instability behind one lucky split?",
-    summary: "A five-fold comparison of EfficientNet-B0, MobileNetV2, and SqueezeNet with out-of-fold evaluation, McNemar testing, and reproducible analysis scripts.",
-    signal: "0.9847 AUROC",
-    signalLabel: "MobileNetV2 · 5-fold mean",
-    status: "Active research",
-    links: [
-      ["Repository", "https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models"],
-      ["Protocol", "https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models/blob/main/EXPERIMENT_PROTOCOL.md"],
-      ["Results", "https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models/blob/main/RESULTS.md"],
-      ["Cite", "https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models/blob/main/CITATION.cff"]
-    ]
+/* One renderer and one stylesheet own the portfolio. */
+(() => {
+  'use strict';
+  const data = window.SITE_DATA;
+  if (!data) return;
+  const $ = (selector) => document.querySelector(selector);
+  const $$ = (selector) => [...document.querySelectorAll(selector)];
+  const esc = (value = '') => String(value).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const link = (href, label, cls = '') => `<a class="${cls}" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`;
+  const themes = [
+    ['What did the model actually learn?', 'Testing sensitivity to cues outside the retinal field.', '#c4f877'],
+    ['Does the evidence travel?', 'Evaluating the same model beyond its development dataset.', '#67d8db'],
+    ['Is its confidence warranted?', 'Checking whether predicted probabilities match observed outcomes.', '#ad9aff'],
+    ['Can knowledge make reasoning more reliable?', 'Exploring explicit semantics and knowledge-guided methods.', '#f0bc81']
+  ];
+  function drawOrb() {
+    let lines = '';
+    for (let n = -8; n <= 8; n++) {
+      const y = n * 13.7;
+      const r = Math.sqrt(1 - (n / 9) ** 2);
+      lines += `<ellipse cx="240" cy="${175 + y}" rx="${128*r}" ry="${26*r}" fill="none" stroke="currentColor" stroke-width=".65" opacity=".28"/>`;
+    }
+    for (let n = 0; n < 12; n++) lines += `<ellipse cx="240" cy="175" rx="${12+n*10.6}" ry="128" fill="none" stroke="currentColor" stroke-width=".65" opacity=".23" transform="rotate(-24 240 175)"/>`;
+    let dots = '';
+    for (let n=0;n<55;n++) {const a=n*2.399963;const r=144+((n*29)%43);dots+=`<circle cx="${240+Math.cos(a)*r*1.1}" cy="${175+Math.sin(a)*r*.79}" r="${n%7===0?2:1}" fill="currentColor" opacity="${.2+(n%5)/10}"/>`;}
+    $('#researchOrb').innerHTML = `<defs><radialGradient id="orbGlow"><stop stop-color="currentColor" stop-opacity=".17"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs><circle cx="240" cy="175" r="171" fill="url(#orbGlow)"/>${lines}<g class="orb-orbits"><ellipse cx="240" cy="175" rx="198" ry="57" fill="none" stroke="currentColor" stroke-width=".7" opacity=".35" transform="rotate(-24 240 175)"/><ellipse cx="240" cy="175" rx="183" ry="108" fill="none" stroke="currentColor" stroke-width=".6" opacity=".24" transform="rotate(29 240 175)"/><circle cx="56" cy="226" r="4" fill="currentColor"/><circle cx="398" cy="122" r="3" fill="currentColor"/></g><g class="orb-stars">${dots}</g><circle cx="240" cy="175" r="71" fill="#0c1822" opacity=".85"/>`;
+    $$('.theme-switch button').forEach(button => button.addEventListener('click', () => {
+      const t = themes[Number(button.dataset.theme)];
+      $$('.theme-switch button').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+      $('.constellation').style.setProperty('--accent', t[2]);
+      $('#themeQuestion').textContent=t[0]; $('#themeDescription').textContent=t[1];
+    }));
   }
-];
-
-const esc = (value = "") => String(value)
-  .replaceAll("&", "&amp;")
-  .replaceAll("<", "&lt;")
-  .replaceAll(">", "&gt;")
-  .replaceAll('"', "&quot;")
-  .replaceAll("'", "&#039;");
-
-function allPublications() {
-  const output = [];
-  Object.entries(PUBLICATIONS).forEach(([group, items]) => {
-    (Array.isArray(items) ? items : []).forEach(item => output.push({ ...item, group }));
-  });
-  return output;
-}
-
-function publishedCount() {
-  return allPublications().filter(item => !String(item.group).toLowerCase().includes("review")).length;
-}
-
-function setupProfile() {
-  document.title = `${PROFILE.name || "SK Rakib Ul Islam Rahat"} | Trustworthy AI Research`;
-
-  const name = document.querySelector("[data-profile-name]");
-  if (name) name.textContent = PROFILE.name || "SK Rakib Ul Islam Rahat";
-
-  const meta = document.querySelector("[data-profile-meta]");
-  if (meta) meta.textContent = `${PROFILE.title || "PhD Student in Computer Science"} · ${PROFILE.affiliation || "Wright State University"}`;
-
-  const photo = document.querySelector("[data-profile-photo]");
-  if (photo) {
-    photo.src = PROFILE.headshot || "assets/headshot.png";
-    photo.alt = `${PROFILE.name || "SK Rakib Ul Islam Rahat"} headshot`;
+  const graphics = [
+    `<rect x="107" y="15" width="85" height="85" rx="10" fill="none" stroke="currentColor" stroke-dasharray="4 5" opacity=".65"/><circle cx="150" cy="57" r="29" fill="currentColor" opacity=".09"/><circle cx="150" cy="57" r="25" fill="none" stroke="currentColor"/><path d="M143 40l12 19 14 6M155 59l-14 17M153 57l-19-4" stroke="currentColor" fill="none"/><path d="M220 57h50m-6-5 6 5-6 5" stroke="currentColor"/><rect x="298" y="15" width="85" height="85" rx="10" fill="none" stroke="currentColor" opacity=".18"/><circle cx="340" cy="57" r="35" stroke="currentColor" fill="currentColor" fill-opacity=".06"/><path d="M330 34l14 25 18 8M344 59l-17 22M342 55l-23-3" stroke="currentColor" fill="none"/>`,
+    `<path d="M90 56h100M300 56h100M190 56l36-22 42 44 32-22" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="90" cy="56" r="28" fill="currentColor" fill-opacity=".07" stroke="currentColor"/><circle cx="400" cy="56" r="28" fill="currentColor" fill-opacity=".07" stroke="currentColor"/><rect x="220" y="28" width="50" height="56" rx="9" fill="#101822" stroke="currentColor" stroke-dasharray="3 4"/><path d="M80 56h20m-10-10v20M390 56h20" stroke="currentColor"/><path d="M240 48c0-7 12-7 12 0 0 5-6 4-6 10m0 7v1" stroke="currentColor" fill="none"/>`,
+    `<path d="M85 89h320M85 89V15" stroke="currentColor" opacity=".24"/><path d="M105 83l290-67" stroke="currentColor" stroke-dasharray="4 5" opacity=".5"/><path d="M105 84C175 85 220 71 252 64S330 27 395 15" stroke="currentColor" stroke-width="2" fill="none"/><path d="M105 84C150 83 215 85 258 77S349 68 395 52" stroke="currentColor" stroke-width="1.5" fill="none" opacity=".4"/><circle cx="252" cy="64" r="4" fill="currentColor"/><circle cx="347" cy="28" r="3" fill="currentColor"/>`,
+    `<g fill="currentColor" opacity=".22"><rect x="80" y="39" width="11" height="44" rx="2"/><rect x="98" y="32" width="11" height="51" rx="2"/><rect x="116" y="27" width="11" height="56" rx="2"/><rect x="134" y="34" width="11" height="49" rx="2"/><rect x="152" y="30" width="11" height="53" rx="2"/></g><g fill="currentColor" opacity=".65"><rect x="210" y="31" width="11" height="52" rx="2"/><rect x="228" y="26" width="11" height="57" rx="2"/><rect x="246" y="33" width="11" height="50" rx="2"/><rect x="264" y="29" width="11" height="54" rx="2"/><rect x="282" y="33" width="11" height="50" rx="2"/></g><g fill="currentColor" opacity=".35"><rect x="340" y="36" width="11" height="47" rx="2"/><rect x="358" y="30" width="11" height="53" rx="2"/><rect x="376" y="40" width="11" height="43" rx="2"/><rect x="394" y="33" width="11" height="50" rx="2"/><rect x="412" y="35" width="11" height="48" rx="2"/></g><path d="M65 89h375" stroke="currentColor" opacity=".2"/>`
+  ];
+  function renderProjects() {
+    $('#projects').innerHTML=data.projects.map((p,i)=>`<article class="project glow-card" id="project-${p.id}"><div class="project-top"><span class="project-number">STUDY / ${p.number}</span><span class="project-status">${esc(p.status)}</span></div><div class="project-graphic" aria-hidden="true"><svg viewBox="0 0 490 115">${graphics[i]}</svg></div><div class="project-category">${esc(p.category)}</div><h3>${esc(p.title)}</h3><p>${esc(p.summary)}</p><div class="topic-tags">${p.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div><div class="project-footer">${link(p.repo,'Code')}${link(p.details,'Study details')}<button type="button" data-open-study="${p.id}">Explore evidence <span aria-hidden="true">↗</span></button></div></article>`).join('');
+    $$('[data-open-study]').forEach(b=>b.addEventListener('click',()=>{selectStudy(b.dataset.openStudy);$('#evidence').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});$(`#tab-${b.dataset.openStudy}`).focus({preventScroll:true});}));
   }
-
-  const stats = document.getElementById("signalStats");
-  if (stats) {
-    stats.innerHTML = [
-      ["100+", "citations"],
-      [String(publishedCount()), "published works"],
-      ["5+", "verified peer reviews"]
-    ].map(([value, label]) => `<div class="signal-stat"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`).join("");
-  }
-}
-
-function renderProjects() {
-  const target = document.getElementById("projectStack");
-  if (!target) return;
-
-  target.innerHTML = PROJECTS.map(project => `
-    <article class="project-card reveal ${project.id === "artifacts" ? "project-artifacts" : ""}" id="project-${esc(project.id)}">
-      <div class="project-index">${esc(project.number)}</div>
-      <div class="project-copy">
-        <div class="project-topline">
-          <span class="project-theme">${esc(project.theme)}</span>
-          <span class="project-status">${esc(project.status)}</span>
-        </div>
-        <h3>${esc(project.title)}</h3>
-        <p class="project-question">${esc(project.question)}</p>
-        <p class="project-summary">${esc(project.summary)}</p>
-        ${Array.isArray(project.tags) && project.tags.length ? `<div class="project-tags">${project.tags.map(tag => `<span>${esc(tag)}</span>`).join("")}</div>` : ""}
-        ${project.visual ? `<figure class="project-preview"><img src="${esc(project.visual)}" alt="Summary graphic for ${esc(project.title)}" loading="lazy" decoding="async"><figcaption>Current reviewer-defense study: external discrimination, common-input background sensitivity, and dataset-audit signals.</figcaption></figure>` : ""}
-        <div class="project-actions">
-          ${project.links.map(([label, href], index) => `<a class="project-link ${index === 0 ? "primary" : ""}" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(label)} <span>↗</span></a>`).join("")}
-        </div>
-      </div>
-      <div class="project-signal">
-        <span class="signal-kicker">Research signal</span>
-        <strong>${esc(project.signal)}</strong>
-        <span>${esc(project.signalLabel)}</span>
-      </div>
-    </article>
-  `).join("");
-
-  if (window.location.hash.startsWith("#project-")) {
-    requestAnimationFrame(() => {
-      const requested = document.querySelector(window.location.hash);
-      if (requested) requested.scrollIntoView({ block: "center" });
+  function bar(label,value,clean=false){return `<div class="chart-row ${clean?'clean':''}"><span>${label}</span><div class="bar-track"><div class="bar-fill" style="--value:${value*100}%"></div></div><b>${value.toFixed(4)}</b></div>`;}
+  const panels = [
+    {id:'artifacts',kicker:'APTOS → PROCESSED MESSIDOR-2',title:'Less background sensitivity. Still no external gain.',body:'CLEAN training reduced EfficientNet-B0’s measured background sensitivity, but its mean external ROC-AUC decreased. Robustness to a nuisance and cross-dataset discrimination are different properties.',stat:'12 models',statLabel:'2 architectures × 2 training regimes × 3 seeds',visual:`<div class="chart-box"><div class="chart-top"><strong>EXTERNAL ROC-AUC</strong><span>3-SEED MEANS</span></div><div class="bar-legend"><span>RAW training</span><span>CLEAN training</span></div><div class="bar-group"><span>ResNet-18</span>${bar('RAW',.6347)}${bar('CLEAN',.6305,true)}</div><div class="bar-group"><span>EfficientNet-B0</span>${bar('RAW',.6118)}${bar('CLEAN',.5722,true)}</div><div class="chart-axis"><span>0</span><span>0.5</span><span>1.0</span></div><p class="chart-caption">ROC-AUC scale: 0–1. All models evaluated on the same processed Messidor-2 representation. CLEAN − RAW: −0.0042 (ResNet-18), −0.0396 (EfficientNet-B0).</p></div><div class="range-chips"><div><strong>0.9963–0.9992</strong><span>Internal AUC · 12 variants</span></div><div><strong>0.5643–0.6642</strong><span>External AUC · 12 variants</span></div></div>`},
+    {id:'semantic',kicker:'KAGGLE · RSNA · CHEXPERT',title:'Similar labels can hide very different tasks.',body:'Cross-dataset transport changes both calibration and high-confidence error. The source and target prediction tasks need to be examined explicitly.',stat:'5 seeds',statLabel:'DenseNet-121 · multiple source–target tasks',visual:`<div class="transfer-cases"><div class="transfer-case"><p>Kaggle Pneumonia → RSNA Lung Opacity</p><div><div><strong>0.476</strong><span>Calibration error (ECE)</span></div><div><strong>0.337</strong><span>HCER at 0.90</span></div></div></div><div class="transfer-case good"><p>CheXpert Lung Opacity → Consolidation</p><div><div><strong>0.927</strong><span>AUROC</span></div><div><strong>0.009</strong><span>HCER at 0.90</span></div></div></div></div><p class="chart-caption">Selected task pairs, not an overall study average. HCER describes the reported high-confidence error rate at the 0.90 threshold.</p><button type="button" class="figure-expand" data-figure="semantic">View the full transfer matrix <span aria-hidden="true">↗</span></button>`},
+    {id:'calibration',kicker:'SOURCE-FITTED TEMPERATURE SCALING',title:'Calibrated here does not mean calibrated everywhere.',body:'In this calibration study, source-fitted temperature scaling barely changes the already-low APTOS error. The large Messidor-2 calibration gap also remains.',stat:'ECE',statLabel:'Expected calibration error · lower is better',visual:`<div class="calibration-pair"><div class="calibration-row"><p>APTOS / IN-DOMAIN</p><div class="calibration-values"><div><strong>0.010</strong><span>Before scaling</span></div><span aria-hidden="true">→</span><div><strong>0.009</strong><span>After scaling</span></div></div></div><div class="calibration-row"><p>MESSIDOR-2 / EXTERNAL</p><div class="calibration-values"><div><strong>0.256</strong><span>Before scaling</span></div><span aria-hidden="true">→</span><div><strong>0.255</strong><span>After scaling</span></div></div></div></div><p class="chart-caption">Results from the separate calibration study; these are not the 12-model artifact-study estimates.</p><button type="button" class="figure-expand" data-figure="calibration">Inspect the reliability diagrams <span aria-hidden="true">↗</span></button>`},
+    {id:'lightweight',kicker:'APTOS 2019 · FIVE-FOLD EVALUATION',title:'A small ranking difference needs a statistical check.',body:'Compact CNNs are compared using out-of-fold predictions and paired McNemar tests. Close AUROC values alone do not establish a meaningful winner.',stat:'5 folds',statLabel:'Stratified evaluation · out-of-fold predictions',visual:`<div class="chart-box"><div class="chart-top"><strong>MODEL COMPARISON</strong><span>AUROC · MEAN ± SD</span></div>${[['EfficientNet-B0','0.9839','0.0054'],['MobileNetV2','0.9847','0.0048'],['SqueezeNet 1.0','0.9813','0.0069']].map(m=>`<div class="model-result"><div><p>${m[0]}</p><span>SD ± ${m[2]}</span></div><strong>${m[1]}</strong></div>`).join('')}<p class="chart-caption">No significant pairwise difference at α = 0.05 in the reported McNemar tests (p = 0.298, 0.164, 0.706).</p></div>`}
+  ];
+  function renderEvidence(){
+    $('#evidencePanels').innerHTML=panels.map((p,i)=>`<article class="evidence-panel" id="panel-${p.id}" role="tabpanel" aria-labelledby="tab-${p.id}" tabindex="0" ${i?'hidden':''}><div class="evidence-copy"><span class="eyebrow">${p.kicker}</span><h3>${p.title}</h3><p>${p.body}</p><div class="study-stat"><strong>${p.stat}</strong><span>${p.statLabel}</span></div><div class="study-links">${link(data.projects[i].repo,'Repository')}${link(data.projects[i].details,'Methods & results')}</div></div><div class="evidence-visual">${p.visual}</div></article>`).join('');
+    const tabs=$$('[data-study]');
+    tabs.forEach((tab,index)=>{
+      tab.addEventListener('click',()=>selectStudy(tab.dataset.study));
+      tab.addEventListener('keydown',event=>{let n=index;if(event.key==='ArrowRight')n=(index+1)%tabs.length;else if(event.key==='ArrowLeft')n=(index+tabs.length-1)%tabs.length;else if(event.key==='Home')n=0;else if(event.key==='End')n=tabs.length-1;else return;event.preventDefault();selectStudy(tabs[n].dataset.study);tabs[n].focus();});
     });
   }
-}
-
-function installArtifactRefresh() {
-  if (!document.querySelector('link[data-artifact-refresh]')) {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "css/artifact-refresh.css?v=1.0";
-    link.dataset.artifactRefresh = "true";
-    document.head.appendChild(link);
-  }
-
-  setTimeout(() => {
-    const tab = document.querySelector('.obs-tab[data-panel="artifact"]');
-    if (tab) {
-      const strong = tab.querySelector("strong");
-      const small = tab.querySelector("small");
-      if (strong) strong.textContent = "Artifact robustness";
-      if (small) small.textContent = "12 models · same-input tests";
-    }
-
-    const panel = document.querySelector('[data-obs-panel="artifact"]');
-    if (!panel) return;
-
-    const copy = panel.querySelector(".obs-copy");
-    if (copy) {
-      copy.innerHTML = `
-        <span class="obs-kicker">APTOS 2019 → processed Messidor-2 · 12 models</span>
-        <h3>Less background sensitivity did not mean better external generalization.</h3>
-        <p>ResNet-18 and EfficientNet-B0 were trained under RAW and border-cropped regimes with three matched seeds. The primary nuisance comparison holds the input fixed, while external evaluation uses the same processed Messidor-2 representation for every model.</p>
-        <div class="obs-metrics">
-          <div><span>APTOS test AUC</span><strong>.996–.999</strong><small>12 variants</small></div>
-          <div><span>Messidor-2 AUC</span><strong>.564–.664</strong><small>external range</small></div>
-          <div><span>EffB0 sensitivity</span><strong>−49.4%</strong><small>same raw APTOS inputs</small></div>
-          <div><span>EffB0 external ΔAUC</span><strong>−.0396</strong><small>CLEAN − RAW mean</small></div>
-        </div>
-        <div class="metric-bars" aria-label="Architecture-level external AUC means">
-          <div class="metric-bar-row"><span>RN18 / RAW</span><i><b data-width="63.47"></b></i><em>.6347</em></div>
-          <div class="metric-bar-row"><span>RN18 / CLEAN</span><i><b data-width="63.05"></b></i><em>.6305</em></div>
-          <div class="metric-bar-row"><span>EffB0 / RAW</span><i><b data-width="61.18"></b></i><em>.6118</em></div>
-          <div class="metric-bar-row"><span>EffB0 / CLEAN</span><i><b data-width="57.22"></b></i><em>.5722</em></div>
-        </div>
-        <div class="artifact-facts">
-          <div class="artifact-fact"><strong>0.9705</strong><span>background-only AUC</span></div>
-          <div class="artifact-fact"><strong>1.000</strong><span>APTOS vs Messidor source AUC</span></div>
-          <div class="artifact-fact"><strong>69</strong><span>exact cross-split duplicate pairs</span></div>
-        </div>
-        <div class="obs-links">
-          <a href="https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts" target="_blank" rel="noopener noreferrer">Repository ↗</a>
-          <a href="https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts/blob/main/REPRODUCIBILITY.md" target="_blank" rel="noopener noreferrer">Reproduce ↗</a>
-          <a href="https://github.com/skrakibulislamrahat/Exposing_Dataset_Artifacts/blob/main/CITATION.cff" target="_blank" rel="noopener noreferrer">Cite ↗</a>
-        </div>`;
-    }
-
-    const figure = panel.querySelector(".scientific-frame");
-    if (figure) {
-      figure.dataset.full = "assets/research/artifact_study_overview.svg";
-      figure.dataset.caption = "Final 12-model artifact-robustness study: internal-to-external discrimination gap, common-input sensitivity, and audit signals.";
-      figure.classList.add("lightbox-trigger");
-      figure.innerHTML = `
-        <div class="figure-toolbar"><span>FIG / 01</span><span>ARTIFACT ROBUSTNESS STUDY</span><button type="button">Expand ↗</button></div>
-        <img src="assets/research/artifact_study_overview.svg" alt="Overview of external discrimination, background sensitivity, and audit results for the 12-model fundus study" loading="lazy" decoding="async">
-        <figcaption>Reduced nuisance response and cross-domain discrimination are separate properties. EfficientNet-B0 became markedly less background-sensitive after CLEAN training while external AUC decreased.</figcaption>`;
-    }
-
-    if (typeof requestAnimationFrame === "function") {
-      requestAnimationFrame(() => {
-        panel.querySelectorAll(".metric-bar-row b[data-width]").forEach(bar => {
-          bar.style.width = `${Math.min(Number(bar.dataset.width) || 0, 100)}%`;
-        });
-      });
-    }
-  }, 0);
-}
-
-function renderPublications() {
-  const target = document.getElementById("publicationRows");
-  const filters = document.getElementById("publicationFilters");
-  const toggle = document.getElementById("publicationToggle");
-  if (!target || !filters || !toggle) return;
-
-  const items = allPublications();
-  let active = "All";
-  let expanded = false;
-  const filterNames = ["All", "Journal Articles", "Conference Papers", "Manuscripts Under Review"];
-
-  const draw = () => {
-    const filtered = active === "All" ? items : items.filter(item => item.group === active);
-    const visible = expanded ? filtered : filtered.slice(0, 6);
-
-    target.innerHTML = visible.map((item, index) => {
-      const primaryLink = Array.isArray(item.links) && item.links.length ? item.links[0].url : "";
-      return `
-        <article class="publication-row reveal">
-          <div class="publication-number">${String(index + 1).padStart(2, "0")}</div>
-          <div class="publication-main">
-            <div class="publication-meta">${esc(item.year || "")} · ${esc(item.group.replace(" Articles", "").replace(" Papers", ""))}</div>
-            <h3>${esc(item.title)}</h3>
-            <p>${esc(item.venue || item.description || "")}</p>
-          </div>
-          ${primaryLink ? `<a class="publication-open" href="${esc(primaryLink)}" target="_blank" rel="noopener noreferrer" aria-label="Open publication">↗</a>` : `<span class="publication-open muted">—</span>`}
-        </article>`;
-    }).join("");
-
-    toggle.hidden = filtered.length <= 6;
-    toggle.textContent = expanded ? "Show less" : `View all ${filtered.length}`;
-    [...filters.querySelectorAll("button")].forEach(button => button.classList.toggle("active", button.dataset.filter === active));
-    initReveal();
-  };
-
-  filters.innerHTML = filterNames.map(name => `<button type="button" data-filter="${esc(name)}">${name === "Manuscripts Under Review" ? "Under review" : name.replace(" Articles", "").replace(" Papers", "")}</button>`).join("");
-
-  filters.addEventListener("click", event => {
-    const button = event.target.closest("button[data-filter]");
-    if (!button) return;
-    active = button.dataset.filter;
-    expanded = false;
+  function selectStudy(id){$$('[data-study]').forEach(tab=>{const selected=tab.dataset.study===id;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;});$$('.evidence-panel').forEach(panel=>panel.hidden=panel.id!==`panel-${id}`);}
+  function renderPublications(){
+    const filters=[['All','All'],['Journal Articles','Journals'],['Conference Papers','Conferences'],['Manuscripts','Manuscripts']];
+    const pubs=Object.entries(data.publications).flatMap(([group,items])=>items.map(p=>({...p,group})));
+    let current='All',expanded=false;
+    $('#publicationFilters').innerHTML=filters.map(([key,label])=>`<button type="button" data-filter="${key}" aria-pressed="${key===current}">${label}</button>`).join('');
+    const draw=()=>{
+      const filtered=pubs.filter(p=>current==='All'||p.group===current),visible=expanded?filtered:filtered.slice(0,5);
+      $('#publicationList').innerHTML=visible.map(p=>{const url=p.links?.[0]?.url;return `<article class="publication-row"><span class="publication-year">${esc(p.year)}</span><div>${p.group==='Manuscripts'?`<span class="pub-status">${esc(p.type)}</span>`:''}<h3>${url?link(url,p.title):esc(p.title)}</h3><p>${esc(p.venue)}${p.group==='Manuscripts'?' · '+esc(p.description):''}</p></div>${url?`<a class="publication-arrow" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Read ${esc(p.title)}">↗</a>`:'<span aria-hidden="true"></span>'}</article>`;}).join('');
+      $('#publicationCount').textContent=`${visible.length} of ${filtered.length} entries`;
+      $('#showPublications').hidden=filtered.length<=5;
+      $('#showPublications').textContent=expanded?'Show fewer ↑':`View all ${filtered.length} entries ↓`;
+      $$('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===current)));
+    };
+    $$('[data-filter]').forEach(button=>button.addEventListener('click',()=>{current=button.dataset.filter;expanded=false;draw();}));
+    $('#showPublications').addEventListener('click',()=>{expanded=!expanded;draw();if(!expanded)$('#publications').scrollIntoView({behavior:'instant'});});
     draw();
-  });
-
-  toggle.addEventListener("click", () => {
-    expanded = !expanded;
-    draw();
-  });
-
-  draw();
-}
-
-function renderTimeline() {
-  const target = document.getElementById("timelineGrid");
-  if (!target) return;
-
-  const education = Array.isArray(SITE.education) ? SITE.education : [];
-  const experience = Array.isArray(SITE.experience) ? SITE.experience : [];
-
-  const timeline = [
-    education[0],
-    experience[1],
-    education[1],
-    education[2],
-    education[3]
-  ].filter(Boolean);
-
-  target.innerHTML = timeline.map((item, index) => `
-    <article class="timeline-item reveal">
-      <div class="timeline-dot"></div>
-      <div>
-        <span class="timeline-step">${index === 0 ? "Now" : String(index).padStart(2, "0")}</span>
-        <h3>${esc(item.title)}</h3>
-        <p class="timeline-meta">${esc(item.meta)}</p>
-        <p class="timeline-description">${esc(item.description)}</p>
-      </div>
-    </article>
-  `).join("");
-}
-
-function renderService() {
-  const service = SITE.service || {};
-  const target = document.getElementById("serviceCompact");
-  if (!target) return;
-
-  const reviewItems = service.reviews?.items || [];
-  const certifications = service.certifications || [];
-
-  target.innerHTML = `
-    <article class="service-block reveal">
-      <span class="section-label">Scholarly service</span>
-      <strong>${esc(service.reviews?.count || "5+ verified")}</strong>
-      <p>Peer-review activity across robotics, electrical/computer engineering, and power-electronics journals.</p>
-      <div class="micro-list">${reviewItems.map(item => `<span>${esc(item)}</span>`).join("")}</div>
-    </article>
-    <article class="service-block reveal">
-      <span class="section-label">Research training</span>
-      <strong>${certifications.length}</strong>
-      <p>Selected certifications spanning data science, AI in healthcare, and peer-review practice.</p>
-      <div class="micro-list">${certifications.map(item => item.url ? `<a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${esc(item.label)} ↗</a>` : `<span>${esc(item.label)}</span>`).join("")}</div>
-    </article>`;
-}
-
-function initReveal() {
-  const items = document.querySelectorAll(".reveal:not(.is-visible)");
-  if (!("IntersectionObserver" in window)) {
-    items.forEach(item => item.classList.add("is-visible"));
-    return;
   }
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("is-visible");
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  items.forEach(item => observer.observe(item));
-}
-
-function initNav() {
-  const toggle = document.querySelector(".nav-toggle");
-  const links = document.querySelector(".nav-links");
-  if (toggle && links) {
-    toggle.addEventListener("click", () => {
-      const open = links.classList.toggle("open");
-      toggle.setAttribute("aria-expanded", String(open));
-    });
-    links.querySelectorAll("a").forEach(link => link.addEventListener("click", () => links.classList.remove("open")));
+  function renderProfile(){
+    const stats=data.stats.map(s=>({...s}));
+    stats[1].value=String((data.publications['Journal Articles']||[]).length+(data.publications['Conference Papers']||[]).length);
+    stats[2].value=String(data.service.reviews.total);
+    $('#metrics').innerHTML=stats.map(s=>`<div><strong>${esc(s.value)}</strong><span>${esc(s.label)}</span></div>`).join('')+'<p>Medical imaging.<br>Reliable ML.<br><span>Knowledge engineering.</span></p>';
+    $('#education').innerHTML=data.education.map((e,i)=>{const [school,date]=e.meta.split(' · ');return `<article class="education-item"><span>${esc(date)}</span><h3>${esc(e.title)}</h3><p>${esc(school)}</p>${i===0?`<small>Advisor: ${esc(data.profile.advisor)}</small>`:''}</article>`;}).join('');
+    $('#reviewTotal').textContent=data.service.reviews.total;
+    $('#reviewJournals').innerHTML=data.service.reviews.items.map(j=>`<li>${esc(j)}</li>`).join('');
+    $('#certifications').innerHTML=data.service.certifications.map(c=>c.url?link(c.url,c.label):`<span>${esc(c.label)}</span>`).join('');
   }
-}
-
-function initContact() {
-  const email = document.getElementById("contactEmail");
-  if (email) {
-    email.href = `mailto:${PROFILE.email || "skrakibulislamrahat@gmail.com"}`;
-    email.textContent = PROFILE.email || "skrakibulislamrahat@gmail.com";
+  function setupNavigation(){
+    const toggle=$('.menu-toggle'),nav=$('#navigation');
+    function close(){nav.classList.remove('open');toggle.setAttribute('aria-expanded','false');toggle.querySelector('span').textContent='+';}
+    toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));nav.classList.toggle('open',open);toggle.querySelector('span').textContent=open?'−':'+';});
+    $$('#navigation a').forEach(a=>a.addEventListener('click',close));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&nav.classList.contains('open')){close();toggle.focus();}});
+    document.addEventListener('click',e=>{if(!e.target.closest('.site-header'))close();});
+    matchMedia('(min-width:681px)').addEventListener('change',close);
+    if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){$$('#navigation a').forEach(a=>{if(a.hash===`#${e.target.id}`)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});}});},{rootMargin:'-15% 0px -60% 0px',threshold:0});$$('main section[id]').forEach(s=>observer.observe(s));}
   }
-  const footer = document.getElementById("footerText");
-  if (footer) footer.textContent = `© ${new Date().getFullYear()} ${PROFILE.name || "SK Rakib Ul Islam Rahat"} · Research portfolio`;
-}
-
-function init() {
-  setupProfile();
-  renderProjects();
-  installArtifactRefresh();
-  renderPublications();
-  renderTimeline();
-  renderService();
-  initContact();
-  initNav();
-  initReveal();
-}
-
-document.addEventListener("DOMContentLoaded", init);
+  function setupFigures(){
+    const figures={semantic:['assets/research/semantic_hcer_heatmap.webp','High-confidence error transfer matrix','Source-to-target chest X-ray task pairs at confidence threshold 0.90.'],calibration:['assets/research/calibration_reliability.webp','Calibration under dataset shift','Reliability diagrams from the calibration-aware DR reliability study.']};
+    const dialog=$('#figureDialog');let opener;
+    $$('[data-figure]').forEach(b=>b.addEventListener('click',()=>{opener=b;const [src,title,caption]=figures[b.dataset.figure];$('#dialogImage').src=src;$('#dialogImage').alt=title;$('#figureTitle').textContent=title;$('#dialogCaption').textContent=caption;dialog.showModal();}));
+    $('#closeFigure').addEventListener('click',()=>dialog.close());
+    dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
+    dialog.addEventListener('close',()=>{if(opener)opener.focus({preventScroll:true});});
+  }
+  function setupGlow(){
+    if(!matchMedia('(hover:hover) and (pointer:fine)').matches||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+    const aura=$('.pointer-aura');let pointer={x:-1000,y:-1000},scheduled=false;
+    document.addEventListener('pointermove',event=>{pointer={x:event.clientX,y:event.clientY};if(!scheduled){scheduled=true;requestAnimationFrame(()=>{aura.style.transform=`translate(${pointer.x-300}px,${pointer.y-300}px)`;scheduled=false;});}},{passive:true});
+    $$('.glow-card').forEach(card=>{let queued=false;card.addEventListener('pointermove',e=>{if(queued)return;queued=true;requestAnimationFrame(()=>{const r=card.getBoundingClientRect();card.style.setProperty('--mx',`${e.clientX-r.left}px`);card.style.setProperty('--my',`${e.clientY-r.top}px`);queued=false;});},{passive:true});});
+  }
+  drawOrb();renderProjects();renderEvidence();renderPublications();renderProfile();setupNavigation();setupFigures();setupGlow();
+  // Keep previous public deep links useful after the redesign.
+  const aliases={'#thesis':'#research','#trajectory':'#about','#project-semantic-shift':'#project-semantic'};
+  const target=aliases[location.hash]||location.hash;
+  if(target){const el=document.getElementById(target.slice(1));if(el)requestAnimationFrame(()=>el.scrollIntoView());}
+})();

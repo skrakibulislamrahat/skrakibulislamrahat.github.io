@@ -55,3 +55,29 @@ The portfolio website contains the broader publication and scholarly-service rec
 ## Site architecture
 
 The site is data-driven: `data/site-data.js` is the source for the public profile, publications, education, experience, and service record. `index.html` renders the faculty-facing portfolio and `resume.html` generates a printable academic résumé from the same information.
+
+## Front end and CV maintenance
+
+The September 2026 redesign uses one stylesheet (`css/portfolio.css`) and one
+renderer (`js/portfolio.js`). Do not reintroduce legacy patch stylesheets or
+multiple renderers for the same components. Evidence panels use native tab
+semantics; the figure viewer uses a native modal dialog. Hover lighting is
+pointer-aware and motion respects `prefers-reduced-motion`.
+
+Update `data/site-data.js` for the academic profile, review total, publications,
+and project descriptions. Counts include completed peer-review rounds. Submitted
+manuscripts are separated from published work.
+
+Rebuild both the static HTML CV and the downloadable PDF from the same data:
+
+```bash
+python3 -m pip install reportlab
+python3 scripts/build_cv.py
+```
+
+The outputs are `resume.html` and `assets/Rahat_Academic_CV.pdf`. Inspect all PDF
+pages after a content change. The CV currently has three pages: background,
+published research, and current research/service.
+
+This is a static GitHub Pages site; no package install or bundling is needed to
+serve it. For local development: `python3 -m http.server 8765`.
