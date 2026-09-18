@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#0d1620">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src https://api.github.com; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none';">
+  <title>Private desk</title>
+  <link rel="icon" href="../favicon.ico">
+  <link rel="stylesheet" href="./style.css?v=1">
+  <script type="module" src="./app.mjs?v=1"></script>
+</head>
+<body>
+  <div id="gate" class="gate">
+    <a href="../" class="back-link">← Back to portfolio</a>
+    <main class="gate-card">
+      <div class="brand-mark" aria-hidden="true">◈</div>
+      <p class="eyebrow">YOUR PRIVATE WORKSPACE</p>
+      <h1>A little space<br>for your work.</h1>
+      <p class="muted">Hours, commissions, and a clear picture of what you’re owed.</p>
+      <form id="unlock-form">
+        <label for="unlock-password">Your password</label>
+        <input id="unlock-password" name="password" type="password" autocomplete="current-password" required>
+        <button class="primary full" type="submit">Unlock my desk <span aria-hidden="true">→</span></button>
+        <button class="text-button full" type="button" data-action="connection">Change connection / use another token</button>
+      </form>
+      <form id="connect-form" hidden>
+        <details class="setup-guide" open>
+          <summary>One-time GitHub setup</summary>
+          <ol>
+            <li><a href="https://github.com/new?name=shift-ledger-data&amp;description=Encrypted+personal+work+records&amp;visibility=private" target="_blank" rel="noopener noreferrer">Create a repository ↗</a> named <strong>shift-ledger-data</strong> in your account. Select <strong>Private</strong> and turn on <strong>Add README</strong>.</li>
+            <li><a href="https://github.com/settings/personal-access-tokens/new?name=Private+Desk&amp;description=Sync+encrypted+work+records" target="_blank" rel="noopener noreferrer">Create a fine-grained token ↗</a>. Choose <strong>Only select repositories → shift-ledger-data</strong>. Under repository permissions, set <strong>Contents → Read and write</strong>. Choose an expiry you can renew.</li>
+            <li>Paste that token below. Choose a strong password you’ll also use on your phone.</li>
+          </ol>
+          <p>On another device, use the same repository and password, and a token with access to it. Leave “Create a new vault” unchecked.</p>
+        </details>
+        <label for="repo">Private repository name</label>
+        <div class="input-prefix">skrakibulislamrahat /</div>
+        <input id="repo" name="repo" value="shift-ledger-data" required pattern="[A-Za-z0-9_.-]{1,100}" autocomplete="off">
+        <label for="token">Fine-grained GitHub token</label>
+        <input id="token" name="token" type="password" required autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+        <label for="password">Dashboard password</label>
+        <input id="password" name="password" type="password" required autocomplete="current-password">
+        <label class="check"><input type="checkbox" name="create" id="create-vault"> Create a new vault (first time only)</label>
+        <div id="confirm-wrap" hidden>
+          <label for="confirm-password">Repeat password · at least 12 characters</label>
+          <input id="confirm-password" type="password" name="confirm" autocomplete="new-password">
+          <p class="hint">Save this password in your password manager. There is no password reset for encrypted records.</p>
+        </div>
+        <label class="check"><input type="checkbox" name="remember" checked> Remember this connection, encrypted, on this device</label>
+        <button class="primary full" type="submit">Open my desk <span aria-hidden="true">→</span></button>
+        <p class="hint">The token is encrypted before it is saved on this device. Your records go only to your private repository. An internet connection is required to open and save work.</p>
+      </form>
+      <p class="gate-note">A discreet entrance. Password-encrypted records.<br>The page address itself is public; your pay details are not.</p>
+    </main>
+  </div>
+  <div id="workspace" hidden>
+    <header class="app-header">
+      <a class="wordmark" href="../" aria-label="Back to portfolio"><span aria-hidden="true">◈</span> Private desk</a>
+      <div class="header-actions"><span id="sync-status" role="status">Connected</span><button data-action="refresh" class="quiet">Refresh</button><button data-action="lock" class="quiet">Lock ↗</button></div>
+    </header>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <p class="eyebrow">WORK, KEPT SIMPLE</p>
+        <nav aria-label="Dashboard">
+          <button data-view="today"><span aria-hidden="true">◷</span> My day</button>
+          <button data-view="unpaid"><span aria-hidden="true">↗</span> Unpaid <span id="unpaid-count" class="badge">0</span></button>
+          <button data-view="history"><span aria-hidden="true">▤</span> Payments</button>
+          <button data-view="settings"><span aria-hidden="true">⚙</span> Settings</button>
+        </nav>
+        <div class="sidebar-foot"><span class="status-dot" aria-hidden="true"></span> Private GitHub storage<p id="connection-label"></p><p>Auto-locks after 15 minutes of inactivity. A running shift keeps its start time.</p></div>
+      </aside>
+      <main id="main" tabindex="-1"></main>
+    </div>
+  </div>
+  <div id="notice" class="notice" role="alert" hidden><span id="notice-text"></span><button data-action="dismiss" aria-label="Dismiss message">×</button></div>
+  <dialog id="modal"><div class="modal-top"><p class="eyebrow" id="modal-kicker">PRIVATE DESK</p><button data-action="close-modal" aria-label="Close dialog">×</button></div><div id="modal-content"></div></dialog>
+  <div id="print-report"></div>
+  <input id="backup-file" type="file" accept=".json,application/json" hidden>
+  <noscript>This private desk needs JavaScript to encrypt and open your records.</noscript>
+</body>
+</html>

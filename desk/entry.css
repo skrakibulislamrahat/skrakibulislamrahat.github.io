@@ -1,0 +1,2 @@
+.footer .private-desk-entry{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:-12px 0 -12px 6px;color:inherit;opacity:.46;font-size:15px;text-decoration:none;vertical-align:middle;border-radius:50%;transition:opacity .2s,background .2s}
+.footer .private-desk-entry:hover,.footer .private-desk-entry:focus-visible{opacity:1;background:#c4f87718;color:#c4f877;outline-offset:2px}
