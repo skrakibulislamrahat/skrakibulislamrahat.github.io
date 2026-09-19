@@ -111,8 +111,20 @@ function dayTitle(d) {return new Date(d+'T12:00:00').toLocaleDateString(undefine
 function rateFields(rates) {
   return '<div class="rate-grid">'+[['hour','Hourly pay'],...TYPES.map(([k,l])=>[k,l])].map(([k,l])=>'<div><label for="rate-'+k+'">'+esc(l)+' ($)</label><input id="rate-'+k+'" name="rate_'+k+'" type="number" min="0" max="10000" step="0.01" required value="'+(rates[k]/100).toFixed(2)+'"></div>').join('')+'</div>';
 }
-function counters(day,prefix) {
-  return TYPES.map(([k,l])=>'<div class="counter-row"><label class="counter-title" for="'+prefix+k+'">'+l+'<small>'+money(day.rates[k])+' each</small></label><div class="stepper"><button type="button" data-step="-1" data-target="'+prefix+k+'" aria-label="Remove one '+l.toLowerCase()+'">−</button><input id="'+prefix+k+'" name="count_'+k+'" type="number" min="0" max="100000" step="1" inputmode="numeric" value="'+day.counts[k]+'" required aria-label="'+l+' count"><button type="button" data-step="1" data-target="'+prefix+k+'" aria-label="Add one '+l.toLowerCase()+'">+</button></div></div>').join('');
+function deviceIcon(type='repair') {
+  const shapes={
+    repair:'<rect x="9" y="3" width="14" height="26" rx="3"/><path d="M14 6h4M15 25h2M18 10l-5 7h6l-3 5"/>',
+    case:'<rect x="7" y="2" width="18" height="28" rx="5"/><rect x="10" y="5" width="5" height="7" rx="2"/><path d="M11 26h10"/>',
+    other:'<path d="M6 18v-3a10 10 0 0 1 20 0v3"/><rect x="4" y="16" width="6" height="11" rx="3"/><rect x="22" y="16" width="6" height="11" rx="3"/>',
+    device:'<rect x="9" y="3" width="14" height="26" rx="3"/><path d="M14 6h4M15 25h2M12 16l3 3 6-7"/>',
+    computer:'<rect x="5" y="5" width="22" height="17" rx="2"/><path d="M5 22l-3 5h28l-3-5M13 24h6"/>',
+    tablet:'<rect x="5" y="2" width="22" height="28" rx="3"/><path d="M14 26h4"/>'
+  };
+  return '<svg viewBox="0 0 32 32" fill="none" aria-hidden="true">'+(shapes[type]||shapes.repair)+'</svg>';
+}
+function counters(day,prefix,tiles=false) {
+  const rows=TYPES.map(([k,l])=>'<div class="'+(tiles?'counter-tile':'counter-row')+'">'+(tiles?'<span class="item-icon">'+deviceIcon(k)+'</span>':'')+'<label class="counter-title" for="'+prefix+k+'">'+l+'<small>'+money(day.rates[k])+' each</small></label><div class="stepper"><button type="button" data-step="-1" data-target="'+prefix+k+'" aria-label="Remove one '+l.toLowerCase()+'">−</button><input id="'+prefix+k+'" name="count_'+k+'" type="number" min="0" max="100000" step="1" inputmode="numeric" value="'+day.counts[k]+'" required aria-label="'+l+' count"><button type="button" data-step="1" data-target="'+prefix+k+'" aria-label="Add one '+l.toLowerCase()+'">+</button></div></div>').join('');
+  return tiles?'<div class="counter-grid">'+rows+'</div>':rows;
 }
 function labCounters(day,prefix) {
   return '<section class="lab-trips"><hr class="rule"><div class="section-row"><h3>Soldering lab trips</h3><span class="pill">Extra paid time</span></div><p class="hint">Each drop-off or pickup adds 30 minutes of salary at this workday’s hourly rate. Count each trip once.</p>'+LAB_TYPES.map(([key,label])=>{
@@ -131,16 +143,47 @@ function render() {
   const renderers={today:renderToday,unpaid:renderUnpaid,history:renderHistory,settings:renderSettings};
   $('#main').innerHTML=renderers[view]();document.title='Private desk';document.dispatchEvent(new CustomEvent('desk:render',{detail:{view}}));
 }
+function earningsRing(t) {
+  const values=[t.wages,t.labPay,t.items,t.bonus],colors=['#c4f877','#78dcdf','#c3adff','#ffcc85'];
+  let offset=0;
+  return '<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="39" fill="none" stroke="#ffffff10" stroke-width="6"/>'+values.map((value,i)=>{
+    const length=t.total?value/t.total*245.04:0;
+    const circle='<circle cx="50" cy="50" r="39" fill="none" stroke="'+colors[i]+'" stroke-width="6" stroke-dasharray="'+Math.max(0,length-2).toFixed(3)+' 245.04" stroke-dashoffset="'+(-offset).toFixed(3)+'" transform="rotate(-90 50 50)"/>';offset+=length;return circle;
+  }).join('')+'<path d="M50 32l5 13 13 5-13 5-5 13-5-13-13-5 13-5z" fill="none" stroke="#d6f4bd" stroke-width="1.2"/></svg>';
+}
+function salesMilestones(sales) {
+  return [[50000,5],[100000,10],[150000,20]].map(([threshold,reward])=>'<div class="sales-tier '+(sales>threshold?'is-earned':'')+'"><span>'+ (sales>threshold?'✓ ':'')+'Over '+money(threshold).replace('.00','')+'</span><strong>+'+money(reward*100).replace('.00','')+'</strong></div>').join('');
+}
+function activityStrip() {
+  const end=new Date(date+'T12:00:00');
+  const days=Array.from({length:7},(_,i)=>{
+    const at=new Date(end);at.setDate(end.getDate()-6+i);const key=localDate(at),record=data.days.find(d=>d.date===key);
+    return {date:key,label:at.toLocaleDateString(undefined,{weekday:'short'}),total:record?totals(record).total:0};
+  });
+  const max=Math.max(1,...days.map(d=>d.total)),total=days.reduce((n,d)=>n+d.total,0);
+  return '<section class="activity-strip"><div class="activity-heading"><p class="eyebrow">YOUR 7-DAY RHYTHM</p><strong>'+money(total)+'</strong><span>Saved earnings · tap a day</span></div><div class="activity-days">'+days.map(d=>'<button type="button" class="activity-day '+(d.date===date?'is-selected':'')+'" data-action="open-day" data-date="'+d.date+'" aria-label="Open '+d.date+', '+money(d.total)+' saved earnings"><span class="activity-amount">'+money(d.total).replace('.00','')+'</span><svg viewBox="0 0 64 34" preserveAspectRatio="none" aria-hidden="true"><rect x="9" y="'+(32-Math.max(2,d.total/max*30)).toFixed(2)+'" width="46" height="'+Math.max(2,d.total/max*30).toFixed(2)+'" rx="3"/></svg><span>'+d.label+'</span></button>').join('')+'</div></section>';
+}
 function renderToday() {
   displayedDay=data.days.find(d=>d.date===date)||newDay(date,data.settings.rates);
   const day=displayedDay,t=totals(day,Date.now()),active=data.days.find(running),isToday=date===localDate();
+  const unpaid=data.days.filter(d=>!d.paidId),owed=sumDays(unpaid),saved=data.days.some(d=>d.id===day.id);
   const clockText=active?'Clock out':isToday?'Clock in':'Add a shift';
-  let html='<div class="page-head"><div><p class="eyebrow">MAKE EVERY HOUR COUNT</p><h1>'+ (isToday?'Your day, at a glance.':'Your workday.')+'</h1><p class="muted">'+esc(dayTitle(date))+'</p></div><div class="date-control"><label for="day-date">Work date</label><input id="day-date" type="date" value="'+date+'" required></div></div>';
-  if(day.paidId) return html+'<div class="panel empty"><span class="empty-icon" aria-hidden="true">✓</span><h2>This day is already paid.</h2><p>It is safely stored in your payment history. Reopen its payment report if a correction is needed.</p><button data-action="report" data-id="'+day.paidId+'">View payment</button></div>';
-  html+='<section class="panel clock-panel '+(active?'is-running':'')+'"><div class="clock-copy"><p class="eyebrow">'+(active?'ON THE CLOCK':'TIME AT WORK')+'</p><div class="clock-amount" id="clock-time">'+duration(t.minutes)+'</div><p class="clock-caption">'+(active?'Started '+esc(new Date(active.shifts.find(s=>!s.end).start).toLocaleString()):'Unpaid breaks are deducted from your hours.')+'</p></div><div class="clock-orbit" aria-hidden="true"><div class="orbit-ring orbit-outer"></div><div class="orbit-ring orbit-inner"></div><div class="orbit-core"><svg viewBox="0 0 48 48" fill="none"><rect x="14" y="6" width="20" height="36" rx="5"/><path d="M21 10h6M22 37h4M19 26l4-8 3 5h4"/></svg></div><span class="orbit-caption">IN YOUR ORBIT</span></div><div class="clock-actions"><button class="primary" data-action="'+(active?'clock-out':isToday?'clock-in':'edit-day')+'" data-id="'+day.id+'">'+clockText+' '+(active?'■':'→')+'</button>'+(isToday||active?'<button class="quiet manual-hours" data-action="edit-day" data-id="'+day.id+'">Enter hours</button>':'')+'<span class="clock-action-hint">'+(isToday?'Or choose a past work date above.':'Enter start, end & break time.')+'</span></div></section>';
-  html+='<form id="day-form"><div class="two-cols"><section class="panel"><div class="section-row"><h2>What did you do?</h2><span class="pill">Commissions</span></div>'+counters(day,'today-')+'<p class="hint">Count laptop / console repairs separately from phone repairs.</p>'+labCounters(day,'today-')+'</section><section class="panel"><h2>Daily sales</h2><p class="hint">Enter the day’s total sales for the bonus.</p><label for="today-sales">Sales amount ($)</label><input id="today-sales" name="sales" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" required value="'+(day.sales/100).toFixed(2)+'"><p class="bonus-note" id="bonus-note">'+bonusMessage(day.sales)+'</p><label for="today-note">Notes <span class="muted">(optional)</span></label><textarea id="today-note" name="note" maxlength="4000" placeholder="Anything you want to remember…">'+esc(day.note)+'</textarea><div class="form-footer"><span id="draft-state" class="hint">Changes save when you tap Save.</span><button class="primary" type="submit">Save entry</button></div></section></div></form>';
-  html+='<section class="panel"><div class="section-row"><h2>Today’s pay</h2><button data-action="edit-day" data-id="'+day.id+'">Edit hours & details</button></div><div class="amount-big" id="day-total">'+money(t.total)+'</div><div id="day-breakdown">'+breakdown(t)+'</div><p class="hint">'+(running(day)?'Live estimate includes your running shift. Clock out before creating a report.':'All amounts are gross pay before any deductions.')+'</p></section>';
+  let html='<div class="page-head workbench-heading"><div><p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> A LITTLE FOCUS. A LOT OF POSSIBILITY.</p><h1>'+ (isToday?'Your day, in focus.':'Your workday, in focus.')+'</h1><p class="muted">'+esc(dayTitle(date))+' <span class="heading-divider">/</span> Every hour. Every little win.</p></div><div class="date-control"><label for="day-date">Choose your work date</label><input id="day-date" type="date" value="'+date+'" required></div></div>';
+  if(day.paidId) return html+'<div class="panel empty"><span class="empty-icon" aria-hidden="true">✓</span><h2>This day is already paid.</h2><p>It is safely stored in your payment history. Reopen its payment report if a correction is needed.</p><button data-action="report" data-id="'+day.paidId+'">View payment</button></div>'+activityStrip();
+  html+='<div class="overview-grid"><section class="panel earnings-panel"><div class="section-row"><p class="eyebrow">'+(isToday?'TODAY’S EARNINGS':'THIS DAY’S EARNINGS')+'</p><span class="pill" id="day-state">'+(running(day)?'Live estimate':saved?'Saved entry':'New day')+'</span></div><div class="earnings-main"><div><div class="amount-big" id="day-total">'+money(t.total)+'</div><p class="earnings-caption"><span id="paid-time">'+duration(t.paidMinutes)+'</span> paid time <span>including lab credit</span></p></div><div id="pay-orbit" class="pay-orbit">'+earningsRing(t)+'</div></div><div id="day-breakdown">'+breakdown(t)+'</div><p class="pay-footnote">Gross pay before deductions'+(running(day)?' · includes your running shift':'')+'</p></section>';
+  html+='<section class="panel clock-panel '+(active?'is-running':'')+'"><div class="clock-copy"><p class="eyebrow">'+(active?'SHIFT IN PROGRESS':'YOUR SHIFT')+'</p><div class="clock-amount" id="clock-time">'+duration(t.minutes)+'</div><p class="clock-caption">'+(active?'Active shift: '+esc(dayTitle(active.date)):'Your time on the bench. Breaks deducted.')+'</p></div><button class="device-cluster" type="button" data-device-rain aria-label="Make it rain phones, tablets and laptops" title="Tap for a little tech storm"><span class="cluster-laptop">'+deviceIcon('computer')+'</span><span class="cluster-tablet">'+deviceIcon('tablet')+'</span><span class="cluster-phone">'+deviceIcon('device')+'</span><span class="cluster-orbit"></span></button><div class="clock-actions"><button class="primary" data-action="'+(active?'clock-out':isToday?'clock-in':'edit-day')+'" data-id="'+day.id+'">'+clockText+' '+(active?'■':'→')+'</button>'+(isToday||active?'<button class="quiet manual-hours" data-action="edit-day" data-id="'+day.id+'">Enter hours</button>':'')+'</div><span class="clock-action-hint">Choose a past date above to catch up.</span></section>';
+  html+='<section class="panel balance-panel"><p class="eyebrow">READY FOR PAYDAY</p><div class="balance-amount">'+money(owed.total)+'</div><p class="balance-caption">Saved unpaid balance</p><div class="balance-details"><div><span>Recorded workdays</span><strong>'+unpaid.length+'</strong></div><div><span>Commissions + bonuses</span><strong>'+money(owed.items+owed.bonus)+'</strong></div><div><span>Extra lab pay</span><strong>'+money(owed.labPay)+'</strong></div></div><button class="balance-link" data-view="unpaid">Review & report <span aria-hidden="true">↗</span></button><span class="balance-note">Running shift hours are excluded.</span></section></div>';
+  html+=activityStrip();
+  html+='<form id="day-form"><div class="entry-grid"><section class="panel work-panel"><div class="section-row"><div><p class="eyebrow">LOG THE LITTLE WINS</p><h2>What’s on your bench?</h2></div><span class="section-number" aria-hidden="true">01</span></div>'+counters(day,'today-',true)+'<p class="hint">Count laptop / console repairs separately from phone repairs.</p>'+labCounters(day,'today-')+'</section><section class="panel sales-panel"><div class="section-row"><div><p class="eyebrow">A LITTLE EXTRA, EARNED</p><h2>Your sales bonus.</h2></div><span class="section-number" aria-hidden="true">02</span></div><label for="today-sales">Day’s total sales ($)</label><input id="today-sales" name="sales" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" required value="'+(day.sales/100).toFixed(2)+'"><div class="sales-track" id="sales-track">'+salesMilestones(day.sales)+'</div><p class="bonus-note" id="bonus-note">'+bonusMessage(day.sales)+'</p><div class="sales-rule-note">Only your highest daily tier applies.</div><label for="today-note">A note for later <span class="muted">(optional)</span></label><textarea id="today-note" name="note" maxlength="4000" placeholder="A busy day, a lab run, something to remember…">'+esc(day.note)+'</textarea><button type="button" class="text-button edit-details-link" data-action="edit-day" data-id="'+day.id+'">Edit hours, rates & details ↗</button></section></div><div class="save-dock"><div><span class="save-light" aria-hidden="true"></span><span id="draft-state">Ready when you are.</span><small>Your entry saves to the selected work date.</small></div><button class="primary" type="submit">Save entry <span aria-hidden="true">↗</span></button></div></form>';
   return html;
+}
+function updateDayOverview(day,t) {
+  if($('#day-total'))$('#day-total').textContent=money(t.total);
+  if($('#day-breakdown'))$('#day-breakdown').innerHTML=breakdown(t);
+  if($('#paid-time'))$('#paid-time').textContent=duration(t.paidMinutes);
+  if($('#pay-orbit'))$('#pay-orbit').innerHTML=earningsRing(t);
+  if($('#sales-track'))$('#sales-track').innerHTML=salesMilestones(day.sales);
+  if($('#bonus-note'))$('#bonus-note').textContent=bonusMessage(day.sales);
 }
 function bonusMessage(sales) {
   if(sales>150000)return '$20 bonus reached · highest daily tier';
@@ -336,6 +379,7 @@ document.addEventListener('click',async event=>{
       input.value=Math.min(100000,Math.max(0,(Number(input.value)||0)+Number(button.dataset.step)));
       input.dispatchEvent(new Event('input',{bubbles:true}));return;
     }
+    if(button.dataset.action==='open-day'){if(!abandon())return;date=button.dataset.date;dirty=false;view='today';render();$('#main').focus({preventScroll:true});return;}
     if(button.dataset.action)await handleAction(button.dataset.action,button);
   }catch(e){notice(e.message,true);}
 });
@@ -369,7 +413,7 @@ document.addEventListener('input',event=>{
     const draft=structuredClone(displayedDay),fields=new FormData(form);
     draft.sales=Math.max(0,Math.round(Number(fields.get('sales'))*100)||0);draft.counts=readCounts(fields);draft.labTrips=readLabTrips(fields);
     const t=totals(draft,Date.now());
-    $('#day-total').textContent=money(t.total);$('#day-breakdown').innerHTML=breakdown(t);$('#bonus-note').textContent=bonusMessage(draft.sales);$('#draft-state').textContent='Unsaved changes';
+    updateDayOverview(draft,t);$('#draft-state').textContent='Unsaved changes';$('#day-state').textContent='Unsaved changes';$('.save-dock').classList.add('has-changes');
   }
 });
 document.addEventListener('change',event=>{
@@ -396,8 +440,7 @@ setInterval(()=>{
   if(view==='today'&&!dirty&&displayedDay&&running(displayedDay)){
     const t=totals(displayedDay,Date.now());
     if($('#clock-time'))$('#clock-time').textContent=duration(t.minutes);
-    if($('#day-total'))$('#day-total').textContent=money(t.total);
-    if($('#day-breakdown'))$('#day-breakdown').innerHTML=breakdown(t);
+    updateDayOverview(displayedDay,t);
   }
 },15000);
 if(!crypto.subtle){notice('Open this page over HTTPS in an up-to-date browser to use encrypted storage.',true);}

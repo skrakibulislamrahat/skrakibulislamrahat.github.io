@@ -27,6 +27,7 @@ function applyMotion() {
     for (const animation of animations) animation.cancel();
     clearSparks();
   }
+  document.dispatchEvent(new CustomEvent('desk:motion', {detail: {enabled: motion}}));
 }
 
 const canvas = $('#desk-sparks');
@@ -76,7 +77,7 @@ resizeCanvas();
 addEventListener('resize', resizeCanvas, {passive: true});
 let lastPointer = 0;
 document.addEventListener('pointermove', event => {
-  if (event.pointerType !== 'mouse' || performance.now() - lastPointer < 35) return;
+  if (!event.isPrimary || performance.now() - lastPointer < 35) return;
   lastPointer = performance.now(); addSparks(event.clientX, event.clientY);
 }, {passive: true});
 document.addEventListener('pointerdown', event => {
@@ -88,7 +89,7 @@ document.addEventListener('desk:unlock', () => { previousView = null; });
 document.addEventListener('desk:render', event => {
   if (previousView === event.detail.view) return;
   previousView = event.detail.view;
-  const sections = $$('#main > .page-head, #main > .panel, #main > .mini-stats, #main > .row-list, #main > .selection-bar, #day-form .panel, #main > .settings-panel');
+  const sections = $$('#main > .page-head, #main > .panel, .overview-grid > .panel, #main > .activity-strip, #main > .mini-stats, #main > .row-list, #main > .selection-bar, #day-form .panel, #main > .settings-panel');
   sections.forEach((element, i) => animate(element, [
     {opacity: 0, transform: 'translateY(14px)'},
     {opacity: 1, transform: 'translateY(0)'}

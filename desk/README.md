@@ -45,6 +45,13 @@ figures are gross before any deductions.
 
 ## Motion and a small secret
 
+The workbench uses top navigation and a full-width overview: live daily earnings,
+shift controls, and the saved unpaid balance. The earnings ring shows shift pay,
+lab credit, commissions, and the sales bonus. The 7-day strip shows saved earnings
+ending on the selected date (running shift hours excluded); tap a day to open it.
+Commission tiles, lab counters, and sales milestones share one daily form and a
+save bar. Changing dates or views still checks for unsaved edits.
+
 **Back to portfolio** is visible in the header and on the locked screen.
 The orbit, panel entrances, and pointer sparks are presentation only. Use
 **Motion on/off** to switch them off; the device's reduced-motion preference
@@ -55,6 +62,13 @@ users can focus the logo and press Enter. Choose a 20-second round or **Untimed
 mode**. Closing the game, hiding the tab, or locking the desk ends the round.
 The game never reads or writes work records and makes no network requests.
 The independent effects module has no access to the app's private ledger state.
+
+A soft cursor light follows mouse or touch movement and lights the card beneath
+it. **Make it rain tech**, the floating devices beside the shift clock, and the
+footer weather button launch a short shower of phones, tablets, and laptops.
+Rain is capped, makes no sound, and never blocks controls. It stops when motion
+is disabled, the tab is hidden, or the desk locks. Reduced-motion settings take
+priority. The ambience module never accesses credentials or work records.
 
 ## Calculation rules
 

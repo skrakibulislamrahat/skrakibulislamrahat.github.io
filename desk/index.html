@@ -11,12 +11,15 @@
   <link rel="icon" href="../favicon.ico">
   <link rel="stylesheet" href="./style.css?v=3">
   <link rel="stylesheet" href="./delight.css?v=3">
-  <script type="module" src="./app.mjs?v=4"></script>
-  <script type="module" src="./effects.mjs?v=3"></script>
+  <link rel="stylesheet" href="./workbench.css?v=5">
+  <script type="module" src="./app.mjs?v=5"></script>
+  <script type="module" src="./effects.mjs?v=5"></script>
+  <script type="module" src="./ambience.mjs?v=5"></script>
 </head>
 <body>
+  <div id="cursor-glow" aria-hidden="true"></div>
   <div id="gate" class="gate">
-    <div class="gate-toolbar"><a href="../" class="back-link">← Back to portfolio</a><button class="motion-toggle quiet" data-motion-toggle type="button" aria-pressed="true">Motion on</button></div>
+    <div class="gate-toolbar"><a href="../" class="back-link">← Back to portfolio</a><div class="gate-tools"><button type="button" class="rain-button" data-device-rain>Make it rain tech <span aria-hidden="true">↘</span></button><button class="motion-toggle quiet" data-motion-toggle type="button" aria-pressed="true">Motion on</button></div></div>
     <main class="gate-card">
       <button class="brand-mark secret-key" type="button" data-secret-key aria-label="Private desk logo. Tap three times for a secret." title="Curiosity has its rewards. Try three taps.">◈</button>
       <p class="eyebrow">YOUR PRIVATE WORKSPACE</p>
@@ -60,22 +63,22 @@
   </div>
   <div id="workspace" hidden>
     <header class="app-header">
-      <div class="header-identity"><button class="secret-key" type="button" data-secret-key aria-label="Private desk logo. Tap three times for a secret." title="Curiosity has its rewards. Try three taps.">◈</button><span class="wordmark">Private desk</span></div>
+      <div class="header-identity"><button class="secret-key" type="button" data-secret-key aria-label="Private desk logo. Tap three times for a secret." title="Curiosity has its rewards. Try three taps.">◈</button><div><span class="wordmark">Private desk<span class="brand-period">.</span></span><span class="wordmark-caption">YOUR PERSONAL WORKBENCH</span></div></div>
       <a class="portfolio-link" href="../">← Back to portfolio</a>
       <div class="header-actions"><span id="sync-status" role="status">Connected</span><button class="motion-toggle quiet" data-motion-toggle type="button" aria-pressed="true">Motion on</button><button data-action="refresh" class="quiet">Refresh</button><button data-action="lock" class="quiet">Lock ↗</button></div>
     </header>
     <div class="app-shell">
-      <aside class="sidebar">
-        <p class="eyebrow">WORK, KEPT SIMPLE</p>
+      <div class="workspace-nav">
         <nav aria-label="Dashboard">
-          <button data-view="today"><span aria-hidden="true">◷</span> My day</button>
+          <button data-view="today"><span aria-hidden="true">◷</span> Workbench</button>
           <button data-view="unpaid"><span aria-hidden="true">↗</span> Unpaid <span id="unpaid-count" class="badge">0</span></button>
           <button data-view="history"><span aria-hidden="true">▤</span> Payments</button>
           <button data-view="settings"><span aria-hidden="true">⚙</span> Settings</button>
         </nav>
-        <div class="sidebar-foot"><div class="curiosity-note"><span aria-hidden="true">✧</span> A little curiosity looks good on you.<small>Some symbols hold a secret.</small></div><span class="status-dot" aria-hidden="true"></span> Private GitHub storage<p id="connection-label"></p><p>Auto-locks after 15 minutes of inactivity. A running shift keeps its start time.</p></div>
-      </aside>
+        <button class="rain-button" type="button" data-device-rain><span aria-hidden="true">✧</span> Make it rain tech <span aria-hidden="true">↘</span></button>
+      </div>
       <main id="main" tabindex="-1"></main>
+      <footer class="desk-footer"><span><span class="status-dot" aria-hidden="true"></span> Your work. Safely kept.<small id="connection-label"></small></span><span>Auto-locks after 15 minutes.<small>A running shift keeps its start time.</small></span><button type="button" class="quiet" data-device-rain>Forecast: a chance of gadgets ↘</button></footer>
     </div>
   </div>
   <div id="notice" class="notice" role="alert" hidden><span id="notice-text"></span><button data-action="dismiss" aria-label="Dismiss message">×</button></div>
@@ -91,6 +94,7 @@
   </dialog>
   <div id="secret-hint" class="secret-hint" role="status" hidden></div>
   <canvas id="desk-sparks" aria-hidden="true"></canvas>
+  <canvas id="device-weather" aria-hidden="true"></canvas>
   <div id="print-report"></div>
   <input id="backup-file" type="file" accept=".json,application/json" hidden>
   <noscript>This private desk needs JavaScript to encrypt and open your records.</noscript>
