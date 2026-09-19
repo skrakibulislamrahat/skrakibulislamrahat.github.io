@@ -5,6 +5,8 @@ export const TYPES = [
   ['device', 'Device sales', 300],
   ['computer', 'Laptop / console repairs', 500],
 ];
+export const LAB_TYPES = [['dropoff', 'Lab drop-off'], ['pickup', 'Lab pickup']];
+export const LAB_MINUTES = 30;
 export const DEFAULT_RATES = {hour: 1000, ...Object.fromEntries(TYPES.map(([k,,v]) => [k,v]))};
 export const money = cents => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(cents / 100);
 export const uid = () => crypto.randomUUID();
@@ -15,7 +17,7 @@ export function emptyLedger() {
   return {schema:1, settings:{name:'Rahat',shop:'',rates:{...DEFAULT_RATES}},days:[],reports:[]};
 }
 export function newDay(date, rates) {
-  return {id:uid(),date,sales:0,counts:Object.fromEntries(TYPES.map(([k])=>[k,0])),rates:{...rates},note:'',shifts:[],paidId:null};
+  return {id:uid(),date,sales:0,counts:Object.fromEntries(TYPES.map(([k])=>[k,0])),labTrips:{dropoff:0,pickup:0},rates:{...rates},note:'',shifts:[],paidId:null};
 }
 export const running = day => day.shifts.some(s => s.end === null);
 export function totals(day, now = null) {
@@ -24,14 +26,21 @@ export function totals(day, now = null) {
     return sum + (end == null ? 0 : Math.max(0, Math.floor((end-Date.parse(s.start))/60000)-s.breakMinutes));
   },0);
   const wages = Math.round(minutes * day.rates.hour / 60);
+  // Missing labTrips means an older record with no credited trips. Do not
+  // rewrite old entries or payment snapshots just to add default fields.
+  const labDropoffs = day.labTrips?.dropoff ?? 0;
+  const labPickups = day.labTrips?.pickup ?? 0;
+  const labMinutes = (labDropoffs + labPickups) * LAB_MINUTES;
+  const labPay = Math.round(labMinutes * day.rates.hour / 60);
+  const paidMinutes = minutes + labMinutes;
   const items = TYPES.reduce((sum,[k]) => sum + day.counts[k]*day.rates[k],0);
   const salesBonus = bonus(day.sales);
-  return {minutes,wages,items,bonus:salesBonus,total:wages+items+salesBonus,sales:day.sales};
+  return {minutes,wages,labDropoffs,labPickups,labMinutes,labPay,paidMinutes,items,bonus:salesBonus,total:wages+labPay+items+salesBonus,sales:day.sales};
 }
 export function sumDays(days, now=null) {
   return days.reduce((sum,d) => {
     const t=totals(d,now); for(const k of Object.keys(t)) sum[k]+=t[k]; return sum;
-  }, {minutes:0,wages:0,items:0,bonus:0,total:0,sales:0});
+  }, {minutes:0,wages:0,labDropoffs:0,labPickups:0,labMinutes:0,labPay:0,paidMinutes:0,items:0,bonus:0,total:0,sales:0});
 }
 function integer(n,max=100000000) { return Number.isSafeInteger(n) && n>=0 && n<=max; }
 function validId(id) {return typeof id==='string' && /^[a-zA-Z0-9_-]{1,80}$/.test(id);}
@@ -44,6 +53,8 @@ function checkDay(d) {
       !TYPES.every(([k])=>integer(d.counts[k],100000)) ||
       typeof d.note!=='string' || d.note.length>4000 || !Array.isArray(d.shifts) ||
       d.shifts.length>100 || !(d.paidId===null || validId(d.paidId))) throw Error('Invalid daily record.');
+  if (d.labTrips !== undefined && (!d.labTrips || typeof d.labTrips!=='object' || Array.isArray(d.labTrips) ||
+      !LAB_TYPES.every(([k])=>integer(d.labTrips[k],100000)))) throw Error('Lab trips must be whole, non-negative counts.');
   const ids=new Set();
   for (const s of d.shifts) {
     const start=Date.parse(s.start),end=s.end===null?null:Date.parse(s.end);
@@ -109,17 +120,21 @@ export function reportText(report) {
       const v=totals(d);
       return d.date+' | '+duration(v.minutes)+' | Sales '+money(d.sales)+' | Pay '+money(v.total)+'\n'+
         '  Wages '+money(v.wages)+'; items '+money(v.items)+'; bonus '+money(v.bonus)+'\n'+
-        '  '+TYPES.map(([k,label])=>label+': '+d.counts[k]).join(', ')+(d.note?'\n  Note: '+d.note:'');
+        '  '+TYPES.map(([k,label])=>label+': '+d.counts[k]).join(', ')+
+        (v.labMinutes?'\n  Soldering lab: drop-offs '+v.labDropoffs+', pickups '+v.labPickups+' | Extra paid time '+duration(v.labMinutes)+' | Lab pay '+money(v.labPay):'')+
+        (d.note?'\n  Note: '+d.note:'');
     }),
     '',
-    'Hours: '+duration(t.minutes),
+    (t.labMinutes?'Shift hours: ':'Hours: ')+duration(t.minutes),
     'Hourly pay: '+money(t.wages),
+    ...(t.labMinutes?['Lab drop-offs: '+t.labDropoffs+'; pickups: '+t.labPickups,'Lab extra paid time: '+duration(t.labMinutes),'Lab extra pay: '+money(t.labPay),'Total paid time: '+duration(t.paidMinutes)]:[]),
     'Item commissions: '+money(t.items),
     'Daily sales bonuses: '+money(t.bonus),
     'TOTAL: '+money(t.total),
     '',
     'Daily bonus: over $500 = $5; over $1,000 = $10; over $1,500 = $20. Highest tier only.',
-    'Laptop / console repairs use their own rate; they are not also counted as phone repairs.'
+    'Laptop / console repairs use their own rate; they are not also counted as phone repairs.',
+    ...(t.labMinutes?['Each soldering lab drop-off or pickup adds 30 paid minutes at that workday’s hourly rate.']:[])
   ].join('\n');
 }
 function csvCell(value) {
@@ -130,8 +145,8 @@ export function reportCSV(r) {
   const rows=[
     ['Worker',r.name,'Shop',r.shop],
     ['Report',r.label,'Status',r.status,'Payment date',r.paidAt||''],
-    ['Date','Minutes','Hours','Sales $','Hourly rate $','Hourly pay $',...TYPES.map(([,l])=>l),...TYPES.map(([,l])=>l+' rate $'),'Item commission $','Sales bonus $','Total pay $','Notes'],
-    ...r.days.map(d=>{const t=totals(d);return [d.date,t.minutes,(t.minutes/60).toFixed(2),(d.sales/100).toFixed(2),(d.rates.hour/100).toFixed(2),(t.wages/100).toFixed(2),...TYPES.map(([k])=>d.counts[k]),...TYPES.map(([k])=>(d.rates[k]/100).toFixed(2)),(t.items/100).toFixed(2),(t.bonus/100).toFixed(2),(t.total/100).toFixed(2),d.note];}),
+    ['Date','Shift minutes','Shift hours','Sales $','Hourly rate $','Hourly pay $',...TYPES.map(([,l])=>l),...TYPES.map(([,l])=>l+' rate $'),'Item commission $','Sales bonus $','Total pay $','Notes','Lab drop-offs','Lab pickups','Lab extra minutes','Lab extra pay $','Total paid minutes','Total paid hours'],
+    ...r.days.map(d=>{const t=totals(d);return [d.date,t.minutes,(t.minutes/60).toFixed(2),(d.sales/100).toFixed(2),(d.rates.hour/100).toFixed(2),(t.wages/100).toFixed(2),...TYPES.map(([k])=>d.counts[k]),...TYPES.map(([k])=>(d.rates[k]/100).toFixed(2)),(t.items/100).toFixed(2),(t.bonus/100).toFixed(2),(t.total/100).toFixed(2),d.note,t.labDropoffs,t.labPickups,t.labMinutes,(t.labPay/100).toFixed(2),t.paidMinutes,(t.paidMinutes/60).toFixed(2)];}),
     [],
     ['Total pay $',(sumDays(r.days).total/100).toFixed(2)],
     [],

@@ -24,6 +24,10 @@ password, or work records. A public route or hidden button is not access control
 
 - Clock in; log item counts and the total day's sales; press **Save entry**.
 - Clock out and enter unpaid break minutes.
+- Under **Soldering lab trips**, add each **Lab drop-off** or **Lab pickup**
+  on the date it happened, then save the entry. Each trip adds 30 paid minutes
+  at that day's hourly rate ($5 at $10/hour). Trips can be corrected in
+  **Edit hours & details** and can be logged on different dates.
 - Use **Enter hours** beside the clock to add time manually. For older work,
   choose its **Work date**, then **Add a shift**.
 - Use **Edit hours & details** for missed shifts, wrong dates, notes, counts,
@@ -62,6 +66,13 @@ The independent effects module has no access to the app's private ledger state.
   over $1,500 → $20. Exact thresholds do not activate the next tier.
 - An overnight shift belongs to its recorded work date.
 - Running shifts show a live estimate but cannot be marked paid.
+- Each soldering lab drop-off and pickup adds 30 minutes of extra paid time.
+  Lab salary is rounded to cents once per day and shown separately from shift
+  salary and commissions. The clock continues to show actual shift time;
+  paid-time totals include lab credit. Reports, CSV, and Print/PDF include the
+  trip counts, extra time, and extra salary.
+- Old records without lab counts keep their original pay, including saved
+  payment snapshots and older encrypted backups.
 
 ## Storage and security
 

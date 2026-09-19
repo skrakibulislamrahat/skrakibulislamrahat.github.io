@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {DEFAULT_RATES,bonus,emptyLedger,newDay,totals,markPaid,reopenReport,validateLedger,reportCSV} from './core.mjs';
+import {DEFAULT_RATES,bonus,emptyLedger,newDay,totals,sumDays,markPaid,reopenReport,validateLedger,reportText,reportCSV} from './core.mjs';
 import {newCipher,seal,open} from './crypto.mjs';
 import {GitHubVault} from './github.mjs';
 
@@ -14,7 +14,72 @@ test('sales tiers require strictly greater totals; only the highest tier applies
 });
 test('hours deduct breaks and item types use distinct rates',()=>{
   const d=workday();d.sales=150001;d.counts={repair:4,case:2,other:3,device:1,computer:2};
-  assert.deepEqual(totals(d),{minutes:450,wages:7500,items:1850,bonus:2000,total:11350,sales:150001});
+  assert.deepEqual(totals(d),{minutes:450,wages:7500,labDropoffs:0,labPickups:0,labMinutes:0,labPay:0,paidMinutes:450,items:1850,bonus:2000,total:11350,sales:150001});
+});
+test('each lab drop-off and pickup adds thirty paid minutes without changing clocked time',()=>{
+  for(const labTrips of [{dropoff:1,pickup:0},{dropoff:0,pickup:1},{dropoff:1,pickup:1},{dropoff:2,pickup:3}]) {
+    const d=workday();d.labTrips=labTrips;
+    const trips=labTrips.dropoff+labTrips.pickup,t=totals(d);
+    assert.equal(t.minutes,450);assert.equal(t.wages,7500);
+    assert.equal(t.labMinutes,trips*30);assert.equal(t.labPay,trips*500);
+    assert.equal(t.paidMinutes,450+trips*30);assert.equal(t.total,7500+trips*500);
+  }
+});
+test('lab trips can be logged on separate dates or without a shift, at each historical hourly rate',()=>{
+  const data=emptyLedger(),dropoff=newDay('2026-09-17',DEFAULT_RATES),pickup=workday('2026-09-18');
+  dropoff.labTrips.dropoff=1;pickup.labTrips.pickup=1;pickup.rates.hour=1200;
+  data.days=[dropoff,pickup];data.settings.rates.hour=2000;
+  validateLedger(data);
+  assert.equal(totals(dropoff).total,500);assert.equal(totals(pickup).labPay,600);
+  assert.equal(totals(pickup).total,9600);
+  const t=sumDays(data.days);assert.equal(t.labMinutes,60);assert.equal(t.labPay,1100);
+  assert.equal(t.labDropoffs,1);assert.equal(t.labPickups,1);assert.equal(t.total,10100);
+  assert.equal(t.paidMinutes,510);
+  const report=markPaid(data,[dropoff.id,pickup.id],'Lab work');
+  assert.equal(report.total,10100);validateLedger(data);
+});
+test('lab salary rounds to cents per day and is unaffected by unpaid shift breaks',()=>{
+  const d=workday();d.rates.hour=1001;d.labTrips={dropoff:1,pickup:0};
+  assert.equal(totals(d).labPay,501);
+  d.labTrips.pickup=1;assert.equal(totals(d).labPay,1001);
+  d.shifts[0].breakMinutes=480;
+  assert.equal(totals(d).wages,0);assert.equal(totals(d).total,1001);
+});
+test('old entries and paid snapshots without lab fields keep their exact original totals',()=>{
+  const data=emptyLedger(),d=workday();delete d.labTrips;data.days=[d];
+  const report=markPaid(data,[d.id],'Original pay'),before=JSON.stringify(data);
+  validateLedger(data);assert.equal(JSON.stringify(data),before);
+  assert.equal(report.total,7500);assert.equal(totals(d).labPay,0);
+  assert.equal(sumDays(report.days).total,7500);
+  assert.ok(!reportText(report).includes('Lab extra'));
+  reopenReport(data,report.id);d.labTrips={dropoff:1,pickup:0};
+  assert.equal(totals(d).total,8000);assert.equal(sumDays(report.days).total,7500);
+  validateLedger(data);
+});
+test('negative, fractional, incomplete, or excessive lab trip counts are rejected',()=>{
+  const data=emptyLedger(),d=workday();data.days=[d];
+  for(const trips of [null,[],{dropoff:-1,pickup:0},{dropoff:0,pickup:1.5},{dropoff:100001,pickup:0},{dropoff:1},{dropoff:'1',pickup:0}]) {
+    d.labTrips=trips;assert.throws(()=>validateLedger(data),/Lab trips/);
+  }
+});
+test('paid lab credits remain in immutable reports and appear in text and CSV exports',()=>{
+  const data=emptyLedger(),d=workday();d.labTrips={dropoff:1,pickup:2};data.days=[d];
+  const report=markPaid(data,[d.id],'Lab week');
+  const text=reportText(report),csv=reportCSV(report);
+  assert.match(text,/drop-offs 1, pickups 2/);assert.match(text,/Lab extra paid time: 1h 30m/);
+  assert.match(text,/Lab extra pay: \$15.00/);assert.match(text,/Total paid time: 9h 0m/);
+  assert.match(text,/TOTAL: \$90.00/);
+  const lines=csv.replace(/^\uFEFF/,'').split('\r\n');
+  const cells=line=>line.slice(1,-1).split('","');
+  const headings=cells(lines[2]),values=cells(lines[3]);
+  const row=Object.fromEntries(headings.map((h,i)=>[h,values[i]]));
+  assert.equal(row['Lab drop-offs'],'1');assert.equal(row['Lab pickups'],'2');
+  assert.equal(row['Lab extra minutes'],'90');assert.equal(row['Lab extra pay $'],'15.00');
+  assert.equal(row['Total paid hours'],'9.00');assert.equal(row['Total pay $'],'90.00');
+  const ids=reopenReport(data,report.id);d.labTrips.pickup=0;
+  const correction=markPaid(data,ids,'Corrected lab week');
+  assert.equal(report.total,9000);assert.equal(correction.total,8000);
+  assert.equal(report.days[0].labTrips.pickup,2);validateLedger(data);
 });
 test('overnight shifts and exact cent rounding',()=>{
   const d=workday();d.shifts=[{id:crypto.randomUUID(),start:'2026-09-17T23:30:00Z',end:'2026-09-18T01:01:40Z',breakMinutes:10}];
