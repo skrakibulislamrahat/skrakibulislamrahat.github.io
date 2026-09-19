@@ -1,7 +1,7 @@
 import {base64,unbase64} from './crypto.mjs';
 export const OWNER='skrakibulislamrahat';
 export class GitHubVault {
-  constructor(repo,token,fetcher=globalThis.fetch) {
+  constructor(repo,token,fetcher=globalThis.fetch.bind(globalThis)) {
     if(!/^[A-Za-z0-9_.-]{1,100}$/.test(repo)) throw Error('Enter a repository name, without a URL or owner.');
     if(!token.startsWith('github_pat_')) throw Error('Use a fine-grained GitHub token starting with github_pat_.');
     this.repo=repo;this.token=token;this.fetcher=fetcher;this.branch=null;
@@ -12,7 +12,10 @@ export class GitHubVault {
     try {response=await this.fetcher(this.base+path,{...options,cache:'no-store',referrerPolicy:'no-referrer',redirect:'error',
       headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+this.token,'X-GitHub-Api-Version':'2022-11-28',...(options.body?{'Content-Type':'application/json'}:{})},
       signal:AbortSignal.timeout(25000)});}
-    catch {throw Error('Could not reach GitHub. Check your connection, then refresh before retrying.');}
+    catch(error) {
+      if(error?.name==='TimeoutError'||error?.name==='AbortError') throw Error('GitHub took too long to respond. Retry opening the desk; if you were saving, refresh to check whether the save completed.');
+      throw Error('The browser could not complete the GitHub request. Reload this page and try again.');
+    }
     if(missing && response.status===404) return null;
     if(response.status===409 || response.status===422) throw Error('The GitHub copy may have changed on another device. Refresh, review the latest entries, then try again.');
     if(response.status===401) throw Error('Your GitHub token expired or is invalid. Lock, then choose “Change connection”.');

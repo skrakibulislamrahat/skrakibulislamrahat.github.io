@@ -1,6 +1,6 @@
 import {TYPES,DEFAULT_RATES,money,uid,localDate,duration,emptyLedger,newDay,totals,sumDays,running,validateLedger,markPaid,reopenReport,reportText,reportCSV} from './core.mjs';
 import {open,seal,wrap,newCipher} from './crypto.mjs';
-import {GitHubVault,OWNER} from './github.mjs';
+import {GitHubVault,OWNER} from './github.mjs?v=2';
 
 const $=(s,root=document)=>root.querySelector(s);
 const $$=(s,root=document)=>[...root.querySelectorAll(s)];

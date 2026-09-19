@@ -65,6 +65,19 @@ test('encryption rejects wrong passwords, tampering and cross-purpose use',async
   await assert.rejects(()=>open(a,password),/Wrong password/);
 });
 const response=(status,value)=>({status,ok:status>=200&&status<300,json:async()=>value});
+test('default browser fetch keeps the native global receiver',async()=>{
+  const original=globalThis.fetch;
+  globalThis.fetch=function(url,options) {
+    // Browser-native fetch rejects a class instance as its receiver.
+    if(this!==globalThis) throw new TypeError('Illegal invocation');
+    assert.ok(url.startsWith('https://api.github.com/repos/'));
+    return Promise.resolve(response(200,{private:true,owner:{login:'skrakibulislamrahat'},default_branch:'main'}));
+  };
+  try {
+    const client=new GitHubVault('data','github_pat_test');
+    assert.equal((await client.verify()).private,true);
+  }finally{globalThis.fetch=original;}
+});
 test('public repositories are refused before any write',async()=>{
   const calls=[];
   const client=new GitHubVault('data','github_pat_test',async(url,options)=>{calls.push(options);return response(200,{private:false,owner:{login:'skrakibulislamrahat'}});});
