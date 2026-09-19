@@ -45,8 +45,15 @@ figures are gross before any deductions.
 
 ## The company money note
 
-The small yellow sticky note beside the work date opens a separate company
-borrowing notebook. Use **I paid for company** for cash lent or costs put on
+The small yellow sticky note starts beside the work date and opens a separate
+company borrowing notebook. Drag it with a mouse, finger or stylus to place it
+anywhere in the viewport; its position is remembered on this browser and kept
+within reach after a resize. Tap to edit. Keyboard users can focus the note and
+move it with arrow keys (Shift for larger steps), or press Home to reset it.
+The note remains available across dashboard views. Only its position is stored
+locally; its amount and history remain in the encrypted vault.
+
+Use **I paid for company** for cash lent or costs put on
 your own card. Use **They paid me back** for each full or partial repayment.
 Choose the date, method and amount, and add an optional reminder. An existing
 balance can be entered with the note “Previous balance”.
@@ -73,9 +80,9 @@ Commission tiles, lab counters, and sales milestones share one daily form and a
 save bar. Changing dates or views still checks for unsaved edits.
 
 **Back to portfolio** is visible in the header and on the locked screen.
-The orbit, panel entrances, and pointer sparks are presentation only. Use
-**Motion on/off** to switch them off; the device's reduced-motion preference
-always takes priority. This preference is the only value effects.mjs persists.
+The orbit, panel entrances, and pointer sparks are presentation only. Motion
+is enabled automatically, with no toggle or saved off setting. The device's
+reduced-motion preference takes priority. effects.mjs persists nothing.
 
 Tap the **◈** logo three times to open the Pocket Lab repair mini-game. Keyboard
 users can focus the logo and press Enter. Choose a 20-second round or **Untimed
@@ -84,8 +91,8 @@ The game never reads or writes work records and makes no network requests.
 The independent effects module has no access to the app's private ledger state.
 
 A soft cursor light follows mouse or touch movement and lights the card beneath
-it. **Make it rain tech**, the floating devices beside the shift clock, and the
-footer weather button launch a short shower of phones, tablets, and laptops.
+it. The single **Make it rain tech** button beside dashboard navigation launches
+a short shower of phones, tablets, and laptops. The shift card's devices are decorative.
 Rain is capped, makes no sound, and never blocks controls. It stops when motion
 is disabled, the tab is hidden, or the desk locks. Reduced-motion settings take
 priority. The ambience module never accesses credentials or work records.
@@ -122,9 +129,11 @@ change fails instead of being overwritten: refresh and reapply the intended
 edit. On a network timeout a write may have reached GitHub; refresh to check.
 Saves are serialized. No offline queue or automatic merge is implemented.
 
-The desk clears decrypted state on lock and auto-locks after 15 inactive
-minutes. Unsubmitted form edits are not saved. A saved running shift survives
-locking. Clear the browser's site data to remove a remembered connection.
+The desk stays unlocked while the page remains open; there is no idle timeout.
+The **Lock** button clears decrypted state, including the floating note. Closing
+or reloading the page requires unlocking again. Unsubmitted form edits are not
+saved. A saved running shift survives locking. Clear the browser's site data to
+remove a remembered connection.
 Tokens expire according to the expiry chosen in GitHub; reconnect with a renewed
 token using **Change connection**. Neither credentials nor financial records
 are included in public code, URLs, or commit messages.

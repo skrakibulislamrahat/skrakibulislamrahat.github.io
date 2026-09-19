@@ -9,9 +9,7 @@
   const link = (href, label, cls = '') => `<a class="${cls}" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`;
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const motionEase = 'cubic-bezier(.22,1,.36,1)';
-  let motionPreference = null;
-  try {motionPreference = localStorage.getItem('rahat-motion');} catch (_) {}
-  let motionEnabled = motionPreference ? motionPreference === 'on' : !reducedMotion.matches;
+  let motionEnabled = !reducedMotion.matches;
   document.documentElement.dataset.motion = motionEnabled ? 'on' : 'off';
   const entrances = new WeakMap();
   function enter(element, distance = 18, delay = 0) {
@@ -59,23 +57,13 @@
   function setupMotion() {
     function sync() {
       document.documentElement.dataset.motion = motionEnabled ? 'on' : 'off';
-      $$('[data-motion-toggle]').forEach(button => {
-        button.setAttribute('aria-pressed',String(motionEnabled));
-        button.querySelector('.motion-label').textContent = motionEnabled ? 'Motion on' : 'Motion off';
-        button.querySelector('span').textContent = motionEnabled ? 'Ⅱ' : '▷';
-      });
       if (!motionEnabled) {
         [...swaps.keys()].forEach(stopSwap);
         document.getAnimations().forEach(animation => {if (!(animation instanceof CSSAnimation)) {try {animation.finish();} catch (_) {animation.cancel();}}});
       }
       document.dispatchEvent(new CustomEvent('motionchange'));
     }
-    $$('[data-motion-toggle]').forEach(button => button.addEventListener('click', () => {
-      motionEnabled = !motionEnabled;motionPreference = motionEnabled ? 'on' : 'off';
-      try {localStorage.setItem('rahat-motion',motionPreference);} catch (_) {}
-      sync();
-    }));
-    reducedMotion.addEventListener('change', () => {if(!motionPreference){motionEnabled=!reducedMotion.matches;sync();}});
+    reducedMotion.addEventListener('change', () => {motionEnabled=!reducedMotion.matches;sync();});
     sync();
   }
   const themes = [
@@ -415,7 +403,7 @@
       toastTimer=setTimeout(()=>toast.classList.remove('visible'),3400);
     }
     function rain() {
-      if(!motionEnabled){say('The retinas are resting. Switch Motion on to wake them up.');return;}
+      if(!motionEnabled){say('The retinas are resting while your device requests reduced motion.');return;}
       const now=performance.now();if(now-lastRain<2400)return;lastRain=now;
       say('A 100% chance of retinas. No patient data involved.');
       for(let i=0;i<9;i++){

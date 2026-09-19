@@ -1,11 +1,8 @@
 // Presentation only. This module never reads the ledger, credentials, or GitHub.
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
-const preferenceKey = 'private-desk.motion.v1';
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const animations = new Set();
-let preference = 'on';
-try { preference = localStorage.getItem(preferenceKey) || 'on'; } catch {}
 let motion = false;
 
 function animate(element, frames, options) {
@@ -16,13 +13,8 @@ function animate(element, frames, options) {
 }
 
 function applyMotion() {
-  motion = preference !== 'off' && !reducedMotion.matches;
+  motion = !reducedMotion.matches;
   document.documentElement.dataset.motion = motion ? 'on' : 'off';
-  for (const button of $$('[data-motion-toggle]')) {
-    button.textContent = motion ? 'Motion on' : 'Motion off';
-    button.setAttribute('aria-pressed', String(motion));
-    button.title = reducedMotion.matches ? 'Your device’s reduced-motion setting is respected.' : 'Turn decorative animation on or off';
-  }
   if (!motion) {
     for (const animation of animations) animation.cancel();
     clearSparks();
@@ -166,12 +158,6 @@ function repair(index) {
 document.addEventListener('click', event => {
   const button = event.target.closest('button');
   if (!button || button.disabled || document.body.classList.contains('busy')) return;
-  if (button.hasAttribute('data-motion-toggle')) {
-    if (reducedMotion.matches) { secretHint('Animation is off to respect your device’s reduced-motion setting.'); return; }
-    preference = motion ? 'off' : 'on';
-    try { localStorage.setItem(preferenceKey, preference); } catch {}
-    applyMotion();
-  }
   if (button.hasAttribute('data-secret-key')) {
     // Keyboard / assistive activation opens directly; pointer users discover three taps.
     if (event.detail === 0) { revealLab(); return; }

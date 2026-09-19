@@ -12,15 +12,16 @@
   <link rel="stylesheet" href="./style.css?v=3">
   <link rel="stylesheet" href="./delight.css?v=3">
   <link rel="stylesheet" href="./workbench.css?v=5.1">
-  <link rel="stylesheet" href="./sticky.css?v=6">
-  <script type="module" src="./app.mjs?v=6"></script>
-  <script type="module" src="./effects.mjs?v=5"></script>
+  <link rel="stylesheet" href="./sticky.css?v=7">
+  <script type="module" src="./app.mjs?v=7"></script>
+  <script type="module" src="./effects.mjs?v=7"></script>
   <script type="module" src="./ambience.mjs?v=5.1"></script>
+  <script type="module" src="./sticky.mjs?v=7"></script>
 </head>
 <body>
   <div id="cursor-glow" aria-hidden="true"></div>
   <div id="gate" class="gate">
-    <div class="gate-toolbar"><a href="../" class="back-link">← Back to portfolio</a><div class="gate-tools"><button type="button" class="rain-button" data-device-rain>Make it rain tech <span aria-hidden="true">↘</span></button><button class="motion-toggle quiet" data-motion-toggle type="button" aria-pressed="true">Motion on</button></div></div>
+    <div class="gate-toolbar"><a href="../" class="back-link">← Back to portfolio</a></div>
     <main class="gate-card">
       <button class="brand-mark secret-key" type="button" data-secret-key aria-label="Private desk logo. Tap three times for a secret." title="Curiosity has its rewards. Try three taps.">◈</button>
       <p class="eyebrow">YOUR PRIVATE WORKSPACE</p>
@@ -66,7 +67,7 @@
     <header class="app-header">
       <div class="header-identity"><button class="secret-key" type="button" data-secret-key aria-label="Private desk logo. Tap three times for a secret." title="Curiosity has its rewards. Try three taps.">◈</button><div><span class="wordmark">Private desk<span class="brand-period">.</span></span><span class="wordmark-caption">YOUR PERSONAL WORKBENCH</span></div></div>
       <a class="portfolio-link" href="../">← Back to portfolio</a>
-      <div class="header-actions"><span id="sync-status" role="status">Connected</span><button class="motion-toggle quiet" data-motion-toggle type="button" aria-pressed="true">Motion on</button><button data-action="refresh" class="quiet">Refresh</button><button data-action="lock" class="quiet">Lock ↗</button></div>
+      <div class="header-actions"><span id="sync-status" role="status">Connected</span><button data-action="refresh" class="quiet">Refresh</button><button data-action="lock" class="quiet">Lock ↗</button></div>
     </header>
     <div class="app-shell">
       <div class="workspace-nav">
@@ -79,8 +80,9 @@
         <button class="rain-button" type="button" data-device-rain><span aria-hidden="true">✧</span> Make it rain tech <span aria-hidden="true">↘</span></button>
       </div>
       <main id="main" tabindex="-1"></main>
-      <footer class="desk-footer"><span><span class="status-dot" aria-hidden="true"></span> Your work. Safely kept.<small id="connection-label"></small></span><span>Auto-locks after 15 minutes.<small>A running shift keeps its start time.</small></span><button type="button" class="quiet" data-device-rain>Forecast: a chance of gadgets ↘</button></footer>
+      <footer class="desk-footer"><span><span class="status-dot" aria-hidden="true"></span> Your work. Safely kept.<small id="connection-label"></small></span></footer>
     </div>
+    <div id="company-note-layer"></div>
   </div>
   <div id="notice" class="notice" role="alert" hidden><span id="notice-text"></span><button data-action="dismiss" aria-label="Dismiss message">×</button></div>
   <dialog id="modal"><div class="modal-top"><p class="eyebrow" id="modal-kicker">PRIVATE DESK</p><button data-action="close-modal" aria-label="Close dialog">×</button></div><div id="modal-content"></div></dialog>

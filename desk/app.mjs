@@ -6,7 +6,7 @@ const $=(s,root=document)=>root.querySelector(s);
 const $$=(s,root=document)=>[...root.querySelectorAll(s)];
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const STORE='private-desk.connection.v1';
-let data=null,api=null,cipher=null,sha=null,busy=false,dirty=false,view='today',date=localDate(),selected=new Set(),displayedDay=null,editingDay=null,currentReport=null,lastActivity=Date.now();
+let data=null,api=null,cipher=null,sha=null,busy=false,dirty=false,view='today',date=localDate(),selected=new Set(),displayedDay=null,editingDay=null,currentReport=null;
 let noticeTimer;
 
 function notice(message,error=false) {
@@ -31,14 +31,14 @@ function showGate(connection=false) {
 function lock() {
   if(busy) return;
   api?.clear();api=null;data=null;cipher=null;sha=null;selected.clear();dirty=false;editingDay=null;displayedDay=null;currentReport=null;
-  $('#modal').close();$('#modal-content').replaceChildren();$('#main').replaceChildren();$('#print-report').replaceChildren();
+  $('#modal').close();$('#modal-content').replaceChildren();$('#main').replaceChildren();$('#company-note-layer').replaceChildren();$('#print-report').replaceChildren();
   $('#unlock-form').reset();$('#connect-form').reset();$('#confirm-wrap').hidden=true;$('#confirm-password').required=false;
   $('#token').value='';$('#password').value='';$('#unlock-password').value='';$('#notice').hidden=true;
   document.title='Private desk';document.dispatchEvent(new Event('desk:lock'));showGate();
 }
 function showWorkspace() {
   $('#gate').hidden=true;$('#workspace').hidden=false;$('#token').value='';$('#password').value='';$('#confirm-password').value='';$('#unlock-password').value='';
-  $('#connection-label').textContent=OWNER+'/'+api.repo;lastActivity=Date.now();view='today';date=localDate();selected.clear();document.dispatchEvent(new Event('desk:unlock'));render();
+  $('#connection-label').textContent=OWNER+'/'+api.repo;view='today';date=localDate();selected.clear();document.dispatchEvent(new Event('desk:unlock'));render();
 }
 async function connect(form,saved=false) {
   if(busy)return;const fields=new FormData(form);setBusy(true,'Opening your encrypted desk…');
@@ -141,7 +141,7 @@ function render() {
   for(const b of $$('[data-view]')) {if(b.dataset.view===view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}
   selected=new Set([...selected].filter(id=>data.days.some(d=>d.id===id&&!d.paidId&&!running(d))));
   const renderers={today:renderToday,unpaid:renderUnpaid,history:renderHistory,settings:renderSettings};
-  $('#main').innerHTML=renderers[view]();document.title='Private desk';document.dispatchEvent(new CustomEvent('desk:render',{detail:{view}}));
+  $('#main').innerHTML=renderers[view]();$('#company-note-layer').innerHTML=renderCompanyNote();document.title='Private desk';document.dispatchEvent(new CustomEvent('desk:render',{detail:{view}}));
 }
 function earningsRing(t) {
   const values=[t.wages,t.labPay,t.items,t.bonus],colors=['#c4f877','#78dcdf','#c3adff','#ffcc85'];
@@ -165,7 +165,7 @@ function activityStrip() {
 }
 function renderCompanyNote() {
   const {balance}=companyBalance(data);
-  return '<button type="button" class="company-sticky" data-action="company-notebook" aria-label="Open company money notebook. '+(balance<0?'Company credit':'Company owes me')+' '+money(Math.abs(balance))+'"><span class="sticky-label">'+(balance<0?'Company credit':'Company owes me')+'</span><strong>'+money(Math.abs(balance))+'</strong><span class="sticky-caption">Separate from my pay</span><span class="sticky-open">Open notebook <span aria-hidden="true">↗</span></span></button>';
+  return '<button type="button" class="company-sticky" data-action="company-notebook" aria-label="'+(balance<0?'Company credit':'Company owes me')+' '+money(Math.abs(balance))+'. Click to edit. Drag or use arrow keys to move; Home resets position." title="Drag to move · Click to edit"><span class="sticky-label">'+(balance<0?'Company credit':'Company owes me')+'</span><strong>'+money(Math.abs(balance))+'</strong></button>';
 }
 function showCompanyNotebook(message='') {
   const t=companyBalance(data),entries=[...(data.companyLedger??[])].reverse().sort((a,b)=>b.date.localeCompare(a.date));
@@ -195,10 +195,10 @@ function renderToday() {
   const day=displayedDay,t=totals(day,Date.now()),active=data.days.find(running),isToday=date===localDate();
   const unpaid=data.days.filter(d=>!d.paidId),owed=sumDays(unpaid),saved=data.days.some(d=>d.id===day.id);
   const clockText=active?'Clock out':isToday?'Clock in':'Add a shift';
-  let html='<div class="page-head workbench-heading"><div><p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> A LITTLE FOCUS. A LOT OF POSSIBILITY.</p><h1>'+ (isToday?'Your day, in focus.':'Your workday, in focus.')+'</h1><p class="muted">'+esc(dayTitle(date))+' <span class="heading-divider">/</span> Every hour. Every little win.</p></div><div class="workbench-tools"><div class="date-control"><label for="day-date">Choose your work date</label><input id="day-date" type="date" value="'+date+'" required></div>'+renderCompanyNote()+'</div></div>';
+  let html='<div class="page-head workbench-heading"><div><p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> A LITTLE FOCUS. A LOT OF POSSIBILITY.</p><h1>'+ (isToday?'Your day, in focus.':'Your workday, in focus.')+'</h1><p class="muted">'+esc(dayTitle(date))+' <span class="heading-divider">/</span> Every hour. Every little win.</p></div><div class="workbench-tools"><div class="date-control"><label for="day-date">Choose your work date</label><input id="day-date" type="date" value="'+date+'" required></div><div id="company-note-slot"></div></div></div>';
   if(day.paidId) return html+'<div class="panel empty"><span class="empty-icon" aria-hidden="true">✓</span><h2>This day is already paid.</h2><p>It is safely stored in your payment history. Reopen its payment report if a correction is needed.</p><button data-action="report" data-id="'+day.paidId+'">View payment</button></div>'+activityStrip();
   html+='<div class="overview-grid"><section class="panel earnings-panel"><div class="section-row"><p class="eyebrow">'+(isToday?'TODAY’S EARNINGS':'THIS DAY’S EARNINGS')+'</p><span class="pill" id="day-state">'+(running(day)?'Live estimate':saved?'Saved entry':'New day')+'</span></div><div class="earnings-main"><div><div class="amount-big" id="day-total">'+money(t.total)+'</div><p class="earnings-caption"><span id="paid-time">'+duration(t.paidMinutes)+'</span> paid time <span>including lab credit</span></p></div><div id="pay-orbit" class="pay-orbit">'+earningsRing(t)+'</div></div><div id="day-breakdown">'+breakdown(t)+'</div><p class="pay-footnote">Gross pay before deductions'+(running(day)?' · includes your running shift':'')+'</p></section>';
-  html+='<section class="panel clock-panel '+(active?'is-running':'')+'"><div class="clock-copy"><p class="eyebrow">'+(active?'SHIFT IN PROGRESS':'YOUR SHIFT')+'</p><div class="clock-amount" id="clock-time">'+duration(t.minutes)+'</div><p class="clock-caption">'+(active?'Active shift: '+esc(dayTitle(active.date)):'Your time on the bench. Breaks deducted.')+'</p></div><button class="device-cluster" type="button" data-device-rain aria-label="Make it rain phones, tablets and laptops" title="Tap for a little tech storm"><span class="cluster-laptop">'+deviceIcon('computer')+'</span><span class="cluster-tablet">'+deviceIcon('tablet')+'</span><span class="cluster-phone">'+deviceIcon('device')+'</span><span class="cluster-orbit"></span></button><div class="clock-actions"><button class="primary" data-action="'+(active?'clock-out':isToday?'clock-in':'edit-day')+'" data-id="'+day.id+'">'+clockText+' '+(active?'■':'→')+'</button>'+(isToday||active?'<button class="quiet manual-hours" data-action="edit-day" data-id="'+day.id+'">Enter hours</button>':'')+'</div><span class="clock-action-hint">Choose a past date above to catch up.</span></section>';
+  html+='<section class="panel clock-panel '+(active?'is-running':'')+'"><div class="clock-copy"><p class="eyebrow">'+(active?'SHIFT IN PROGRESS':'YOUR SHIFT')+'</p><div class="clock-amount" id="clock-time">'+duration(t.minutes)+'</div><p class="clock-caption">'+(active?'Active shift: '+esc(dayTitle(active.date)):'Your time on the bench. Breaks deducted.')+'</p></div><div class="device-cluster" aria-hidden="true"><span class="cluster-laptop">'+deviceIcon('computer')+'</span><span class="cluster-tablet">'+deviceIcon('tablet')+'</span><span class="cluster-phone">'+deviceIcon('device')+'</span><span class="cluster-orbit"></span></div><div class="clock-actions"><button class="primary" data-action="'+(active?'clock-out':isToday?'clock-in':'edit-day')+'" data-id="'+day.id+'">'+clockText+' '+(active?'■':'→')+'</button>'+(isToday||active?'<button class="quiet manual-hours" data-action="edit-day" data-id="'+day.id+'">Enter hours</button>':'')+'</div><span class="clock-action-hint">Choose a past date above to catch up.</span></section>';
   html+='<section class="panel balance-panel"><p class="eyebrow">READY FOR PAYDAY</p><div class="balance-amount">'+money(owed.total)+'</div><p class="balance-caption">Saved unpaid balance</p><div class="balance-details"><div><span>Recorded workdays</span><strong>'+unpaid.length+'</strong></div><div><span>Commissions + bonuses</span><strong>'+money(owed.items+owed.bonus)+'</strong></div><div><span>Extra lab pay</span><strong>'+money(owed.labPay)+'</strong></div></div><button class="balance-link" data-view="unpaid">Review & report <span aria-hidden="true">↗</span></button><span class="balance-note">Running shift hours are excluded.</span></section></div>';
   html+=activityStrip();
   html+='<form id="day-form"><div class="entry-grid"><section class="panel work-panel"><div class="section-row"><div><p class="eyebrow">LOG THE LITTLE WINS</p><h2>What’s on your bench?</h2></div><span class="section-number" aria-hidden="true">01</span></div>'+counters(day,'today-',true)+'<p class="hint">Count laptop / console repairs separately from phone repairs.</p>'+labCounters(day,'today-')+'</section><section class="panel sales-panel"><div class="section-row"><div><p class="eyebrow">A LITTLE EXTRA, EARNED</p><h2>Your sales bonus.</h2></div><span class="section-number" aria-hidden="true">02</span></div><label for="today-sales">Day’s total sales ($)</label><input id="today-sales" name="sales" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" required value="'+(day.sales/100).toFixed(2)+'"><div class="sales-track" id="sales-track">'+salesMilestones(day.sales)+'</div><p class="bonus-note" id="bonus-note">'+bonusMessage(day.sales)+'</p><div class="sales-rule-note">Only your highest daily tier applies.</div><label for="today-note">A note for later <span class="muted">(optional)</span></label><textarea id="today-note" name="note" maxlength="4000" placeholder="A busy day, a lab run, something to remember…">'+esc(day.note)+'</textarea><button type="button" class="text-button edit-details-link" data-action="edit-day" data-id="'+day.id+'">Edit hours, rates & details ↗</button></section></div><div class="save-dock"><div><span class="save-light" aria-hidden="true"></span><span id="draft-state">Ready when you are.</span><small>Your entry saves to the selected work date.</small></div><button class="primary" type="submit">Save entry <span aria-hidden="true">↗</span></button></div></form>';
@@ -474,10 +474,8 @@ document.addEventListener('change',event=>{
 $('#modal').addEventListener('cancel',event=>{if(busy||!abandon()){event.preventDefault();return;}dirty=false;editingDay=null;if(data)render();});
 window.addEventListener('beforeunload',event=>{if(dirty||busy){event.preventDefault();event.returnValue='';}});
 window.addEventListener('afterprint',()=>$('#print-report').replaceChildren());
-for(const type of ['pointerdown','keydown'])document.addEventListener(type,()=>{lastActivity=Date.now();},{passive:true});
 setInterval(()=>{
   if(!data||busy)return;
-  if(Date.now()-lastActivity>15*60*1000){lock();notice('Desk locked after 15 minutes of inactivity. Saved work and running shifts are safe.');return;}
   if(view==='today'&&!dirty&&displayedDay&&running(displayedDay)){
     const t=totals(displayedDay,Date.now());
     if($('#clock-time'))$('#clock-time').textContent=duration(t.minutes);
