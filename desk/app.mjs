@@ -1,4 +1,4 @@
-import {TYPES,LAB_TYPES,LAB_MINUTES,DEFAULT_RATES,money,uid,localDate,duration,emptyLedger,newDay,totals,sumDays,running,validateLedger,markPaid,reopenReport,reportText,reportCSV} from './core.mjs?v=4';
+import {TYPES,LAB_TYPES,LAB_MINUTES,DEFAULT_RATES,money,uid,localDate,duration,emptyLedger,newDay,totals,sumDays,running,validateLedger,markPaid,reopenReport,reportText,reportCSV,COMPANY_METHODS,companyBalance,upsertCompanyEntry,deleteCompanyEntry,companyReportText} from './core.mjs?v=6';
 import {open,seal,wrap,newCipher} from './crypto.mjs';
 import {GitHubVault,OWNER} from './github.mjs?v=2';
 
@@ -163,12 +163,39 @@ function activityStrip() {
   const max=Math.max(1,...days.map(d=>d.total)),total=days.reduce((n,d)=>n+d.total,0);
   return '<section class="activity-strip"><div class="activity-heading"><p class="eyebrow">YOUR 7-DAY RHYTHM</p><strong>'+money(total)+'</strong><span>Saved earnings · tap a day</span></div><div class="activity-days">'+days.map(d=>'<button type="button" class="activity-day '+(d.date===date?'is-selected':'')+'" data-action="open-day" data-date="'+d.date+'" aria-label="Open '+d.date+', '+money(d.total)+' saved earnings"><span class="activity-amount">'+money(d.total).replace('.00','')+'</span><svg viewBox="0 0 64 34" preserveAspectRatio="none" aria-hidden="true"><rect x="9" y="'+(32-Math.max(2,d.total/max*30)).toFixed(2)+'" width="46" height="'+Math.max(2,d.total/max*30).toFixed(2)+'" rx="3"/></svg><span>'+d.label+'</span></button>').join('')+'</div></section>';
 }
+function renderCompanyNote() {
+  const {balance}=companyBalance(data);
+  return '<button type="button" class="company-sticky" data-action="company-notebook" aria-label="Open company money notebook. '+(balance<0?'Company credit':'Company owes me')+' '+money(Math.abs(balance))+'"><span class="sticky-label">'+(balance<0?'Company credit':'Company owes me')+'</span><strong>'+money(Math.abs(balance))+'</strong><span class="sticky-caption">Separate from my pay</span><span class="sticky-open">Open notebook <span aria-hidden="true">↗</span></span></button>';
+}
+function showCompanyNotebook(message='') {
+  const t=companyBalance(data),entries=[...(data.companyLedger??[])].reverse().sort((a,b)=>b.date.localeCompare(a.date));
+  const rows=entries.map(e=>'<li class="company-record"><span class="company-record-sign '+(e.type==='repayment'?'is-repayment':'')+'" aria-hidden="true">'+(e.type==='advance'?'+':'−')+'</span><div class="company-record-copy"><strong>'+esc(e.note||(e.type==='advance'?'Paid for company':'Company paid me back'))+'</strong><span>'+esc(dayTitle(e.date))+' · '+esc(COMPANY_METHODS[e.method])+'</span><small>'+(e.type==='advance'?'Paid for company':'Paid back to me')+'</small></div><div class="company-record-end"><strong>'+money(e.amount)+'</strong><button type="button" class="text-button" data-action="company-edit" data-id="'+esc(e.id)+'" aria-label="Edit '+esc(e.note||e.type)+' on '+esc(e.date)+'">Edit ↗</button></div></li>').join('');
+  showModal('THE LITTLE MONEY NOTE','<section class="company-notebook"><div class="company-paper"><span class="company-paper-kicker">CASH, CARD & THE IN-BETWEEN</span><h2>'+(t.balance<0?'Company credit.':'Company owes me.')+'</h2><div class="company-paper-total">'+money(Math.abs(t.balance))+'</div><p>'+(t.balance<0?'Repayments are higher than the money recorded as given.':t.balance===0&&entries.length?'All square. Every little dollar accounted for.':'Your money, kept on its own little page.')+'</p><div class="company-paper-sums"><span>Paid for company<strong>'+money(t.advanced)+'</strong></span><span>Paid back to me<strong>'+money(t.repaid)+'</strong></span></div></div><p class="company-separation">Separate from wages, commissions and payday reports. Marking your work paid leaves this note as it is.</p><div class="company-quick-actions"><button type="button" class="primary" data-action="company-add" data-type="advance"><span aria-hidden="true">＋</span> I paid for company</button><button type="button" data-action="company-add" data-type="repayment"><span aria-hidden="true">−</span> They paid me back</button></div><p id="company-status" role="status" class="hint">'+esc(message)+'</p><div class="section-row company-history-heading"><h3>Your paper trail <span class="muted">· '+entries.length+'</span></h3>'+(entries.length?'<button type="button" class="quiet" data-action="company-copy">Copy summary ↗</button>':'')+'</div>'+(entries.length?'<ol class="company-records">'+rows+'</ol>':'<div class="company-empty"><span aria-hidden="true">✎</span><p>Bought parts? Lent some cash?<br>Add the amount and a little reminder.</p><small>Already owed money? Add it with the note “Previous balance”.</small></div>')+'</section>');
+}
+function editCompanyEntry(id=null,type='advance') {
+  if(!abandon())return;
+  const entry=id?(data.companyLedger??[]).find(e=>e.id===id):{id:uid(),type,date:localDate(),method:'cash',amount:0,note:''};
+  if(!entry)throw Error('This company entry could not be found.');
+  dirty=false;
+  showModal('A LITTLE NOTE, NOTHING FORGOTTEN','<h2>'+(id?'Edit your money note.':'Add to your money note.')+'</h2><p class="muted company-form-intro">Track money from your own pocket and what comes back.</p><form id="company-form" data-id="'+esc(entry.id)+'"><label for="company-type">What happened?</label><select id="company-type" name="type"><option value="advance"'+(entry.type==='advance'?' selected':'')+'>I paid for the company</option><option value="repayment"'+(entry.type==='repayment'?' selected':'')+'>The company paid me back</option></select><div class="company-form-grid"><div><label for="company-amount">Amount ($)</label><input id="company-amount" name="amount" type="number" inputmode="decimal" min="0.01" max="1000000" step="0.01" required placeholder="0.00" value="'+(entry.amount?(entry.amount/100).toFixed(2):'')+'"></div><div><label for="company-date">Date</label><input id="company-date" name="date" type="date" required value="'+esc(entry.date)+'"></div></div><label for="company-method">How was it paid?</label><select id="company-method" name="method">'+Object.entries(COMPANY_METHODS).map(([value,label])=>'<option value="'+value+'"'+(entry.method===value?' selected':'')+'>'+label+'</option>').join('')+'</select><label for="company-note">A little reminder <span class="muted">(optional)</span></label><textarea id="company-note" name="note" maxlength="1000" placeholder="Parts order, supplier bill, previous balance…">'+esc(entry.note)+'</textarea><p id="company-error" class="company-error" role="alert" tabindex="-1" hidden></p><div class="modal-actions company-form-actions">'+(id?'<button type="button" class="danger" data-action="company-delete" data-id="'+esc(entry.id)+'">Delete</button>':'')+'<button type="button" data-action="company-notebook">Back</button><button type="submit" class="primary">Save note ↗</button></div></form>');
+  $('#company-amount').focus();
+}
+function showCompanyError(message) {
+  const error=$('#company-error');error.textContent=message;error.hidden=false;error.focus();
+}
+async function saveCompanyForm(form) {
+  const f=new FormData(form);
+  const entry={id:form.dataset.id,type:String(f.get('type')),date:String(f.get('date')),method:String(f.get('method')),amount:Math.round(Number(f.get('amount'))*100),note:String(f.get('note')).trim()};
+  const ok=await commit(next=>upsertCompanyEntry(next,entry),{message:'Company money note saved.'});
+  if(ok)showCompanyNotebook('Saved. Your company balance is up to date.');
+  else showCompanyError($('#notice-text').textContent);
+}
 function renderToday() {
   displayedDay=data.days.find(d=>d.date===date)||newDay(date,data.settings.rates);
   const day=displayedDay,t=totals(day,Date.now()),active=data.days.find(running),isToday=date===localDate();
   const unpaid=data.days.filter(d=>!d.paidId),owed=sumDays(unpaid),saved=data.days.some(d=>d.id===day.id);
   const clockText=active?'Clock out':isToday?'Clock in':'Add a shift';
-  let html='<div class="page-head workbench-heading"><div><p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> A LITTLE FOCUS. A LOT OF POSSIBILITY.</p><h1>'+ (isToday?'Your day, in focus.':'Your workday, in focus.')+'</h1><p class="muted">'+esc(dayTitle(date))+' <span class="heading-divider">/</span> Every hour. Every little win.</p></div><div class="date-control"><label for="day-date">Choose your work date</label><input id="day-date" type="date" value="'+date+'" required></div></div>';
+  let html='<div class="page-head workbench-heading"><div><p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> A LITTLE FOCUS. A LOT OF POSSIBILITY.</p><h1>'+ (isToday?'Your day, in focus.':'Your workday, in focus.')+'</h1><p class="muted">'+esc(dayTitle(date))+' <span class="heading-divider">/</span> Every hour. Every little win.</p></div><div class="workbench-tools"><div class="date-control"><label for="day-date">Choose your work date</label><input id="day-date" type="date" value="'+date+'" required></div>'+renderCompanyNote()+'</div></div>';
   if(day.paidId) return html+'<div class="panel empty"><span class="empty-icon" aria-hidden="true">✓</span><h2>This day is already paid.</h2><p>It is safely stored in your payment history. Reopen its payment report if a correction is needed.</p><button data-action="report" data-id="'+day.paidId+'">View payment</button></div>'+activityStrip();
   html+='<div class="overview-grid"><section class="panel earnings-panel"><div class="section-row"><p class="eyebrow">'+(isToday?'TODAY’S EARNINGS':'THIS DAY’S EARNINGS')+'</p><span class="pill" id="day-state">'+(running(day)?'Live estimate':saved?'Saved entry':'New day')+'</span></div><div class="earnings-main"><div><div class="amount-big" id="day-total">'+money(t.total)+'</div><p class="earnings-caption"><span id="paid-time">'+duration(t.paidMinutes)+'</span> paid time <span>including lab credit</span></p></div><div id="pay-orbit" class="pay-orbit">'+earningsRing(t)+'</div></div><div id="day-breakdown">'+breakdown(t)+'</div><p class="pay-footnote">Gross pay before deductions'+(running(day)?' · includes your running shift':'')+'</p></section>';
   html+='<section class="panel clock-panel '+(active?'is-running':'')+'"><div class="clock-copy"><p class="eyebrow">'+(active?'SHIFT IN PROGRESS':'YOUR SHIFT')+'</p><div class="clock-amount" id="clock-time">'+duration(t.minutes)+'</div><p class="clock-caption">'+(active?'Active shift: '+esc(dayTitle(active.date)):'Your time on the bench. Breaks deducted.')+'</p></div><button class="device-cluster" type="button" data-device-rain aria-label="Make it rain phones, tablets and laptops" title="Tap for a little tech storm"><span class="cluster-laptop">'+deviceIcon('computer')+'</span><span class="cluster-tablet">'+deviceIcon('tablet')+'</span><span class="cluster-phone">'+deviceIcon('device')+'</span><span class="cluster-orbit"></span></button><div class="clock-actions"><button class="primary" data-action="'+(active?'clock-out':isToday?'clock-in':'edit-day')+'" data-id="'+day.id+'">'+clockText+' '+(active?'■':'→')+'</button>'+(isToday||active?'<button class="quiet manual-hours" data-action="edit-day" data-id="'+day.id+'">Enter hours</button>':'')+'</div><span class="clock-action-hint">Choose a past date above to catch up.</span></section>';
@@ -325,6 +352,19 @@ async function handleAction(action,element) {
     case 'lock':if(abandon())lock();break;
     case 'refresh':await refresh();break;
     case 'close-modal':if(abandon()){dirty=false;$('#modal').close();editingDay=null;if(data)render();}break;
+    case 'company-notebook':
+      if(dirty&&!$('#company-form')){notice('Save your current entry before opening the company notebook.',true);break;}
+      if(!abandon())break;dirty=false;showCompanyNotebook();break;
+    case 'company-add':editCompanyEntry(null,element.dataset.type);break;
+    case 'company-edit':editCompanyEntry(element.dataset.id);break;
+    case 'company-delete':
+      if(confirm('Delete this money note? The company balance will be recalculated. Your work and pay records will stay as they are.')) {
+        if(await commit(next=>deleteCompanyEntry(next,element.dataset.id),{message:'Company money note deleted.'}))showCompanyNotebook('Entry deleted. Balance updated.');
+        else showCompanyError($('#notice-text').textContent);
+      }break;
+    case 'company-copy':
+      try {await navigator.clipboard.writeText(companyReportText(data));$('#company-status').textContent='Summary copied. Paste it into a message whenever you’re ready.';}
+      catch {$('#company-status').textContent='Copy is unavailable here. Your summary is shown below for selection.';const text=document.createElement('pre');text.className='report-pre';text.textContent=companyReportText(data);$('#company-status').replaceChildren($('#company-status').textContent,text);}break;
     case 'clock-in':
       if(dirty){notice('Save your entry before clocking in.',true);break;}
       await commit(next=>{
@@ -391,6 +431,7 @@ document.addEventListener('submit',async event=>{
     if(form.id==='connect-form')return await connect(form);
     if(form.id==='day-form')return await saveDay(form);
     if(form.id==='edit-form')return await saveDay(form,true);
+    if(form.id==='company-form')return await saveCompanyForm(form);
     if(form.id==='pay-form')return await pay(form);
     if(form.id==='settings-form'){
       const f=new FormData(form),settings={name:String(f.get('name')).trim(),shop:String(f.get('shop')).trim(),rates:readRates(f)};
@@ -408,7 +449,7 @@ document.addEventListener('submit',async event=>{
 document.addEventListener('input',event=>{
   if(!data)return;
   const form=event.target.closest('form');
-  if(['day-form','edit-form','settings-form','clock-out-form','pay-form'].includes(form?.id))dirty=true;
+  if(['day-form','edit-form','settings-form','clock-out-form','pay-form','company-form'].includes(form?.id))dirty=true;
   if(form?.id==='day-form'){
     const draft=structuredClone(displayedDay),fields=new FormData(form);
     draft.sales=Math.max(0,Math.round(Number(fields.get('sales'))*100)||0);draft.counts=readCounts(fields);draft.labTrips=readLabTrips(fields);

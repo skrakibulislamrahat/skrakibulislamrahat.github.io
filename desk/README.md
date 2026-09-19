@@ -43,6 +43,26 @@ password, or work records. A public route or hidden button is not access control
 No reports are automatically sent to anyone. Paid history is retained. All pay
 figures are gross before any deductions.
 
+## The company money note
+
+The small yellow sticky note beside the work date opens a separate company
+borrowing notebook. Use **I paid for company** for cash lent or costs put on
+your own card. Use **They paid me back** for each full or partial repayment.
+Choose the date, method and amount, and add an optional reminder. An existing
+balance can be entered with the note “Previous balance”.
+
+The sticky shows total money given minus repayments. An overpayment is shown
+as **Company credit**, so discrepancies remain visible. Each record has **Edit**;
+the edit form also offers **Delete**, with confirmation. **Copy summary** creates
+a separate message you can paste yourself. Save any daily draft before opening
+the notebook.
+
+This balance never contributes to wages, commissions, sales bonuses or payday
+reports. Marking work paid or reopening a payment does not change it. Notebook
+entries live in the same encrypted vault and backups; older vaults with no
+notebook open normally, with a zero balance. Entry dates are independent of
+the selected work date.
+
 ## Motion and a small secret
 
 The workbench uses top navigation and a full-width overview: live daily earnings,
@@ -127,6 +147,9 @@ Tests cover bonus boundaries, time/break accounting, overnight shifts, rate
 snapshots, selection on reopening payments, CSV formula escaping, encryption
 round trips, wrong passwords, tampering, public-repository refusal, and
 optimistic-concurrency conflicts.
+Company notebook checks cover exact-cent balances, repayments, corrections,
+deletions, overpayments, old-vault compatibility, encrypted backup round trips,
+and independence from payroll totals and payment snapshots.
 
 Reference:
 [GitHub Contents API](https://docs.github.com/en/rest/repos/contents#create-or-update-file-contents)

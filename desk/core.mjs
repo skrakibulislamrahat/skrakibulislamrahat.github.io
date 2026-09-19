@@ -14,7 +14,7 @@ export const localDate = (d = new Date()) => [d.getFullYear(), String(d.getMonth
 export const bonus = sales => sales > 150000 ? 2000 : sales > 100000 ? 1000 : sales > 50000 ? 500 : 0;
 export const duration = minutes => Math.floor(minutes/60) + 'h ' + (minutes%60) + 'm';
 export function emptyLedger() {
-  return {schema:1, settings:{name:'Rahat',shop:'',rates:{...DEFAULT_RATES}},days:[],reports:[]};
+  return {schema:1, settings:{name:'Rahat',shop:'',rates:{...DEFAULT_RATES}},days:[],reports:[],companyLedger:[]};
 }
 export function newDay(date, rates) {
   return {id:uid(),date,sales:0,counts:Object.fromEntries(TYPES.map(([k])=>[k,0])),labTrips:{dropoff:0,pickup:0},rates:{...rates},note:'',shifts:[],paidId:null};
@@ -45,6 +45,45 @@ export function sumDays(days, now=null) {
 function integer(n,max=100000000) { return Number.isSafeInteger(n) && n>=0 && n<=max; }
 function validId(id) {return typeof id==='string' && /^[a-zA-Z0-9_-]{1,80}$/.test(id);}
 function validRates(r) { return r && ['hour',...TYPES.map(([k])=>k)].every(k=>integer(r[k],1000000)); }
+export const COMPANY_METHODS = {cash:'Cash',card:'My credit card',transfer:'Bank transfer',other:'Other'};
+function checkCompanyEntry(entry) {
+  if(!entry || !validId(entry.id) || typeof entry.date!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(entry.date) ||
+     !Number.isFinite(Date.parse(entry.date+'T12:00:00Z')) ||
+     new Date(entry.date+'T12:00:00Z').toISOString().slice(0,10)!==entry.date ||
+     !['advance','repayment'].includes(entry.type) || typeof entry.method!=='string' || !Object.hasOwn(COMPANY_METHODS,entry.method) ||
+     !integer(entry.amount) || entry.amount===0 || typeof entry.note!=='string' || entry.note.length>1000)
+    throw Error('Check the company entry: choose a date, payment method, and amount greater than zero.');
+}
+// Company borrowing is independent of workdays and payment reports. Missing
+// companyLedger is an older vault with no borrowing records; no migration needed.
+export function companyBalance(data) {
+  let advanced=0,repaid=0;
+  for(const entry of data.companyLedger??[]) {
+    if(entry.type==='advance')advanced+=entry.amount;else repaid+=entry.amount;
+  }
+  return {advanced,repaid,balance:advanced-repaid};
+}
+export function upsertCompanyEntry(data,entry) {
+  checkCompanyEntry(entry);
+  const entries=data.companyLedger??[],index=entries.findIndex(e=>e.id===entry.id);
+  if(index<0 && entries.length>=10000)throw Error('The company notebook has reached its entry limit.');
+  const copy=structuredClone(entry);
+  if(index<0)entries.push(copy);else entries[index]=copy;
+  data.companyLedger=entries;
+}
+export function deleteCompanyEntry(data,id) {
+  if(!(data.companyLedger??[]).some(e=>e.id===id))throw Error('This company entry could not be found.');
+  data.companyLedger=data.companyLedger.filter(e=>e.id!==id);
+}
+export function companyReportText(data) {
+  const t=companyBalance(data);
+  return ['COMPANY MONEY NOTE',data.settings.name,'Separate from wages and commissions.','',
+    'Paid for the company: '+money(t.advanced),'Paid back to me: '+money(t.repaid),
+    (t.balance<0?'Company credit: ':'Company owes me: ')+money(Math.abs(t.balance)),'',
+    ...[...(data.companyLedger??[])].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>
+      e.date+' | '+(e.type==='advance'?'Paid for company +':'Paid back −')+money(e.amount)+' | '+
+      COMPANY_METHODS[e.method]+(e.note?' | '+e.note:''))].join('\n');
+}
 function checkDay(d) {
   if (!d || !validId(d.id) || !/^\d{4}-\d{2}-\d{2}$/.test(d.date) ||
       !Number.isFinite(Date.parse(d.date+'T12:00:00Z')) ||
@@ -70,6 +109,15 @@ export function validateLedger(data) {
       typeof data.settings.shop!=='string' || data.settings.name.length>120 || data.settings.shop.length>120 ||
       !validRates(data.settings.rates) || !Array.isArray(data.days) || !Array.isArray(data.reports) ||
       data.days.length>20000 || data.reports.length>10000) throw Error('This is not a supported work ledger.');
+  if(data.companyLedger!==undefined) {
+    if(!Array.isArray(data.companyLedger)||data.companyLedger.length>10000)throw Error('Invalid company notebook.');
+    const companyIds=new Set();
+    for(const entry of data.companyLedger) {
+      checkCompanyEntry(entry);
+      if(companyIds.has(entry.id))throw Error('Duplicate company notebook entry.');
+      companyIds.add(entry.id);
+    }
+  }
   const ids=new Set(),dates=new Set(),spans=[];let open=0;
   for(const d of data.days) {
     checkDay(d);

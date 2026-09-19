@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {DEFAULT_RATES,bonus,emptyLedger,newDay,totals,sumDays,markPaid,reopenReport,validateLedger,reportText,reportCSV} from './core.mjs';
+import {DEFAULT_RATES,bonus,emptyLedger,newDay,totals,sumDays,markPaid,reopenReport,validateLedger,reportText,reportCSV,companyBalance,upsertCompanyEntry,deleteCompanyEntry,companyReportText} from './core.mjs';
 import {newCipher,seal,open} from './crypto.mjs';
 import {GitHubVault} from './github.mjs';
 
@@ -9,6 +9,60 @@ function workday(date='2026-09-17') {
   d.shifts=[{id:crypto.randomUUID(),start:date+'T09:00:00Z',end:date+'T17:00:00Z',breakMinutes:30}];
   return d;
 }
+function companyEntry(overrides={}) {
+  return {id:crypto.randomUUID(),date:'2026-09-19',type:'advance',method:'cash',amount:2000,note:'Supplier bill',...overrides};
+}
+test('company notebook tracks cash, card and partial repayments in exact cents',()=>{
+  const data=emptyLedger();
+  for(const e of [companyEntry({amount:10001}),companyEntry({method:'card',amount:2050}),companyEntry({type:'repayment',amount:2500}),companyEntry({type:'repayment',method:'transfer',amount:1001})])upsertCompanyEntry(data,e);
+  validateLedger(data);
+  assert.deepEqual(companyBalance(data),{advanced:12051,repaid:3501,balance:8550});
+  assert.match(companyReportText(data),/Company owes me: \$85\.50/);
+});
+test('editing and deleting company entries recalculates balances and retains company credit',()=>{
+  const data=emptyLedger(),e=companyEntry();upsertCompanyEntry(data,e);e.amount=999;
+  assert.equal(companyBalance(data).balance,2000,'stored record must not alias the form object');
+  upsertCompanyEntry(data,{...e,amount:1000,note:'Corrected supplier bill'});
+  const repayment=companyEntry({type:'repayment',amount:1500});upsertCompanyEntry(data,repayment);
+  assert.equal(data.companyLedger.length,2);assert.equal(companyBalance(data).balance,-500);
+  assert.match(companyReportText(data),/Company credit: \$5\.00/);
+  deleteCompanyEntry(data,repayment.id);assert.equal(companyBalance(data).balance,1000);
+  deleteCompanyEntry(data,e.id);assert.equal(companyBalance(data).balance,0);
+  assert.throws(()=>deleteCompanyEntry(data,e.id),/could not be found/);
+});
+test('older ledgers open without company records or a migration',()=>{
+  const data=emptyLedger();delete data.companyLedger;data.days=[workday()];const before=JSON.stringify(data);
+  validateLedger(data);assert.deepEqual(companyBalance(data),{advanced:0,repaid:0,balance:0});
+  assert.equal(JSON.stringify(data),before);
+  upsertCompanyEntry(data,companyEntry());validateLedger(data);assert.equal(companyBalance(data).balance,2000);
+});
+test('company notebook rejects malformed entries and duplicate IDs',()=>{
+  for(const override of [{amount:0},{amount:-1},{amount:1.2},{amount:100000001},{amount:NaN},{date:'2026-02-30'},{date:'2026-13-01'},{type:'wage'},{method:'__proto__'},{method:['cash']},{note:null},{note:'x'.repeat(1001)},{id:''}]) {
+    const data=emptyLedger();data.companyLedger=[companyEntry(override)];assert.throws(()=>validateLedger(data));
+    assert.throws(()=>upsertCompanyEntry(emptyLedger(),companyEntry(override)));
+  }
+  for(const invalid of [null,{},'bad']){const data=emptyLedger();data.companyLedger=invalid;assert.throws(()=>validateLedger(data));}
+  const data=emptyLedger(),e=companyEntry();data.companyLedger=[e,{...e}];assert.throws(()=>validateLedger(data),/Duplicate/);
+});
+test('company balance stays independent when wages are reported, paid, corrected and reopened',()=>{
+  const data=emptyLedger(),day=workday();data.days=[day];
+  const draft={days:data.days,name:'Rahat',shop:'',label:'Payday',status:'unpaid',paidAt:''};
+  const before={totals:sumDays(data.days),text:reportText(draft),csv:reportCSV(draft)};
+  const e=companyEntry({amount:4567});upsertCompanyEntry(data,e);
+  assert.deepEqual(sumDays(data.days),before.totals);assert.equal(reportText(draft),before.text);assert.equal(reportCSV(draft),before.csv);
+  const r=markPaid(data,[day.id],'Payday');validateLedger(data);
+  assert.equal(companyBalance(data).balance,4567);assert.equal(r.total,before.totals.total);
+  const snapshot=JSON.stringify(r);upsertCompanyEntry(data,{...e,amount:9999});
+  assert.equal(JSON.stringify(r),snapshot);reopenReport(data,r.id);
+  assert.equal(companyBalance(data).balance,9999);validateLedger(data);
+});
+test('company notebook survives encrypted vault and backup round trips',async()=>{
+  const data=emptyLedger();upsertCompanyEntry(data,companyEntry({method:'card',note:'Parts on my card',amount:12345}));
+  const cipher=await newCipher('not-a-real-password-123'),envelope=await seal(data,cipher);
+  assert.ok(!JSON.stringify(envelope).includes('Parts on my card'));
+  const restored=validateLedger((await open(envelope,'not-a-real-password-123')).value);
+  assert.deepEqual(restored,data);assert.equal(companyBalance(restored).balance,12345);
+});
 test('sales tiers require strictly greater totals; only the highest tier applies',()=>{
   assert.deepEqual([0,50000,50001,100000,100001,150000,150001].map(bonus),[0,0,500,500,1000,1000,2000]);
 });
