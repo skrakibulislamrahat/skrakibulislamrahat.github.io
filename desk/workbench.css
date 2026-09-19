@@ -2,7 +2,7 @@
 :root{--bg:#0a141c;--panel:#13222beb;--muted:#a4b8bd;--border:#31464d;--radius:22px}
 body{isolation:isolate;overflow-x:clip;background:#0a141c;background-image:radial-gradient(ellipse at 10% 0,#254d382b,transparent 45%),radial-gradient(ellipse at 90% 25%,#18445024,transparent 45%)}
 body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background-image:radial-gradient(#78969040 .7px,transparent .7px);background-size:24px 24px;mask-image:linear-gradient(#0009,transparent 90%)}
-#cursor-glow{position:fixed;left:0;top:0;width:740px;height:740px;border-radius:50%;pointer-events:none;z-index:-1;opacity:0;transform:translate(calc(var(--cursor-x,50vw) - 50%),calc(var(--cursor-y,35vh) - 50%));background:radial-gradient(circle at 45% 42%,#b1ed542a,transparent 48%),radial-gradient(circle at 65% 65%,#56dae72a,transparent 54%);transition:opacity .7s;will-change:transform}
+#cursor-glow{position:fixed;left:0;top:0;width:740px;height:740px;pointer-events:none;z-index:-1;opacity:0;transform:translate(calc(var(--cursor-x,50vw) - 50%),calc(var(--cursor-y,35vh) - 50%));background:radial-gradient(260px circle at 45% 42%,#b1ed542a,transparent 100%),radial-gradient(280px circle at 60% 60%,#56dae72a,transparent 100%);transition:opacity .7s;will-change:transform}
 #device-weather{position:fixed;inset:0;width:100%;height:100%;z-index:27;pointer-events:none}
 :root[data-pointer=active] #cursor-glow{opacity:1}
 .app-header{grid-template-columns:1fr auto auto;padding:15px max(28px,calc((100vw - 1360px)/2));min-height:84px;border-color:#29414999;background:#0a141ce6;gap:24px}

@@ -103,13 +103,14 @@ function makeItRain() {
   const count=width<700?30:48;
   for (let i=0;i<count;i++) devices.push({
     type:i%3,color:colors[i%colors.length],size:.7+Math.random()*.8,
-    x:25+Math.random()*Math.max(0,width-50),y:-30-Math.random()*400,
+    x:25+Math.random()*Math.max(0,width-50),y:i<12?40+Math.random()*100:-30-Math.random()*400,
     vx:(Math.random()-.5)*45,vy:110+Math.random()*130,
     angle:(Math.random()-.5)*1.4,spin:(Math.random()-.5)*1.5,phase:Math.random()*6.28
   });
   devices=devices.slice(-72);
   hint('Forecast: 100% gadgets. No screens were harmed.');
-  if (!rainFrame) { lastTime=now;rainFrame=requestAnimationFrame(drawRain); }
+  // Paint the first cluster immediately, then let the rest fall into view.
+  if (!rainFrame) { lastTime=now;drawRain(now); }
 }
 document.addEventListener('click', event => {
   const button=event.target.closest('[data-device-rain]');
