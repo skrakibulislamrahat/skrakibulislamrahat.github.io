@@ -24,6 +24,8 @@ password, or work records. A public route or hidden button is not access control
 
 - Clock in; log item counts and the total day's sales; press **Save entry**.
 - Clock out and enter unpaid break minutes.
+- Use **Enter hours** beside the clock to add time manually. For older work,
+  choose its **Work date**, then **Add a shift**.
 - Use **Edit hours & details** for missed shifts, wrong dates, notes, counts,
   or the pay rate for that day. Times use the current device's time zone.
 - Select completed days in **Unpaid**. Create a report to copy, download as CSV,
@@ -36,6 +38,19 @@ password, or work records. A public route or hidden button is not access control
 
 No reports are automatically sent to anyone. Paid history is retained. All pay
 figures are gross before any deductions.
+
+## Motion and a small secret
+
+**Back to portfolio** is visible in the header and on the locked screen.
+The orbit, panel entrances, and pointer sparks are presentation only. Use
+**Motion on/off** to switch them off; the device's reduced-motion preference
+always takes priority. This preference is the only value effects.mjs persists.
+
+Tap the **◈** logo three times to open the Pocket Lab repair mini-game. Keyboard
+users can focus the logo and press Enter. Choose a 20-second round or **Untimed
+mode**. Closing the game, hiding the tab, or locking the desk ends the round.
+The game never reads or writes work records and makes no network requests.
+The independent effects module has no access to the app's private ledger state.
 
 ## Calculation rules
 

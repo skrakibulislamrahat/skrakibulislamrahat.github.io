@@ -34,11 +34,11 @@ function lock() {
   $('#modal').close();$('#modal-content').replaceChildren();$('#main').replaceChildren();$('#print-report').replaceChildren();
   $('#unlock-form').reset();$('#connect-form').reset();$('#confirm-wrap').hidden=true;$('#confirm-password').required=false;
   $('#token').value='';$('#password').value='';$('#unlock-password').value='';$('#notice').hidden=true;
-  document.title='Private desk';showGate();
+  document.title='Private desk';document.dispatchEvent(new Event('desk:lock'));showGate();
 }
 function showWorkspace() {
   $('#gate').hidden=true;$('#workspace').hidden=false;$('#token').value='';$('#password').value='';$('#confirm-password').value='';$('#unlock-password').value='';
-  $('#connection-label').textContent=OWNER+'/'+api.repo;lastActivity=Date.now();view='today';date=localDate();selected.clear();render();
+  $('#connection-label').textContent=OWNER+'/'+api.repo;lastActivity=Date.now();view='today';date=localDate();selected.clear();document.dispatchEvent(new Event('desk:unlock'));render();
 }
 async function connect(form,saved=false) {
   if(busy)return;const fields=new FormData(form);setBusy(true,'Opening your encrypted desk…');
@@ -123,7 +123,7 @@ function render() {
   for(const b of $$('[data-view]')) {if(b.dataset.view===view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}
   selected=new Set([...selected].filter(id=>data.days.some(d=>d.id===id&&!d.paidId&&!running(d))));
   const renderers={today:renderToday,unpaid:renderUnpaid,history:renderHistory,settings:renderSettings};
-  $('#main').innerHTML=renderers[view]();document.title='Private desk';
+  $('#main').innerHTML=renderers[view]();document.title='Private desk';document.dispatchEvent(new CustomEvent('desk:render',{detail:{view}}));
 }
 function renderToday() {
   displayedDay=data.days.find(d=>d.date===date)||newDay(date,data.settings.rates);
@@ -131,7 +131,7 @@ function renderToday() {
   const clockText=active?'Clock out':isToday?'Clock in':'Add a shift';
   let html='<div class="page-head"><div><p class="eyebrow">MAKE EVERY HOUR COUNT</p><h1>'+ (isToday?'Your day, at a glance.':'Your workday.')+'</h1><p class="muted">'+esc(dayTitle(date))+'</p></div><div class="date-control"><label for="day-date">Work date</label><input id="day-date" type="date" value="'+date+'" required></div></div>';
   if(day.paidId) return html+'<div class="panel empty"><span class="empty-icon" aria-hidden="true">✓</span><h2>This day is already paid.</h2><p>It is safely stored in your payment history. Reopen its payment report if a correction is needed.</p><button data-action="report" data-id="'+day.paidId+'">View payment</button></div>';
-  html+='<section class="panel clock-panel"><div><p class="eyebrow">'+(active?'ON THE CLOCK':'TIME AT WORK')+'</p><div class="clock-amount" id="clock-time">'+duration(t.minutes)+'</div><p class="clock-caption">'+(active?'Started '+esc(new Date(active.shifts.find(s=>!s.end).start).toLocaleString()):'Unpaid breaks are deducted from your hours.')+'</p></div><button class="primary" data-action="'+(active?'clock-out':isToday?'clock-in':'edit-day')+'" data-id="'+day.id+'">'+clockText+' '+(active?'■':'→')+'</button></section>';
+  html+='<section class="panel clock-panel '+(active?'is-running':'')+'"><div class="clock-copy"><p class="eyebrow">'+(active?'ON THE CLOCK':'TIME AT WORK')+'</p><div class="clock-amount" id="clock-time">'+duration(t.minutes)+'</div><p class="clock-caption">'+(active?'Started '+esc(new Date(active.shifts.find(s=>!s.end).start).toLocaleString()):'Unpaid breaks are deducted from your hours.')+'</p></div><div class="clock-orbit" aria-hidden="true"><div class="orbit-ring orbit-outer"></div><div class="orbit-ring orbit-inner"></div><div class="orbit-core"><svg viewBox="0 0 48 48" fill="none"><rect x="14" y="6" width="20" height="36" rx="5"/><path d="M21 10h6M22 37h4M19 26l4-8 3 5h4"/></svg></div><span class="orbit-caption">IN YOUR ORBIT</span></div><div class="clock-actions"><button class="primary" data-action="'+(active?'clock-out':isToday?'clock-in':'edit-day')+'" data-id="'+day.id+'">'+clockText+' '+(active?'■':'→')+'</button>'+(isToday||active?'<button class="quiet manual-hours" data-action="edit-day" data-id="'+day.id+'">Enter hours</button>':'')+'<span class="clock-action-hint">'+(isToday?'Or choose a past work date above.':'Enter start, end & break time.')+'</span></div></section>';
   html+='<form id="day-form"><div class="two-cols"><section class="panel"><div class="section-row"><h2>What did you do?</h2><span class="pill">Commissions</span></div>'+counters(day,'today-')+'<p class="hint">Count laptop / console repairs separately from phone repairs.</p></section><section class="panel"><h2>Daily sales</h2><p class="hint">Enter the day’s total sales for the bonus.</p><label for="today-sales">Sales amount ($)</label><input id="today-sales" name="sales" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" required value="'+(day.sales/100).toFixed(2)+'"><p class="bonus-note" id="bonus-note">'+bonusMessage(day.sales)+'</p><label for="today-note">Notes <span class="muted">(optional)</span></label><textarea id="today-note" name="note" maxlength="4000" placeholder="Anything you want to remember…">'+esc(day.note)+'</textarea><div class="form-footer"><span id="draft-state" class="hint">Changes save when you tap Save.</span><button class="primary" type="submit">Save entry</button></div></section></div></form>';
   html+='<section class="panel"><div class="section-row"><h2>Today’s pay</h2><button data-action="edit-day" data-id="'+day.id+'">Edit hours & details</button></div><div class="amount-big" id="day-total">'+money(t.total)+'</div><div id="day-breakdown">'+breakdown(t)+'</div><p class="hint">'+(running(day)?'Live estimate includes your running shift. Clock out before creating a report.':'All amounts are gross pay before any deductions.')+'</p></section>';
   return html;
@@ -230,7 +230,7 @@ async function pay(form) {
   const label=new FormData(form).get('label'),ids=currentReport.days.map(d=>d.id);
   let reportId;
   const ok=await commit(next=>{reportId=markPaid(next,ids,label).id;},{close:true,message:'Payment recorded. Your next unpaid days start fresh.'});
-  if(ok){selected.clear();view='history';render();showReport(data.reports.find(r=>r.id===reportId));}
+  if(ok){selected.clear();view='history';render();showReport(data.reports.find(r=>r.id===reportId));document.dispatchEvent(new Event('desk:paid'));}
 }
 function download(content,name,type='application/json') {
   const url=URL.createObjectURL(new Blob([content],{type})),a=document.createElement('a');

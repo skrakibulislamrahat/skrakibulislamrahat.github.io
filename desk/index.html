@@ -9,14 +9,16 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src https://api.github.com; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none';">
   <title>Private desk</title>
   <link rel="icon" href="../favicon.ico">
-  <link rel="stylesheet" href="./style.css?v=1">
-  <script type="module" src="./app.mjs?v=2"></script>
+  <link rel="stylesheet" href="./style.css?v=3">
+  <link rel="stylesheet" href="./delight.css?v=3">
+  <script type="module" src="./app.mjs?v=3"></script>
+  <script type="module" src="./effects.mjs?v=3"></script>
 </head>
 <body>
   <div id="gate" class="gate">
-    <a href="../" class="back-link">← Back to portfolio</a>
+    <div class="gate-toolbar"><a href="../" class="back-link">← Back to portfolio</a><button class="motion-toggle quiet" data-motion-toggle type="button" aria-pressed="true">Motion on</button></div>
     <main class="gate-card">
-      <div class="brand-mark" aria-hidden="true">◈</div>
+      <button class="brand-mark secret-key" type="button" data-secret-key aria-label="Private desk logo. Tap three times for a secret." title="Curiosity has its rewards. Try three taps.">◈</button>
       <p class="eyebrow">YOUR PRIVATE WORKSPACE</p>
       <h1>A little space<br>for your work.</h1>
       <p class="muted">Hours, commissions, and a clear picture of what you’re owed.</p>
@@ -58,8 +60,9 @@
   </div>
   <div id="workspace" hidden>
     <header class="app-header">
-      <a class="wordmark" href="../" aria-label="Back to portfolio"><span aria-hidden="true">◈</span> Private desk</a>
-      <div class="header-actions"><span id="sync-status" role="status">Connected</span><button data-action="refresh" class="quiet">Refresh</button><button data-action="lock" class="quiet">Lock ↗</button></div>
+      <div class="header-identity"><button class="secret-key" type="button" data-secret-key aria-label="Private desk logo. Tap three times for a secret." title="Curiosity has its rewards. Try three taps.">◈</button><span class="wordmark">Private desk</span></div>
+      <a class="portfolio-link" href="../">← Back to portfolio</a>
+      <div class="header-actions"><span id="sync-status" role="status">Connected</span><button class="motion-toggle quiet" data-motion-toggle type="button" aria-pressed="true">Motion on</button><button data-action="refresh" class="quiet">Refresh</button><button data-action="lock" class="quiet">Lock ↗</button></div>
     </header>
     <div class="app-shell">
       <aside class="sidebar">
@@ -70,13 +73,24 @@
           <button data-view="history"><span aria-hidden="true">▤</span> Payments</button>
           <button data-view="settings"><span aria-hidden="true">⚙</span> Settings</button>
         </nav>
-        <div class="sidebar-foot"><span class="status-dot" aria-hidden="true"></span> Private GitHub storage<p id="connection-label"></p><p>Auto-locks after 15 minutes of inactivity. A running shift keeps its start time.</p></div>
+        <div class="sidebar-foot"><div class="curiosity-note"><span aria-hidden="true">✧</span> A little curiosity looks good on you.<small>Some symbols hold a secret.</small></div><span class="status-dot" aria-hidden="true"></span> Private GitHub storage<p id="connection-label"></p><p>Auto-locks after 15 minutes of inactivity. A running shift keeps its start time.</p></div>
       </aside>
       <main id="main" tabindex="-1"></main>
     </div>
   </div>
   <div id="notice" class="notice" role="alert" hidden><span id="notice-text"></span><button data-action="dismiss" aria-label="Dismiss message">×</button></div>
   <dialog id="modal"><div class="modal-top"><p class="eyebrow" id="modal-kicker">PRIVATE DESK</p><button data-action="close-modal" aria-label="Close dialog">×</button></div><div id="modal-content"></div></dialog>
+  <dialog id="play-dialog" aria-labelledby="play-title" aria-describedby="play-description">
+    <div class="modal-top"><p class="eyebrow">◈ SECRET UNLOCKED / THE POCKET LAB</p><button type="button" data-play-close aria-label="Close mini-game">×</button></div>
+    <h2 id="play-title">A little bench break.</h2>
+    <p id="play-description" class="muted">Tap the glowing, cracked phone to repair it. How many can you rescue?</p>
+    <div class="game-toolbar"><div class="game-stats"><div><span>REPAIRED</span><strong id="game-score">0</strong></div><div><span id="game-time-label">SECONDS</span><strong id="game-time">20</strong></div></div><button type="button" id="game-mode" class="quiet" aria-pressed="false">Untimed mode</button></div>
+    <div id="phone-grid" class="phone-grid" role="group" aria-label="Repair bench"></div>
+    <p id="game-message" class="game-message" role="status">Your tiny repair universe is ready.</p>
+    <div class="game-footer"><button type="button" id="game-start" class="primary">Start repairing →</button><span class="hint">Just for fun. Your work records stay untouched.</span></div>
+  </dialog>
+  <div id="secret-hint" class="secret-hint" role="status" hidden></div>
+  <canvas id="desk-sparks" aria-hidden="true"></canvas>
   <div id="print-report"></div>
   <input id="backup-file" type="file" accept=".json,application/json" hidden>
   <noscript>This private desk needs JavaScript to encrypt and open your records.</noscript>
