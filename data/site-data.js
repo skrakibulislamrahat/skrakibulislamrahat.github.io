@@ -473,8 +473,8 @@ window.SITE_DATA = {
       ],
       "repo": "https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models",
       "details": "https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models/blob/main/RESULTS.md"
-    }
-    ,{
+    },
+    {
       "id": "microbiology-analytics",
       "number": "05",
       "category": "Chest X-ray / provenance-aware analytics",
