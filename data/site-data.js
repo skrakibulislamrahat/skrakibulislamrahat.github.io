@@ -474,6 +474,23 @@ window.SITE_DATA = {
       "repo": "https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models",
       "details": "https://github.com/skrakibulislamrahat/Lightweight_DR_Detection_Models/blob/main/RESULTS.md"
     }
+    ,{
+      "id": "microbiology-analytics",
+      "number": "05",
+      "category": "Chest X-ray / provenance-aware analytics",
+      "title": "When the label travels, does the meaning?",
+      "cvTitle": "Provenance-aware analytics across chest radiograph tasks",
+      "summary": "Compares discrimination, calibration, high-confidence errors, and source-threshold flag volume across Kaggle/Kermany pneumonia, RSNA lung opacity, and CheXpert report-derived tasks. The study treats microbiology as a future workflow boundary; it does not claim pathogen prediction.",
+      "status": "Research project",
+      "tags": [
+        "Medical imaging",
+        "Machine learning",
+        "Knowledge engineering",
+        "Microbiology workflow"
+      ],
+      "repo": "https://github.com/skrakibulislamrahat/chest-xray-microbiology-analytics",
+      "details": "https://github.com/skrakibulislamrahat/chest-xray-microbiology-analytics"
+    }
   ],
   "skills": [
     [
