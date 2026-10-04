@@ -1,0 +1,114 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {DEFAULT_RATES,emptyLedger,newDay,markPaid,reopenReport,validateLedger,paymentId,isFullyPaid,sumUnpaid,reportTotals,reportText,reportCSV,totals} from './core.mjs';
+import {sheetConfig,commissionPayload,syncCommissionSheet} from './sheet-sync.mjs';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+
+function fixture(date='2026-09-17') {
+  const data=emptyLedger(),day=newDay(date,DEFAULT_RATES);
+  day.shifts=[{id:crypto.randomUUID(),start:date+'T09:00:00Z',end:date+'T17:00:00Z',breakMinutes:30}];
+  day.counts.repair=4;day.sales=60000;day.labTrips.dropoff=1;data.days=[day];return {data,day};
+}
+const at='2026-10-04T16:00:00Z';
+test('hours paid leaves exact commissions outstanding; subsequent commission pay never doubles wages',()=>{
+  const {data,day}=fixture(),hours=markPaid(data,[day.id],'Hours',at,'hours');
+  assert.equal(hours.total,8000);assert.equal(paymentId(day,'hours'),hours.id);assert.equal(paymentId(day,'commission'),null);
+  assert.equal(isFullyPaid(day),false);assert.equal(sumUnpaid(data.days).total,700);assert.equal(sumUnpaid(data.days).wages,0);
+  validateLedger(data);const snapshot=JSON.stringify(hours.days);
+  const commission=markPaid(data,[day.id],'Commission',at,'commission');
+  assert.equal(commission.total,700);assert.equal(sumUnpaid(data.days).total,0);assert.equal(isFullyPaid(day),true);
+  assert.equal(hours.total+commission.total,totals(day).total);assert.equal(JSON.stringify(hours.days),snapshot);validateLedger(data);
+  assert.throws(()=>markPaid(data,[day.id],'Again',at,'both'),/Select unpaid/);
+});
+test('commissions may be paid first and reopening one payment preserves the other',()=>{
+  const {data,day}=fixture(),commission=markPaid(data,[day.id],'Commission',at,'commission'),hours=markPaid(data,[day.id],'Hours',at,'hours');
+  assert.deepEqual(reopenReport(data,hours.id),[day.id]);assert.equal(paymentId(day,'commission'),commission.id);assert.equal(sumUnpaid(data.days).total,8000);
+  validateLedger(data);const replacement=markPaid(data,[day.id],'Hours again',at,'hours');
+  reopenReport(data,commission.id);assert.equal(paymentId(day,'hours'),replacement.id);assert.equal(sumUnpaid(data.days).total,700);validateLedger(data);
+});
+test('all remaining pay handles different partially paid days',()=>{
+  const {data,day}=fixture(),second=fixture('2026-09-18').day;data.days.push(second);
+  markPaid(data,[day.id],'Hours first',at,'hours');markPaid(data,[second.id],'Commission first',at,'commission');
+  const report=markPaid(data,[day.id,second.id],'Remaining',at,'both');
+  assert.equal(report.total,8700);assert.deepEqual(report.allocations.map(a=>[a.hours,a.commission]),[[false,true],[true,false]]);
+  assert.equal(sumUnpaid(data.days).total,0);validateLedger(data);reopenReport(data,report.id);
+  assert.equal(sumUnpaid(data.days).total,8700);validateLedger(data);
+});
+test('original single-paidId vaults open unchanged and reopen without losing history',()=>{
+  const {data,day}=fixture(),legacy={id:crypto.randomUUID(),paidAt:at,label:'Legacy',status:'paid',name:'Rahat',shop:'',days:structuredClone(data.days),total:totals(day).total};
+  data.reports=[legacy];day.paidId=legacy.id;const before=JSON.stringify(data);validateLedger(data);
+  assert.equal(JSON.stringify(data),before);assert.equal(sumUnpaid(data.days).total,0);assert.equal(isFullyPaid(day),true);
+  reopenReport(data,legacy.id);assert.equal(paymentId(day,'hours'),null);assert.equal(paymentId(day,'commission'),null);
+  markPaid(data,[day.id],'Corrected hours',at,'hours');assert.equal(legacy.total,8700);validateLedger(data);
+});
+test('report text and CSV reflect only the payment received',()=>{
+  const {data,day}=fixture(),hours=markPaid(data,[day.id],'Hours',at,'hours');
+  assert.equal(reportTotals(hours).items,0);assert.match(reportText(hours),/TOTAL: \$80\.00/);assert.match(reportCSV(hours),/"Total pay \$","80.00"/);
+  const commission=markPaid(data,[day.id],'Commission',at,'commission');
+  assert.equal(reportTotals(commission).wages,0);assert.match(reportText(commission),/TOTAL: \$7\.00/);assert.match(reportCSV(commission),/"Total pay \$","7.00"/);
+});
+test('invalid scopes, duplicate payments, running days and paid-work edits are rejected',()=>{
+  const {data,day}=fixture();assert.throws(()=>markPaid(data,[day.id],'bad',at,'invalid'));
+  markPaid(data,[day.id],'Hours',at,'hours');assert.throws(()=>markPaid(data,[day.id],'Twice',at,'hours'),/no unpaid/);
+  day.shifts[0].breakMinutes=0;assert.throws(()=>validateLedger(data),/Reopen/);
+  const running=fixture();running.day.shifts[0].end=null;assert.throws(()=>markPaid(running.data,[running.day.id],'Commission',at,'commission'),/completed/);
+});
+test('zero commission days leave unpaid after hours are covered without ghost balances',()=>{
+  const {data,day}=fixture();day.counts.repair=0;day.sales=0;
+  markPaid(data,[day.id],'Hours',at,'hours');assert.equal(isFullyPaid(day),true);assert.equal(sumUnpaid(data.days).total,0);validateLedger(data);
+});
+
+const config={url:'https://script.google.com/macros/s/test-deployment/exec',key:'test-only-connection-key-1234567890123456',shop:'Dayton Wireless'};
+test('sync configuration rejects off-site endpoints and missing connection keys',()=>{
+  assert.deepEqual(sheetConfig(config),config);
+  for(const override of [{url:'https://evil.example/exec'},{url:config.url+'?key=bad'},{url:config.url.replace('/exec','/dev')},{key:'short'},{shop:'Unknown'}])assert.throws(()=>sheetConfig({...config,...override}));
+});
+test('commission projection excludes private data and splits actual commission payments by work month',()=>{
+  const {data,day}=fixture(),next=fixture('2026-10-01').day;data.days.push(next);day.note='PRIVATE_NOTE';data.settings.sheetSync=config;
+  data.companyLedger=[{id:crypto.randomUUID(),date:'2026-09-17',type:'advance',amount:9999,method:'cash',note:'PRIVATE_COMPANY'}];
+  markPaid(data,[day.id,next.id],'PRIVATE_PAYMENT_LABEL',at,'hours');
+  assert.equal(commissionPayload(data,config).payments.length,0);
+  const paid=markPaid(data,[day.id,next.id],'PRIVATE_PAYMENT_LABEL',at,'commission'),payload=commissionPayload(data,config),text=JSON.stringify(payload);
+  assert.deepEqual(payload.payments.map(p=>[p.month,p.amount]),[['2026-09-01',700],['2026-10-01',700]]);
+  for(const field of ['shifts','hour','labTrips','companyLedger','PRIVATE_NOTE','PRIVATE_COMPANY','PRIVATE_PAYMENT_LABEL',config.key])assert.ok(!text.includes('"'+field+'"')&&!text.includes('PRIVATE_')&&!text.includes(config.key));
+  assert.equal(payload.days.length,2);reopenReport(data,paid.id);assert.equal(commissionPayload(data,config).payments.length,0);
+});
+function fakeBrowser() {
+  const nodes=[],listeners=new Map();
+  const doc={body:{append(...items){nodes.push(...items);}},createElement(tag){return {tag,children:[],append(node){this.children.push(node);},remove(){this.removed=true;},submit(){this.submitted=true;}};}};
+  const win={addEventListener(name,fn){listeners.set(name,fn);},removeEventListener(name){listeners.delete(name);}};
+  return {document:doc,window:win,nodes,send(origin,data){listeners.get('message')?.({origin,data});}};
+}
+test('sync succeeds only after trusted matching acknowledgement and cleans up hidden request data',async()=>{
+  const b=fakeBrowser(),promise=syncCommissionSheet(config,{version:1,days:[],payments:[]},b),form=b.nodes[1],nonce=form.children.find(n=>n.name==='nonce').value;
+  assert.equal(form.method,'POST');assert.equal(form.action,config.url);assert.equal(form.submitted,true);
+  b.send('https://evil.example',{type:'private-desk-sheet-sync',nonce,ok:true,days:99,payments:99});
+  b.send('https://script.googleusercontent.com',{type:'private-desk-sheet-sync',nonce:'wrong',ok:true,days:99,payments:99});
+  assert.equal(form.removed,undefined);
+  b.send('https://example-script.googleusercontent.com',{type:'private-desk-sheet-sync',nonce,ok:true,days:3,payments:1});
+  assert.equal((await promise).days,3);assert.equal(form.removed,true);assert.equal(b.nodes[0].removed,true);
+});
+test('rejected syncs and missing acknowledgements are reported as unconfirmed',async()=>{
+  const b=fakeBrowser(),promise=syncCommissionSheet(config,{},b),nonce=b.nodes[1].children.find(n=>n.name==='nonce').value;
+  b.send('https://script.googleusercontent.com',{type:'private-desk-sheet-sync',nonce,ok:false,message:'Conflict'});
+  await assert.rejects(promise,/Conflict/);
+  const timed=fakeBrowser();await assert.rejects(syncCommissionSheet(config,{}, {...timed,timeout:2}),/not confirmed/);assert.equal(timed.nodes[1].removed,true);
+});
+
+const bridge=vm.createContext({});vm.runInContext(readFileSync(new URL('./commission-sync.gs',import.meta.url),'utf8'),bridge);
+test('sheet upserts are idempotent, safely adopt matching previous rows, and preserve manual rows',()=>{
+  const rows=Array.from({length:5},()=>Array(13).fill('')),entry={id:'day-one',date:'2026-09-17',counts:{repair:4},sales:60000};
+  rows[0][0]=entry.date;rows[0][12]='Manual note';rows[1][0]='Other manual day';
+  const match=(e,row)=>row[0]===e.date,identical=()=>true;
+  const plan=bridge.planDeskRows_(rows,[entry],12,match,identical);
+  assert.equal(plan.writes[0].index,0);rows[0][12]='Manual note [Private Desk:day-one]';
+  const again=bridge.planDeskRows_(rows,[entry],12,match,identical);assert.equal(again.writes[0].index,0);assert.equal(again.clears.length,0);
+  const removed=bridge.planDeskRows_(rows,[],12,match,identical);assert.deepEqual(Array.from(removed.clears),[0]);assert.equal(rows[1][0],'Other manual day');
+  rows[0][12]='';assert.throws(()=>bridge.planDeskRows_(rows,[entry],12,match,()=>false),/manual row differs/);
+});
+test('sheet validates the entire payload before applying updates',()=>{
+  const {data}=fixture(),payload=commissionPayload(data,config);bridge.validateDeskPayload_(payload);
+  const wrong=structuredClone(payload);wrong.days[0].bonus=999;assert.throws(()=>bridge.validateDeskPayload_(wrong),/totals/);
+  const duplicate=structuredClone(payload);duplicate.days.push(duplicate.days[0]);assert.throws(()=>bridge.validateDeskPayload_(duplicate),/duplicate/);
+});

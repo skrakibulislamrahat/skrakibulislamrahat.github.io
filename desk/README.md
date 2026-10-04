@@ -33,15 +33,54 @@ password, or work records. A public route or hidden button is not access control
 - Use **Edit hours & details** for missed shifts, wrong dates, notes, counts,
   or the pay rate for that day. Times use the current device's time zone.
 - Select completed days in **Unpaid**. Create a report to copy, download as CSV,
-  or print/save as PDF, then mark those selected days paid when paid.
+  or print/save as PDF. Choose **Mark hours paid** when only hourly wages and lab
+  pay were received, **Mark commissions paid** for commissions and bonuses,
+  or **Mark all paid** for all remaining pay. Each button shows the amount before
+  saving. The unpaid balance excludes previously paid amounts.
 - Reopen a paid report to make a correction. The original snapshot remains
-  marked reopened. Only that report's original days are selected for repayment.
+  marked reopened. Only that report's payment components become unpaid again;
+  the other payment stays recorded. Reopen all saved payments for a workday
+  before changing its hours, counts, or rates.
 - Settings changes apply to new days; old days retain their own rates.
 - Download encrypted backups regularly. Restore requires the backup password
   and explicit confirmation and replaces the current ledger.
 
 No reports are automatically sent to anyone. Paid history is retained. All pay
 figures are gross before any deductions.
+
+## One-tap commission spreadsheet sync
+
+**Sync to sheet** is always visible in the unlocked header. Before a connection
+exists it opens the one-time setup, with a downloadable `commission-sync.gs`
+script. Settings also includes **Connect your sheet** and **Edit sheet connection**.
+
+Open the existing **Individual Employee Commission Tracker-Ron** spreadsheet,
+choose **Extensions → Apps Script**, paste the downloaded script and run
+`setupPrivateDesk`. Enter the connection key shown in the dashboard. Deploy as
+a web app, executing as **Me**, with access **Anyone**, then save its `/exec` URL
+and the shop in the desk. The endpoint requires that random key in a POST body;
+it never appears in a URL or the public repository. The key and endpoint are
+saved in the encrypted vault; the script stores the key in Script Properties.
+The spreadsheet's sharing permissions do not change.
+
+Once connected, the button sends all saved commission counts, daily sales,
+historical item rates, bonuses and actual commission payments. Hours, lab
+trips, company borrowing, daily notes, passwords and GitHub tokens are excluded.
+Hourly-only payments never enter the sheet's **Payments** tab. Commission
+payments covering several work months are split into one row per month.
+
+Sync updates the existing **Commission Log** and **Payments** tabs. Stable IDs
+in the Notes/reference columns prevent duplicate workdays or payments on
+repeated taps. Matching older rows can be adopted; differing manual rows stop
+the sync for review. Deleted or reopened records clear only previously marked
+sync rows. Unrelated manual rows, validation, formatting, and other tabs stay
+in place. Historical rate formulas are set only on rows owned by this sync.
+The existing tracker is limited to 1,000 daily rows and 1,000 payment rows.
+
+Unsaved drafts must be saved first. Success is shown only after the spreadsheet
+acknowledges the request; a timeout says **Sync not confirmed**. After a failure,
+check the sheet before retrying: a partial write may have reached it, and another
+sync updates the same IDs. Saves and syncs are serialized.
 
 ## The company money note
 
@@ -139,7 +178,8 @@ token using **Change connection**. Neither credentials nor financial records
 are included in public code, URLs, or commit messages.
 
 The static app has no third-party scripts or analytics. Its Content Security
-Policy allows network connections only to the GitHub API. Anyone controlling
+Policy allows the GitHub API, its own connection-script download and Google
+Apps Script form/frame requests for optional commission sync. Anyone controlling
 the public site code or an unlocked device can compromise the app; normal
 account and device security still matters. GitHub retains encrypted commit
 history. Deleting or restoring entries does not erase older encrypted versions.
@@ -149,7 +189,7 @@ The app stops writes before the contents-API file-size limit is reached.
 
 Run with Node 22+:
 
-    node --test desk/tests.mjs
+    node --test desk/tests.mjs desk/payment-sync-tests.mjs desk/ui-tests.mjs
     node --check desk/app.mjs
 
 Tests cover bonus boundaries, time/break accounting, overnight shifts, rate
@@ -159,6 +199,12 @@ optimistic-concurrency conflicts.
 Company notebook checks cover exact-cent balances, repayments, corrections,
 deletions, overpayments, old-vault compatibility, encrypted backup round trips,
 and independence from payroll totals and payment snapshots.
+Separate-payment checks cover legacy vault compatibility, both payment orders,
+component-only reopening, remaining-balance reports, duplicate payment refusal,
+and paid-work validation. Sync checks cover private-data projection, month
+allocation, endpoint validation, acknowledged success, failures/timeouts, and
+idempotent spreadsheet row planning. Real spreadsheet sync additionally needs
+the one-time Google Apps Script deployment and a live connection test.
 
 Reference:
 [GitHub Contents API](https://docs.github.com/en/rest/repos/contents#create-or-update-file-contents)

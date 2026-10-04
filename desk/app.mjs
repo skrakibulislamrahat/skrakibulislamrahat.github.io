@@ -1,4 +1,5 @@
-import {TYPES,LAB_TYPES,LAB_MINUTES,DEFAULT_RATES,money,uid,localDate,duration,emptyLedger,newDay,totals,sumDays,running,validateLedger,markPaid,reopenReport,reportText,reportCSV,COMPANY_METHODS,companyBalance,upsertCompanyEntry,deleteCompanyEntry,companyReportText} from './core.mjs?v=6';
+import {TYPES,LAB_TYPES,LAB_MINUTES,DEFAULT_RATES,money,uid,localDate,duration,emptyLedger,newDay,totals,sumDays,running,validateLedger,markPaid,reopenReport,reportText,reportCSV,COMPANY_METHODS,companyBalance,upsertCompanyEntry,deleteCompanyEntry,companyReportText,PAY_PARTS,paymentId,hasPayment,isFullyPaid,unpaidTotals,sumUnpaid,paymentAllocations,reportTotals} from './core.mjs?v=8';
+import {sheetConfig,commissionPayload,syncCommissionSheet} from './sheet-sync.mjs?v=8';
 import {open,seal,wrap,newCipher} from './crypto.mjs';
 import {GitHubVault,OWNER} from './github.mjs?v=2';
 
@@ -137,9 +138,9 @@ function breakdown(t) {
 }
 function render() {
   if(!data)return;
-  $('#unpaid-count').textContent=data.days.filter(d=>!d.paidId).length;
+  $('#unpaid-count').textContent=data.days.filter(d=>!isFullyPaid(d)).length;
   for(const b of $$('[data-view]')) {if(b.dataset.view===view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}
-  selected=new Set([...selected].filter(id=>data.days.some(d=>d.id===id&&!d.paidId&&!running(d))));
+  selected=new Set([...selected].filter(id=>data.days.some(d=>d.id===id&&!isFullyPaid(d)&&!running(d))));
   const renderers={today:renderToday,unpaid:renderUnpaid,history:renderHistory,settings:renderSettings};
   $('#main').innerHTML=renderers[view]();$('#company-note-layer').innerHTML=renderCompanyNote();document.title='Private desk';document.dispatchEvent(new CustomEvent('desk:render',{detail:{view}}));
 }
@@ -193,13 +194,16 @@ async function saveCompanyForm(form) {
 function renderToday() {
   displayedDay=data.days.find(d=>d.date===date)||newDay(date,data.settings.rates);
   const day=displayedDay,t=totals(day,Date.now()),active=data.days.find(running),isToday=date===localDate();
-  const unpaid=data.days.filter(d=>!d.paidId),owed=sumDays(unpaid),saved=data.days.some(d=>d.id===day.id);
+  const unpaid=data.days.filter(d=>!isFullyPaid(d)),owed=sumUnpaid(unpaid),saved=data.days.some(d=>d.id===day.id);
   const clockText=active?'Clock out':isToday?'Clock in':'Add a shift';
   let html='<div class="page-head workbench-heading"><div><p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> A LITTLE FOCUS. A LOT OF POSSIBILITY.</p><h1>'+ (isToday?'Your day, in focus.':'Your workday, in focus.')+'</h1><p class="muted">'+esc(dayTitle(date))+' <span class="heading-divider">/</span> Every hour. Every little win.</p></div><div class="workbench-tools"><div class="date-control"><label for="day-date">Choose your work date</label><input id="day-date" type="date" value="'+date+'" required></div><div id="company-note-slot"></div></div></div>';
-  if(day.paidId) return html+'<div class="panel empty"><span class="empty-icon" aria-hidden="true">✓</span><h2>This day is already paid.</h2><p>It is safely stored in your payment history. Reopen its payment report if a correction is needed.</p><button data-action="report" data-id="'+day.paidId+'">View payment</button></div>'+activityStrip();
+  if(hasPayment(day)) {
+    const remaining=unpaidTotals(day),ids=[...new Set(['hours','commission'].map(part=>paymentId(day,part)).filter(Boolean))];
+    return html+'<section class="panel payment-day"><p class="eyebrow">'+(isFullyPaid(day)?'DAY PAID':'PART PAYMENT RECORDED')+'</p><h2>'+ (isFullyPaid(day)?'This day is paid.':'Your commissions and hours are tracked separately.')+'</h2><div class="payment-statuses">'+paymentStatuses(day)+'</div><div class="report-total">'+money(remaining.total)+' remaining</div><p class="hint">Reopen the saved payments before correcting this workday.</p><div class="actions">'+ids.map(id=>'<button data-action="report" data-id="'+id+'">View '+esc(PAY_PARTS[data.reports.find(r=>r.id===id)?.part||'both']).toLowerCase()+'</button>').join('')+(!isFullyPaid(day)?'<button class="primary" data-action="pay-day" data-id="'+day.id+'">Record remaining payment</button>':'')+'</div></section>'+activityStrip();
+  }
   html+='<div class="overview-grid"><section class="panel earnings-panel"><div class="section-row"><p class="eyebrow">'+(isToday?'TODAY’S EARNINGS':'THIS DAY’S EARNINGS')+'</p><span class="pill" id="day-state">'+(running(day)?'Live estimate':saved?'Saved entry':'New day')+'</span></div><div class="earnings-main"><div><div class="amount-big" id="day-total">'+money(t.total)+'</div><p class="earnings-caption"><span id="paid-time">'+duration(t.paidMinutes)+'</span> paid time <span>including lab credit</span></p></div><div id="pay-orbit" class="pay-orbit">'+earningsRing(t)+'</div></div><div id="day-breakdown">'+breakdown(t)+'</div><p class="pay-footnote">Gross pay before deductions'+(running(day)?' · includes your running shift':'')+'</p></section>';
   html+='<section class="panel clock-panel '+(active?'is-running':'')+'"><div class="clock-copy"><p class="eyebrow">'+(active?'SHIFT IN PROGRESS':'YOUR SHIFT')+'</p><div class="clock-amount" id="clock-time">'+duration(t.minutes)+'</div><p class="clock-caption">'+(active?'Active shift: '+esc(dayTitle(active.date)):'Your time on the bench. Breaks deducted.')+'</p></div><div class="device-cluster" aria-hidden="true"><span class="cluster-laptop">'+deviceIcon('computer')+'</span><span class="cluster-tablet">'+deviceIcon('tablet')+'</span><span class="cluster-phone">'+deviceIcon('device')+'</span><span class="cluster-orbit"></span></div><div class="clock-actions"><button class="primary" data-action="'+(active?'clock-out':isToday?'clock-in':'edit-day')+'" data-id="'+day.id+'">'+clockText+' '+(active?'■':'→')+'</button>'+(isToday||active?'<button class="quiet manual-hours" data-action="edit-day" data-id="'+day.id+'">Enter hours</button>':'')+'</div><span class="clock-action-hint">Choose a past date above to catch up.</span></section>';
-  html+='<section class="panel balance-panel"><p class="eyebrow">READY FOR PAYDAY</p><div class="balance-amount">'+money(owed.total)+'</div><p class="balance-caption">Saved unpaid balance</p><div class="balance-details"><div><span>Recorded workdays</span><strong>'+unpaid.length+'</strong></div><div><span>Commissions + bonuses</span><strong>'+money(owed.items+owed.bonus)+'</strong></div><div><span>Extra lab pay</span><strong>'+money(owed.labPay)+'</strong></div></div><button class="balance-link" data-view="unpaid">Review & report <span aria-hidden="true">↗</span></button><span class="balance-note">Running shift hours are excluded.</span></section></div>';
+  html+='<section class="panel balance-panel"><p class="eyebrow">READY FOR PAYDAY</p><div class="balance-amount">'+money(owed.total)+'</div><p class="balance-caption">Saved unpaid balance</p><div class="balance-details"><div><span>Hours + lab pay due</span><strong>'+money(owed.wages+owed.labPay)+'</strong></div><div><span>Commissions + bonuses due</span><strong>'+money(owed.items+owed.bonus)+'</strong></div><div><span>Recorded workdays</span><strong>'+unpaid.length+'</strong></div></div><button class="balance-link" data-view="unpaid">Review & report <span aria-hidden="true">↗</span></button><span class="balance-note">Running shift hours are excluded.</span></section></div>';
   html+=activityStrip();
   html+='<form id="day-form"><div class="entry-grid"><section class="panel work-panel"><div class="section-row"><div><p class="eyebrow">LOG THE LITTLE WINS</p><h2>What’s on your bench?</h2></div><span class="section-number" aria-hidden="true">01</span></div>'+counters(day,'today-',true)+'<p class="hint">Count laptop / console repairs separately from phone repairs.</p>'+labCounters(day,'today-')+'</section><section class="panel sales-panel"><div class="section-row"><div><p class="eyebrow">A LITTLE EXTRA, EARNED</p><h2>Your sales bonus.</h2></div><span class="section-number" aria-hidden="true">02</span></div><label for="today-sales">Day’s total sales ($)</label><input id="today-sales" name="sales" type="number" min="0" max="1000000" step="0.01" inputmode="decimal" required value="'+(day.sales/100).toFixed(2)+'"><div class="sales-track" id="sales-track">'+salesMilestones(day.sales)+'</div><p class="bonus-note" id="bonus-note">'+bonusMessage(day.sales)+'</p><div class="sales-rule-note">Only your highest daily tier applies.</div><label for="today-note">A note for later <span class="muted">(optional)</span></label><textarea id="today-note" name="note" maxlength="4000" placeholder="A busy day, a lab run, something to remember…">'+esc(day.note)+'</textarea><button type="button" class="text-button edit-details-link" data-action="edit-day" data-id="'+day.id+'">Edit hours, rates & details ↗</button></section></div><div class="save-dock"><div><span class="save-light" aria-hidden="true"></span><span id="draft-state">Ready when you are.</span><small>Your entry saves to the selected work date.</small></div><button class="primary" type="submit">Save entry <span aria-hidden="true">↗</span></button></div></form>';
   return html;
@@ -218,28 +222,52 @@ function bonusMessage(sales) {
   if(sales>50000)return '$5 bonus reached · over $1,000 earns $10';
   return 'Over $500 in daily sales earns your first $5 bonus.';
 }
+function paymentStatuses(day) {
+  const t=totals(day);
+  return ['hours','commission'].map(part=>'<span class="payment-chip '+(paymentId(day,part)?'is-paid':'is-due')+'">'+(part==='hours'?'Hours':'Commissions')+': '+(paymentId(day,part)?'paid ✓':(part==='hours'?t.wages+t.labPay:t.items+t.bonus)===0?'$0.00':'unpaid')+'</span>').join('');
+}
 function renderUnpaid() {
-  const days=data.days.filter(d=>!d.paidId).sort((a,b)=>b.date.localeCompare(a.date)),t=sumDays(days),chosen=days.filter(d=>selected.has(d.id));
+  const days=data.days.filter(d=>!isFullyPaid(d)).sort((a,b)=>b.date.localeCompare(a.date)),t=sumUnpaid(days),chosen=days.filter(d=>selected.has(d.id)),due=sumUnpaid(chosen);
   let html='<div class="page-head"><div><p class="eyebrow">READY WHEN PAYDAY IS</p><h1>Your unpaid work.</h1><p class="muted">Select the days you want to report or mark paid.</p></div><button data-action="new-day">+ Add day</button></div>';
   if(!days.length)return html+'<div class="panel empty"><span class="empty-icon" aria-hidden="true">↗</span><h2>A fresh start.</h2><p>New work appears here. Paid days stay in Payments, so your history is always available.</p><button class="primary" data-view="today">Start today</button></div>';
-  html+='<div class="mini-stats"><div class="mini-stat"><span>Unpaid total</span><strong>'+money(t.total)+'</strong></div><div class="mini-stat"><span>Paid time</span><strong>'+duration(t.paidMinutes)+'</strong>'+ (t.labMinutes?'<small>Includes '+duration(t.labMinutes)+' lab credit</small>':'')+'</div><div class="mini-stat"><span>Commissions + bonus</span><strong>'+money(t.items+t.bonus)+'</strong></div></div>';
+  html+='<div class="mini-stats"><div class="mini-stat"><span>Unpaid total</span><strong>'+money(t.total)+'</strong></div><div class="mini-stat"><span>Hours + lab pay due</span><strong>'+money(t.wages+t.labPay)+'</strong><small>'+duration(t.paidMinutes)+' unpaid time</small></div><div class="mini-stat"><span>Commissions + bonus due</span><strong>'+money(t.items+t.bonus)+'</strong></div></div>';
   if(days.some(running))html+='<p class="hint">A shift is running. Its unfinished hours are excluded above; clock out before selecting that day.</p>';
   html+='<div class="section-row"><label class="check"><input id="select-all" type="checkbox" '+(chosen.length===days.filter(d=>!running(d)).length&&chosen.length?'checked':'')+'> Select all completed days</label><span class="hint">'+chosen.length+' selected</span></div>';
-  html+='<div class="row-list">'+days.map(d=>'<article class="day-row"><input type="checkbox" data-select="'+d.id+'" aria-label="Select '+esc(d.date)+'" '+(selected.has(d.id)?'checked ':'')+(running(d)?'disabled ':'')+'><div class="row-copy"><strong>'+esc(dayTitle(d.date))+'</strong><p>'+duration(totals(d).paidMinutes)+' paid · sales '+money(d.sales)+(running(d)?' · shift running':'')+'</p></div><div class="row-amount">'+money(totals(d).total)+'</div><div class="row-actions"><button data-action="edit-day" data-id="'+d.id+'">Edit</button></div></article>').join('')+'</div>';
-  html+='<div class="selection-bar"><div><p>'+chosen.length+' selected '+(chosen.length===1?'day':'days')+'</p><strong>'+money(sumDays(chosen).total)+'</strong></div><div class="actions"><button data-action="preview-report" '+(!chosen.length?'disabled':'')+'>Create report</button><button class="primary" data-action="pay" '+(!chosen.length?'disabled':'')+'>Mark paid ✓</button></div></div>';
+  html+='<div class="row-list">'+days.map(d=>'<article class="day-row"><input type="checkbox" data-select="'+d.id+'" aria-label="Select '+esc(d.date)+'" '+(selected.has(d.id)?'checked ':'')+(running(d)?'disabled ':'')+'><div class="row-copy"><strong>'+esc(dayTitle(d.date))+'</strong><p>'+duration(totals(d).paidMinutes)+' recorded · sales '+money(d.sales)+(running(d)?' · shift running':'')+'</p><div class="payment-statuses">'+paymentStatuses(d)+'</div></div><div class="row-amount">'+money(unpaidTotals(d).total)+'<small>remaining</small></div><div class="row-actions"><button data-action="'+(hasPayment(d)?'open-day':'edit-day')+'" data-date="'+d.date+'" data-id="'+d.id+'">'+(hasPayment(d)?'Details':'Edit')+'</button></div></article>').join('')+'</div>';
+  html+='<div class="selection-bar"><div><p>'+chosen.length+' selected '+(chosen.length===1?'day':'days')+'</p><strong>'+money(due.total)+'</strong></div><div class="actions"><button data-action="preview-report" '+(!chosen.length?'disabled':'')+'>Create report</button><button class="primary" data-action="pay" data-part="hours" '+(!chosen.length||!due.wages&&!due.labPay?'disabled':'')+'>Mark hours paid</button><button class="primary commission-pay" data-action="pay" data-part="commission" '+(!chosen.length||!due.items&&!due.bonus?'disabled':'')+'>Mark commissions paid</button><button data-action="pay" data-part="both" '+(!chosen.length||!due.total?'disabled':'')+'>Mark all paid</button></div></div>';
   return html;
 }
 function renderHistory() {
   const reports=[...data.reports].reverse(),total=reports.filter(r=>r.status==='paid').reduce((sum,r)=>sum+r.total,0);
   let html='<div class="page-head"><div><p class="eyebrow">EVERY PAYMENT, REMEMBERED</p><h1>Your payment history.</h1><p class="muted">Saved reports keep their original figures.</p></div></div>';
   if(!reports.length)return html+'<div class="panel empty"><span class="empty-icon" aria-hidden="true">▤</span><h2>No payments yet.</h2><p>When you get paid, select your days under Unpaid and mark them paid. The report will live here.</p><button data-view="unpaid">View unpaid work</button></div>';
-  html+='<div class="panel"><p class="eyebrow">TOTAL MARKED PAID</p><div class="amount-big">'+money(total)+'</div><p class="hint">Reopened reports are excluded.</p></div><div class="row-list">'+reports.map(r=>'<article class="payment-row '+(r.status==='reopened'?'reopened':'')+'"><div class="row-copy"><strong>'+esc(r.label)+'</strong><p>'+esc(new Date(r.paidAt).toLocaleDateString())+' · '+r.days.length+' days · '+(r.status==='paid'?'Paid':'Reopened')+'</p></div><div class="row-amount">'+money(r.total)+'</div><div class="row-actions"><button data-action="report" data-id="'+r.id+'">View report</button></div></article>').join('')+'</div>';
+  html+='<div class="panel"><p class="eyebrow">TOTAL MARKED PAID</p><div class="amount-big">'+money(total)+'</div><p class="hint">Reopened reports are excluded.</p></div><div class="row-list">'+reports.map(r=>'<article class="payment-row '+(r.status==='reopened'?'reopened':'')+'"><div class="row-copy"><strong>'+esc(r.label)+'</strong><p>'+esc(new Date(r.paidAt).toLocaleDateString())+' · '+r.days.length+' days · '+(r.status==='paid'?'Paid':'Reopened')+'</p><span class="payment-chip">'+esc(PAY_PARTS[r.part||'both'])+'</span></div><div class="row-amount">'+money(r.total)+'</div><div class="row-actions"><button data-action="report" data-id="'+r.id+'">View report</button></div></article>').join('')+'</div>';
   return html;
 }
 function renderSettings() {
-  return '<div class="page-head"><div><p class="eyebrow">SET IT ONCE. MAKE IT YOURS.</p><h1>Your settings.</h1><p class="muted">Defaults for new workdays, reports, and backups.</p></div></div><form id="settings-form" class="panel settings-panel"><h2>Report details</h2><label for="worker-name">Your name</label><input id="worker-name" name="name" maxlength="120" value="'+esc(data.settings.name)+'" required><label for="shop-name">Shop name (optional)</label><input id="shop-name" name="shop" maxlength="120" value="'+esc(data.settings.shop)+'"><hr class="rule"><h2>Pay rates</h2><p class="hint">These defaults apply to new days. To correct a past rate, edit that day.</p>'+rateFields(data.settings.rates)+'<div class="actions"><button type="submit" class="primary">Save settings</button></div><details><summary>How totals are calculated</summary><p>Hourly pay is $10/hour by default. Unpaid breaks are deducted; completed minutes are rounded down per shift, and hourly pay is rounded to the nearest cent per day.</p><p>Each soldering lab drop-off or pickup adds 30 paid minutes at that workday’s hourly rate. Lab salary is rounded to cents per day and added to your shift pay. At $10/hour, each trip earns $5 extra.</p><p>Daily sales must be strictly over $500, $1,000, or $1,500 to earn $5, $10, or $20. Only the highest bonus applies. Laptop / console repairs use the $5 rate instead of the $0.50 phone repair rate.</p><p>An overnight shift belongs to its start day. Rates are stored with each workday. A new pay period means new unpaid days; your paid history is retained.</p></details></form><section class="panel settings-panel"><h2>Your records, in your hands.</h2><p class="muted">Download a password-encrypted backup regularly. Keep your password somewhere safe: it cannot be reset.</p><div class="actions"><button data-action="backup">Download encrypted backup</button><button data-action="restore">Restore backup</button></div><p class="hint">Backups contain your ledger, not your GitHub token. Keep the private repository private. Replacing records does not erase earlier encrypted GitHub versions.</p></section><section class="panel settings-panel"><h2>Connection</h2><p class="muted">'+esc(OWNER+'/'+api.repo)+'</p><p class="hint">Saved credentials are encrypted on this device. To renew a token, lock the desk and choose “Change connection”. There is no automatic token renewal.</p><div class="actions"><button data-action="forget">Forget this device & lock</button><a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank" rel="noopener noreferrer">GitHub token help ↗</a></div></section>';
+  const html='<div class="page-head"><div><p class="eyebrow">SET IT ONCE. MAKE IT YOURS.</p><h1>Your settings.</h1><p class="muted">Defaults for new workdays, reports, and backups.</p></div></div><form id="settings-form" class="panel settings-panel"><h2>Report details</h2><label for="worker-name">Your name</label><input id="worker-name" name="name" maxlength="120" value="'+esc(data.settings.name)+'" required><label for="shop-name">Shop name (optional)</label><input id="shop-name" name="shop" maxlength="120" value="'+esc(data.settings.shop)+'"><hr class="rule"><h2>Pay rates</h2><p class="hint">These defaults apply to new days. To correct a past rate, edit that day.</p>'+rateFields(data.settings.rates)+'<div class="actions"><button type="submit" class="primary">Save settings</button></div><details><summary>How totals are calculated</summary><p>Hourly pay is $10/hour by default. Unpaid breaks are deducted; completed minutes are rounded down per shift, and hourly pay is rounded to the nearest cent per day.</p><p>Each soldering lab drop-off or pickup adds 30 paid minutes at that workday’s hourly rate. Lab salary is rounded to cents per day and added to your shift pay. At $10/hour, each trip earns $5 extra.</p><p>Daily sales must be strictly over $500, $1,000, or $1,500 to earn $5, $10, or $20. Only the highest bonus applies. Laptop / console repairs use the $5 rate instead of the $0.50 phone repair rate.</p><p>An overnight shift belongs to its start day. Rates are stored with each workday. A new pay period means new unpaid days; your paid history is retained.</p></details></form><section class="panel settings-panel"><h2>Your records, in your hands.</h2><p class="muted">Download a password-encrypted backup regularly. Keep your password somewhere safe: it cannot be reset.</p><div class="actions"><button data-action="backup">Download encrypted backup</button><button data-action="restore">Restore backup</button></div><p class="hint">Backups contain your ledger, not your GitHub token. Keep the private repository private. Replacing records does not erase earlier encrypted GitHub versions.</p></section><section class="panel settings-panel"><h2>Connection</h2><p class="muted">'+esc(OWNER+'/'+api.repo)+'</p><p class="hint">Saved credentials are encrypted on this device. To renew a token, lock the desk and choose “Change connection”. There is no automatic token renewal.</p><div class="actions"><button data-action="forget">Forget this device & lock</button><a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank" rel="noopener noreferrer">GitHub token help ↗</a></div></section>';
+  return html+sheetSettingsPanel();
 }
 
+function sheetSettingsPanel() {
+  const linked=!!data.settings.sheetSync;
+  return '<section class="panel settings-panel sheet-panel"><p class="eyebrow">YOUR BOSS’S COMMISSION TRACKER</p><h2>One tap to your sheet.</h2><p class="muted">Sync all saved commission counts, daily sales, bonuses and commission payments.</p><p class="hint">'+(linked?'Connection saved. '+esc(data.settings.sheetSync.shop)+'.':'One-time connection needed before the first sync.')+'</p><div class="actions"><button class="primary" data-action="sheet-sync">Sync to sheet ↗</button><button data-action="sheet-setup">'+(linked?'Edit sheet connection':'Connect your sheet')+'</button>'+(linked?'<button data-action="sheet-disconnect">Disconnect</button>':'')+'</div></section>';
+}
+function showSheetSetup() {
+  if(!abandon())return;dirty=false;
+  const existing=data.settings.sheetSync||{},key=existing.key||Array.from(crypto.getRandomValues(new Uint8Array(24)),n=>n.toString(16).padStart(2,'0')).join('');
+  showModal('CONNECT YOUR COMMISSION SHEET','<h2>Connect once. Sync in one tap.</h2><p class="hint">Use your existing Individual Employee Commission Tracker-Ron spreadsheet.</p><ol class="sheet-steps"><li>Open the spreadsheet and choose <strong>Extensions → Apps Script</strong>.</li><li><button type="button" data-action="sheet-download-script">Download connection script</button> Paste its contents into the editor, save, run <strong>setupPrivateDesk</strong>, and enter the connection key below.</li><li>Choose <strong>Deploy → New deployment → Web app</strong>. Execute as <strong>Me</strong>, access <strong>Anyone</strong>. The connection key protects updates; your spreadsheet’s sharing stays as it is.</li><li>Paste the deployed URL ending in <strong>/exec</strong> below.</li></ol><form id="sheet-form"><label for="sheet-key">Connection key — enter this in the sheet’s setup</label><input id="sheet-key" name="key" type="text" minlength="32" maxlength="100" autocomplete="off" value="'+esc(key)+'" required><p class="hint">Select and copy the key. It is saved with your password-encrypted records.</p><label for="sheet-url">Deployed web app URL</label><input id="sheet-url" name="url" type="url" autocomplete="off" placeholder="https://script.google.com/macros/s/…/exec" value="'+esc(existing.url||'')+'" required><label for="sheet-shop">Shop for these workdays</label><select id="sheet-shop" name="shop" required><option value="">Choose your shop</option>'+['Dayton Wireless','iFixandRepair'].map(shop=>'<option'+(shop===(existing.shop||data.settings.shop)?' selected':'')+'>'+shop+'</option>').join('')+'</select><div class="modal-actions"><button type="button" data-action="close-modal">Cancel</button><button type="submit" class="primary">Save connection</button></div></form>');
+}
+async function syncSheet() {
+  if(dirty){notice('Save your changes before syncing to the spreadsheet.',true);return;}
+  if(!data.settings.sheetSync){showSheetSetup();return;}
+  const config=sheetConfig(data.settings.sheetSync),payload=commissionPayload(data,config);
+  setBusy(true,'Syncing commissions to sheet…');
+  try {
+    const result=await syncCommissionSheet(config,payload);
+    setBusy(false);$('#sync-status').textContent='Sheet synced';notice('Sheet confirmed: '+result.days+' commission workdays and '+result.payments+' commission payment rows synced.');
+  }catch(error){setBusy(false);$('#sync-status').textContent='Sheet sync not confirmed';notice(error.message,true);}
+}
 function showModal(title,html) {
   $('#modal').setAttribute('aria-label',title);$('#modal-kicker').textContent=title;$('#modal-content').innerHTML=html;
   if(!$('#modal').open)$('#modal').showModal();
@@ -254,7 +282,7 @@ function shiftRow(s) {
 function editDay(id=null) {
   if(!abandon())return;dirty=false;
   const existing=data.days.find(d=>d.id===id);
-  if(existing?.paidId){notice('Reopen this day’s payment report before editing it.',true);return;}
+  if(existing&&hasPayment(existing)){notice('Reopen this day’s saved payments before editing it.',true);return;}
   editingDay=structuredClone(existing||(displayedDay?.id===id?displayedDay:newDay(localDate(),data.settings.rates)));
   const d=editingDay;
   showModal('EDIT WORKDAY','<h2>Make it accurate.</h2><p class="hint">All times use this device’s local time zone: '+esc(Intl.DateTimeFormat().resolvedOptions().timeZone)+'.</p><form id="edit-form"><label for="edit-date">Work date</label><input id="edit-date" name="date" type="date" value="'+d.date+'" required><label for="edit-sales">Daily sales ($)</label><input id="edit-sales" name="sales" type="number" min="0" max="1000000" step="0.01" value="'+(d.sales/100).toFixed(2)+'" required>'+counters(d,'edit-')+labCounters(d,'edit-')+'<section class="edit-shifts"><div class="section-row"><h3>Hours & unpaid breaks</h3><button type="button" data-action="add-shift">+ Add shift</button></div><div id="shift-list">'+d.shifts.map(shiftRow).join('')+'</div><p class="hint shift-help">Leave End blank only for a shift that is still running. Overnight work stays on this work date.</p></section><label for="edit-note">Notes</label><textarea id="edit-note" name="note" maxlength="4000">'+esc(d.note)+'</textarea><details><summary>Pay rates for this day</summary>'+rateFields(d.rates)+'</details><div class="modal-actions">'+(existing?'<button type="button" class="danger" data-action="delete-day" data-id="'+d.id+'">Delete day</button>':'')+'<button type="button" data-action="close-modal">Cancel</button><button type="submit" class="primary">Save workday</button></div></form>');
@@ -292,23 +320,30 @@ async function saveDay(form,edit=false) {
     if(ok){date=changed.date;if(view==='today')render();}
   }catch(e){notice(e.message,true);}
 }
-function reportDraft() {
-  const days=data.days.filter(d=>selected.has(d.id)&&!d.paidId&&!running(d)).sort((a,b)=>a.date.localeCompare(b.date));
+function reportDraft(part='both') {
+  let days=data.days.filter(d=>selected.has(d.id)&&!isFullyPaid(d)&&!running(d)).sort((a,b)=>a.date.localeCompare(b.date));
   if(!days.length)throw Error('Select at least one completed unpaid day.');
-  return {id:null,name:data.settings.name,shop:data.settings.shop,label:days[0].date+' to '+days.at(-1).date,status:'unpaid',paidAt:null,days:structuredClone(days),total:sumDays(days).total};
+  const allocations=paymentAllocations(days,part);days=days.filter(d=>allocations.some(a=>a.dayId===d.id));
+  if(!days.length)throw Error('There is no unpaid amount for this payment type.');
+  const report={id:null,name:data.settings.name,shop:data.settings.shop,label:days[0].date+' to '+days.at(-1).date,status:'unpaid',part,paidAt:null,days:structuredClone(days),allocations};
+  report.total=reportTotals(report).total;return report;
 }
 function showReport(report) {
   currentReport=structuredClone(report);dirty=false;
-  showModal('WORK REPORT','<h2>'+esc(report.label)+'</h2><p class="hint">'+(report.status==='paid'?'Paid report · saved snapshot':report.status==='reopened'?'Reopened · original snapshot retained':'Unpaid report · ready to share')+'</p><div class="report-total">'+money(sumDays(report.days).total)+'</div><div class="actions"><button data-action="copy-report">Copy text</button><button data-action="csv-report">Download CSV</button><button data-action="print-report">Print / PDF</button></div><pre class="report-pre">'+esc(reportText(report))+'</pre><div class="modal-actions">'+(report.status==='paid'?'<button data-action="reopen" data-id="'+report.id+'">Reopen for correction</button>':report.status==='unpaid'?'<button class="primary" data-action="pay">Mark these days paid ✓</button>':'')+'<button data-action="close-modal">Close</button></div>');
+  showModal('WORK REPORT','<h2>'+esc(report.label)+'</h2><p class="hint">'+(report.status==='paid'?'Paid report · saved snapshot':report.status==='reopened'?'Reopened · original snapshot retained':'Unpaid report · ready to share')+' · '+esc(PAY_PARTS[report.part||'both'])+'</p><div class="report-total">'+money(reportTotals(report).total)+'</div><div class="actions"><button data-action="copy-report">Copy text</button><button data-action="csv-report">Download CSV</button><button data-action="print-report">Print / PDF</button></div><pre class="report-pre">'+esc(reportText(report))+'</pre><div class="modal-actions">'+(report.status==='paid'?'<button data-action="reopen" data-id="'+report.id+'">Reopen for correction</button>':report.status==='unpaid'?'<button class="primary" data-action="pay">Record a payment</button>':'')+'<button data-action="close-modal">Close</button></div>');
 }
-function askPay() {
-  const report=reportDraft();currentReport=report;
-  showModal('RECORD A PAYMENT','<h2>Payment received?</h2><p class="confirm-body">Mark these '+report.days.length+' selected days as paid for <strong>'+money(report.total)+'</strong>. Your report will be saved in Payments, and these days will leave the unpaid list.</p><form id="pay-form"><label for="payment-label">Payment label</label><input id="payment-label" name="label" maxlength="120" value="'+esc(report.label)+'" required><div class="modal-actions"><button type="button" data-action="close-modal">Cancel</button><button type="submit" class="primary">Yes, mark paid</button></div></form>');
+function askPay(part='both') {
+  const report=reportDraft(part);currentReport=report;
+  const due=sumUnpaid(data.days.filter(d=>selected.has(d.id)&&!running(d)));
+  showModal('RECORD A PAYMENT','<h2>What did your boss pay?</h2><form id="pay-form"><label for="payment-part">Payment received</label><select id="payment-part" name="part">'+Object.entries(PAY_PARTS).map(([key,label])=>'<option value="'+key+'"'+(key===part?' selected':'')+'>'+label+'</option>').join('')+'</select><p class="confirm-body">For '+report.days.length+' selected workdays. Only the selected payment type is marked paid.</p><div id="payment-amount" class="report-total">'+money(report.total)+'</div><p id="payment-help" class="hint">'+paymentHelp(part,due)+'</p><label for="payment-label">Payment label</label><input id="payment-label" name="label" maxlength="120" value="'+esc(report.label)+'" required><div class="modal-actions"><button type="button" data-action="close-modal">Cancel</button><button type="submit" class="primary" id="confirm-payment" '+(!report.total?'disabled':'')+'>Yes, record payment</button></div></form>');
+}
+function paymentHelp(part,due) {
+  return part==='hours'?'Hours and lab pay are covered. '+money(due.items+due.bonus)+' in commissions and bonuses stays unpaid.':part==='commission'?'Commissions and bonuses are covered. '+money(due.wages+due.labPay)+' in hours and lab pay stays unpaid.':'Both remaining balances are covered. Previously paid amounts are excluded.';
 }
 async function pay(form) {
-  const label=new FormData(form).get('label'),ids=currentReport.days.map(d=>d.id);
+  const fields=new FormData(form),label=fields.get('label'),part=fields.get('part'),report=reportDraft(part),ids=report.days.map(d=>d.id);
   let reportId;
-  const ok=await commit(next=>{reportId=markPaid(next,ids,label).id;},{close:true,message:'Payment recorded. Your next unpaid days start fresh.'});
+  const ok=await commit(next=>{reportId=markPaid(next,ids,label,new Date().toISOString(),part).id;},{close:true,message:part==='both'?'Remaining pay recorded.':PAY_PARTS[part]+' recorded. The other balance stays as it was.'});
   if(ok){selected.clear();view='history';render();showReport(data.reports.find(r=>r.id===reportId));document.dispatchEvent(new Event('desk:paid'));}
 }
 function download(content,name,type='application/json') {
@@ -371,7 +406,7 @@ async function handleAction(action,element) {
         if(next.days.some(running))throw Error('A shift is already running.');
         let day=next.days.find(d=>d.date===localDate());
         if(!day){day=newDay(localDate(),next.settings.rates);next.days.push(day);}
-        if(day.paidId)throw Error('Today has already been paid. Reopen that report to add more work.');
+        if(hasPayment(day))throw Error('Today has a saved payment. Reopen its payments to add more work.');
         day.shifts.push({id:uid(),start:new Date().toISOString(),end:null,breakMinutes:0});
       },{message:'Clocked in. You can close the page; your start time is saved.'});
       break;
@@ -385,18 +420,27 @@ async function handleAction(action,element) {
     case 'remove-shift':element.closest('.shift-row').remove();dirty=true;break;
     case 'delete-day':
       if(confirm('Delete this unpaid workday, including its hours and commissions?'))
-        await commit(next=>{next.days=next.days.filter(d=>d.id!==element.dataset.id);},{close:true,message:'Workday deleted.'});
+        await commit(next=>{const day=next.days.find(d=>d.id===element.dataset.id);if(!day||hasPayment(day))throw Error('Reopen saved payments before deleting this day.');next.days=next.days.filter(d=>d.id!==element.dataset.id);},{close:true,message:'Workday deleted.'});
       break;
     case 'preview-report':showReport(reportDraft());break;
     case 'report':showReport(data.reports.find(r=>r.id===element.dataset.id));break;
-    case 'pay':askPay();break;
+    case 'pay':askPay(element.dataset.part||'both');break;
+    case 'pay-day':selected=new Set([element.dataset.id]);askPay();break;
+    case 'sheet-sync':await syncSheet();break;
+    case 'sheet-setup':showSheetSetup();break;
+    case 'sheet-download-script':{
+      const response=await fetch('./commission-sync.gs?v=8');if(!response.ok)throw Error('Could not load the connection script. Please try again.');
+      download(await response.text(),'Private-Desk-Commission-Sync.gs','text/plain;charset=utf-8');break;
+    }
+    case 'sheet-disconnect':
+      if(confirm('Remove the spreadsheet connection? The existing spreadsheet records stay saved.'))await commit(next=>{delete next.settings.sheetSync;},{close:true,message:'Spreadsheet connection removed.'});break;
     case 'copy-report':
       try {await navigator.clipboard.writeText(reportText(currentReport));notice('Report copied. Paste it into a message to your boss.');}
       catch {notice('Copy is unavailable here. Select the report text or download the CSV.',true);}break;
     case 'csv-report':download(reportCSV(currentReport),'work-report-'+currentReport.days[0].date+'.csv','text/csv;charset=utf-8');break;
     case 'print-report':$('#print-report').textContent=reportText(currentReport);window.print();break;
     case 'reopen':{
-      if(!confirm('Reopen this payment for correction? Its days will become unpaid again. The original report will remain in history as reopened.'))break;
+      if(!confirm('Reopen this payment? Only the hours or commissions included in this report become unpaid. Other payments stay recorded. The original snapshot remains in history.'))break;
       let reopened=[];
       if(await commit(next=>{reopened=reopenReport(next,element.dataset.id);},{close:true,message:'Payment reopened. Only its original days are selected.'})){
         selected=new Set(reopened);view='unpaid';render();
@@ -433,9 +477,13 @@ document.addEventListener('submit',async event=>{
     if(form.id==='edit-form')return await saveDay(form,true);
     if(form.id==='company-form')return await saveCompanyForm(form);
     if(form.id==='pay-form')return await pay(form);
+    if(form.id==='sheet-form'){
+      const f=new FormData(form),config=sheetConfig({url:String(f.get('url')).trim(),key:String(f.get('key')).trim(),shop:String(f.get('shop'))});
+      return await commit(next=>{next.settings.sheetSync=config;},{close:true,message:'Spreadsheet connection saved. Tap Sync to sheet to send your saved commissions.'});
+    }
     if(form.id==='settings-form'){
       const f=new FormData(form),settings={name:String(f.get('name')).trim(),shop:String(f.get('shop')).trim(),rates:readRates(f)};
-      return await commit(next=>{next.settings=settings;},{message:'Settings saved. New days will use these rates.'});
+      return await commit(next=>{next.settings={...next.settings,...settings};},{message:'Settings saved. New days will use these rates.'});
     }
     if(form.id==='clock-out-form'){
       const minutes=Number(new FormData(form).get('break'));
@@ -449,7 +497,7 @@ document.addEventListener('submit',async event=>{
 document.addEventListener('input',event=>{
   if(!data)return;
   const form=event.target.closest('form');
-  if(['day-form','edit-form','settings-form','clock-out-form','pay-form','company-form'].includes(form?.id))dirty=true;
+  if(['day-form','edit-form','settings-form','clock-out-form','pay-form','company-form','sheet-form'].includes(form?.id))dirty=true;
   if(form?.id==='day-form'){
     const draft=structuredClone(displayedDay),fields=new FormData(form);
     draft.sales=Math.max(0,Math.round(Number(fields.get('sales'))*100)||0);draft.counts=readCounts(fields);draft.labTrips=readLabTrips(fields);
@@ -468,7 +516,11 @@ document.addEventListener('change',event=>{
     date=el.value;dirty=false;render();return;
   }
   if(el.dataset.select){if(el.checked)selected.add(el.dataset.select);else selected.delete(el.dataset.select);render();return;}
-  if(el.id==='select-all'){selected=el.checked?new Set(data.days.filter(d=>!d.paidId&&!running(d)).map(d=>d.id)):new Set();render();return;}
+  if(el.id==='select-all'){selected=el.checked?new Set(data.days.filter(d=>!isFullyPaid(d)&&!running(d)).map(d=>d.id)):new Set();render();return;}
+  if(el.id==='payment-part'){
+    const due=sumUnpaid(data.days.filter(d=>selected.has(d.id)&&!running(d))),amount=el.value==='hours'?due.wages+due.labPay:el.value==='commission'?due.items+due.bonus:due.total;
+    $('#payment-amount').textContent=money(amount);$('#payment-help').textContent=paymentHelp(el.value,due);$('#confirm-payment').disabled=!amount;return;
+  }
   if(el.id==='backup-file')restoreFile(el.files[0]).catch(e=>notice(e.message,true));
 });
 $('#modal').addEventListener('cancel',event=>{if(busy||!abandon()){event.preventDefault();return;}dirty=false;editingDay=null;if(data)render();});

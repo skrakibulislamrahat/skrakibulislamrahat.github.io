@@ -6,14 +6,15 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#0d1620">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src https://api.github.com; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self' https://api.github.com; frame-src https://script.google.com https://*.googleusercontent.com; img-src 'self' data:; font-src 'self'; base-uri 'none'; form-action https://script.google.com; object-src 'none';">
   <title>Private desk</title>
   <link rel="icon" href="../favicon.ico">
   <link rel="stylesheet" href="./style.css?v=3">
   <link rel="stylesheet" href="./delight.css?v=3">
   <link rel="stylesheet" href="./workbench.css?v=5.1">
   <link rel="stylesheet" href="./sticky.css?v=7">
-  <script type="module" src="./app.mjs?v=7"></script>
+  <link rel="stylesheet" href="./payments.css?v=8">
+  <script type="module" src="./app.mjs?v=8"></script>
   <script type="module" src="./effects.mjs?v=7"></script>
   <script type="module" src="./ambience.mjs?v=5.1"></script>
   <script type="module" src="./sticky.mjs?v=7"></script>
@@ -67,7 +68,7 @@
     <header class="app-header">
       <div class="header-identity"><button class="secret-key" type="button" data-secret-key aria-label="Private desk logo. Tap three times for a secret." title="Curiosity has its rewards. Try three taps.">◈</button><div><span class="wordmark">Private desk<span class="brand-period">.</span></span><span class="wordmark-caption">YOUR PERSONAL WORKBENCH</span></div></div>
       <a class="portfolio-link" href="../">← Back to portfolio</a>
-      <div class="header-actions"><span id="sync-status" role="status">Connected</span><button data-action="refresh" class="quiet">Refresh</button><button data-action="lock" class="quiet">Lock ↗</button></div>
+      <div class="header-actions"><span id="sync-status" role="status">Connected</span><button data-action="sheet-sync" class="sheet-sync-button">Sync to sheet ↗</button><button data-action="refresh" class="quiet">Refresh</button><button data-action="lock" class="quiet">Lock ↗</button></div>
     </header>
     <div class="app-shell">
       <div class="workspace-nav">

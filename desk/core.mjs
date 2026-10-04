@@ -42,6 +42,39 @@ export function sumDays(days, now=null) {
     const t=totals(d,now); for(const k of Object.keys(t)) sum[k]+=t[k]; return sum;
   }, {minutes:0,wages:0,labDropoffs:0,labPickups:0,labMinutes:0,labPay:0,paidMinutes:0,items:0,bonus:0,total:0,sales:0});
 }
+export const PAY_PARTS = {hours:'Hours + lab pay',commission:'Commissions + bonus',both:'All remaining pay'};
+// Old vaults used one paidId. Read that as both components without rewriting
+// their records or immutable payment snapshots.
+export const paymentId = (day,part) => day.payments ? day.payments[part] : day.paidId;
+export const hasPayment = day => !!(paymentId(day,'hours') || paymentId(day,'commission'));
+function componentTotals(day,allocation,now=null) {
+  const t=totals(day,now);
+  if(!allocation.hours)for(const key of ['minutes','wages','labDropoffs','labPickups','labMinutes','labPay','paidMinutes'])t[key]=0;
+  if(!allocation.commission){t.items=0;t.bonus=0;}
+  t.total=t.wages+t.labPay+t.items+t.bonus;return t;
+}
+export const unpaidTotals = (day,now=null) => componentTotals(day,{hours:!paymentId(day,'hours'),commission:!paymentId(day,'commission')},now);
+export const isFullyPaid = day => hasPayment(day) && unpaidTotals(day).total===0;
+export function sumUnpaid(days) {
+  return days.reduce((sum,day)=>{const t=unpaidTotals(day);for(const key of Object.keys(t))sum[key]+=t[key];return sum;},sumDays([]));
+}
+export function paymentAllocations(days,part='both') {
+  if(!Object.hasOwn(PAY_PARTS,part))throw Error('Choose hours, commissions, or all remaining pay.');
+  return days.map(day=>({dayId:day.id,hours:part!=='commission'&&!paymentId(day,'hours'),commission:part!=='hours'&&!paymentId(day,'commission')}))
+    .filter(a=>a.hours||a.commission);
+}
+export function reportDayTotals(report,day) {
+  const a=report.allocations?.find(a=>a.dayId===day.id);
+  return report.allocations ? componentTotals(day,a||{hours:false,commission:false}) : totals(day);
+}
+export function reportTotals(report) {
+  return report.days.reduce((sum,day)=>{const t=reportDayTotals(report,day);for(const key of Object.keys(t))sum[key]+=t[key];return sum;},sumDays([]));
+}
+function setPayment(day,part,id) {
+  if(!day.payments)day.payments={hours:day.paidId,commission:day.paidId};
+  day.payments[part]=id;
+  day.paidId=day.payments.hours===day.payments.commission?day.payments.hours:null;
+}
 function integer(n,max=100000000) { return Number.isSafeInteger(n) && n>=0 && n<=max; }
 function validId(id) {return typeof id==='string' && /^[a-zA-Z0-9_-]{1,80}$/.test(id);}
 function validRates(r) { return r && ['hour',...TYPES.map(([k])=>k)].every(k=>integer(r[k],1000000)); }
@@ -102,7 +135,9 @@ function checkDay(d) {
         (end!==null && s.breakMinutes>Math.floor((end-start)/60000))) throw Error('Check shift times and unpaid breaks.');
     ids.add(s.id);
   }
-  if(d.paidId && running(d)) throw Error('A paid day cannot have a running shift.');
+  if(d.payments!==undefined && (!d.payments || typeof d.payments!=='object' || Array.isArray(d.payments) ||
+      !['hours','commission'].every(k=>d.payments[k]===null||validId(d.payments[k]))))throw Error('Invalid component payment records.');
+  if(hasPayment(d) && running(d)) throw Error('A paid day cannot have a running shift.');
 }
 export function validateLedger(data) {
   if (!data || data.schema!==1 || !data.settings || typeof data.settings.name!=='string' ||
@@ -134,38 +169,61 @@ export function validateLedger(data) {
        typeof r.label!=='string'||r.label.length>120||!Number.isFinite(Date.parse(r.paidAt))||
        typeof r.name!=='string'||typeof r.shop!=='string'||!Array.isArray(r.days)||!r.days.length) throw Error('Invalid saved report.');
     r.days.forEach(checkDay);
-    if(r.total!==sumDays(r.days).total || r.days.some(running)) throw Error('A report has invalid totals or unfinished shifts.');
+    if(r.part!==undefined&&!Object.hasOwn(PAY_PARTS,r.part))throw Error('Invalid payment type.');
+    if(r.allocations!==undefined) {
+      const allocated=new Set();
+      if(!Array.isArray(r.allocations)||r.allocations.length!==r.days.length)throw Error('Invalid payment allocation.');
+      for(const a of r.allocations) {
+        if(!a||!r.days.some(d=>d.id===a.dayId)||allocated.has(a.dayId)||typeof a.hours!=='boolean'||typeof a.commission!=='boolean'||!a.hours&&!a.commission)throw Error('Invalid payment allocation.');
+        allocated.add(a.dayId);
+      }
+    }
+    if(r.total!==reportTotals(r).total || r.days.some(running)) throw Error('A report has invalid totals or unfinished shifts.');
     reports.set(r.id,r);
   }
-  for(const d of data.days) if(d.paidId && (reports.get(d.paidId)?.status!=='paid' || !reports.get(d.paidId).days.some(x=>x.id===d.id))) throw Error('A paid day must belong to a paid report.');
+  for(const d of data.days)for(const part of ['hours','commission']) {
+    const id=paymentId(d,part);if(!id)continue;
+    const report=reports.get(id),snapshot=report?.days.find(x=>x.id===d.id);
+    if(report?.status!=='paid'||!snapshot||report.allocations&&!report.allocations.some(a=>a.dayId===d.id&&a[part]))throw Error('A paid component must belong to its paid report.');
+    const before=totals(snapshot),after=totals(d),keys=part==='hours'?['wages','labPay','minutes','labMinutes']:['items','bonus','sales'];
+    if(keys.some(k=>before[k]!==after[k]))throw Error('Reopen the payment before changing paid work.');
+  }
   return data;
 }
-export function markPaid(data, selected, label, now=new Date().toISOString()) {
+export function markPaid(data, selected, label, now=new Date().toISOString(),part='both') {
   const ids=new Set(selected),days=data.days.filter(d=>ids.has(d.id));
-  if(!days.length || days.length!==ids.size || days.some(d=>d.paidId||running(d))) throw Error('Select unpaid days with completed shifts.');
-  const report={id:uid(),paidAt:now,label:label.trim()||'Payment',status:'paid',name:data.settings.name,shop:data.settings.shop,days:structuredClone(days),total:sumDays(days).total};
+  if(!days.length || days.length!==ids.size || days.some(d=>isFullyPaid(d)||running(d))) throw Error('Select unpaid days with completed shifts.');
+  const allocations=paymentAllocations(days,part),included=days.filter(d=>allocations.some(a=>a.dayId===d.id));
+  const report={id:uid(),paidAt:now,label:label.trim()||'Payment',status:'paid',part,name:data.settings.name,shop:data.settings.shop,days:structuredClone(included),allocations};
+  report.total=reportTotals(report).total;
+  if(report.total<=0)throw Error('There is no unpaid amount for this payment type.');
   data.reports.push(report);
-  days.forEach(d=>d.paidId=report.id);
+  for(const a of allocations)for(const key of ['hours','commission'])if(a[key])setPayment(days.find(d=>d.id===a.dayId),key,report.id);
   return report;
 }
 export function reopenReport(data,id) {
   const r=data.reports.find(x=>x.id===id);
   if(!r || r.status!=='paid') throw Error('This report has already been reopened.');
   const selected=[];
-  for(const d of data.days) if(d.paidId===id) { d.paidId=null; selected.push(d.id); }
+  for(const d of data.days) {
+    let changed=false;
+    for(const part of ['hours','commission'])if(paymentId(d,part)===id){setPayment(d,part,null);changed=true;}
+    if(changed)selected.push(d.id);
+  }
   r.status='reopened';
   return selected;
 }
 export function reportText(report) {
-  const t=sumDays(report.days);
+  const t=reportTotals(report);
   return [
     'WORK & COMMISSION REPORT',
     report.name+(report.shop?' • '+report.shop:''),
     report.label,
+    PAY_PARTS[report.part||'both'],
     report.status==='paid'?'PAID • '+new Date(report.paidAt).toLocaleDateString():report.status==='reopened'?'REOPENED • Original payment snapshot':'UNPAID • Amount requested',
     '',
     ...report.days.map(d=>{
-      const v=totals(d);
+      const v=reportDayTotals(report,d);
       return d.date+' | '+duration(v.minutes)+' | Sales '+money(d.sales)+' | Pay '+money(v.total)+'\n'+
         '  Wages '+money(v.wages)+'; items '+money(v.items)+'; bonus '+money(v.bonus)+'\n'+
         '  '+TYPES.map(([k,label])=>label+': '+d.counts[k]).join(', ')+
@@ -194,9 +252,9 @@ export function reportCSV(r) {
     ['Worker',r.name,'Shop',r.shop],
     ['Report',r.label,'Status',r.status,'Payment date',r.paidAt||''],
     ['Date','Shift minutes','Shift hours','Sales $','Hourly rate $','Hourly pay $',...TYPES.map(([,l])=>l),...TYPES.map(([,l])=>l+' rate $'),'Item commission $','Sales bonus $','Total pay $','Notes','Lab drop-offs','Lab pickups','Lab extra minutes','Lab extra pay $','Total paid minutes','Total paid hours'],
-    ...r.days.map(d=>{const t=totals(d);return [d.date,t.minutes,(t.minutes/60).toFixed(2),(d.sales/100).toFixed(2),(d.rates.hour/100).toFixed(2),(t.wages/100).toFixed(2),...TYPES.map(([k])=>d.counts[k]),...TYPES.map(([k])=>(d.rates[k]/100).toFixed(2)),(t.items/100).toFixed(2),(t.bonus/100).toFixed(2),(t.total/100).toFixed(2),d.note,t.labDropoffs,t.labPickups,t.labMinutes,(t.labPay/100).toFixed(2),t.paidMinutes,(t.paidMinutes/60).toFixed(2)];}),
+    ...r.days.map(d=>{const t=reportDayTotals(r,d);return [d.date,t.minutes,(t.minutes/60).toFixed(2),(d.sales/100).toFixed(2),(d.rates.hour/100).toFixed(2),(t.wages/100).toFixed(2),...TYPES.map(([k])=>d.counts[k]),...TYPES.map(([k])=>(d.rates[k]/100).toFixed(2)),(t.items/100).toFixed(2),(t.bonus/100).toFixed(2),(t.total/100).toFixed(2),d.note,t.labDropoffs,t.labPickups,t.labMinutes,(t.labPay/100).toFixed(2),t.paidMinutes,(t.paidMinutes/60).toFixed(2)];}),
     [],
-    ['Total pay $',(sumDays(r.days).total/100).toFixed(2)],
+    ['Total pay $',(reportTotals(r).total/100).toFixed(2)],
     [],
     ['Shift date','Start (ISO)','End (ISO)','Unpaid break minutes'],
     ...r.days.flatMap(d=>d.shifts.map(s=>[d.date,s.start,s.end,s.breakMinutes]))
