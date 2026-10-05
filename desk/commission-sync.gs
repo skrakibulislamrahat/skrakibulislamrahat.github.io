@@ -1,20 +1,24 @@
 /** Private Desk → an existing commission tracker. No vault credentials here.
  * In the target spreadsheet: Extensions → Apps Script, paste this file, save,
- * run setupPrivateDesk, then deploy as a Web app (Me / Anyone).
+ * run setupPrivateDesk, add DESK_KEY in Project Settings → Script properties,
+ * then deploy as a Web app (Me / Anyone).
  * Keep the connection key in Script Properties and your encrypted desk only.
  */
 var DESK_ORIGIN = 'https://skrakibulislamrahat.github.io';
 var DESK_TYPES = ['repair','case','other','device','computer'];
 
 function setupPrivateDesk() {
-  var ss=SpreadsheetApp.getActiveSpreadsheet();
+  var properties=PropertiesService.getScriptProperties(),ss=SpreadsheetApp.getActiveSpreadsheet();
+  if(!ss&&properties.getProperty('DESK_SPREADSHEET'))ss=SpreadsheetApp.openById(properties.getProperty('DESK_SPREADSHEET'));
   if(!ss || !ss.getSheetByName('Commission Log') || !ss.getSheetByName('Payments'))throw Error('Open this script from your commission tracker spreadsheet.');
-  var ui=SpreadsheetApp.getUi(),answer=ui.prompt('Private Desk connection','Paste the connection key shown in your desk. It is not your password or GitHub token.',ui.ButtonSet.OK_CANCEL);
-  if(answer.getSelectedButton()!==ui.Button.OK)return;
-  var key=answer.getResponseText().trim();
-  if(!/^[A-Za-z0-9_-]{32,100}$/.test(key))throw Error('The connection key must contain 32–100 letters, digits, underscores or hyphens.');
-  PropertiesService.getScriptProperties().setProperties({DESK_KEY:key,DESK_SPREADSHEET:ss.getId()});
-  ui.alert('Connection saved. Deploy this project as a Web app, then paste its /exec URL into your desk.');
+  properties.setProperty('DESK_SPREADSHEET',ss.getId());
+  var key=properties.getProperty('DESK_KEY');
+  if(!key){
+    console.log('Spreadsheet connected. In Project Settings → Script properties, add DESK_KEY with the connection key copied from your desk.');
+    return;
+  }
+  if(!/^[A-Za-z0-9_-]{32,100}$/.test(key))throw Error('DESK_KEY must contain 32–100 letters, digits, underscores or hyphens. Update it in Project Settings → Script properties.');
+  console.log('Connection ready. Deploy this project as a Web app, then paste its /exec URL into your desk.');
 }
 
 function doPost(e) {

@@ -56,7 +56,9 @@ script. Settings also includes **Connect your sheet** and **Edit sheet connectio
 
 Open the existing **Individual Employee Commission Tracker-Ron** spreadsheet,
 choose **Extensions → Apps Script**, paste the downloaded script and run
-`setupPrivateDesk`. Enter the connection key shown in the dashboard. Deploy as
+`setupPrivateDesk`. In **Project Settings → Script properties**, add `DESK_KEY`
+and paste the connection key using **Copy connection key** in the dashboard.
+Setup runs from the script editor without opening spreadsheet dialogs. Deploy as
 a web app, executing as **Me**, with access **Anyone**, then save its `/exec` URL
 and the shop in the desk. The endpoint requires that random key in a POST body;
 it never appears in a URL or the public repository. The key and endpoint are

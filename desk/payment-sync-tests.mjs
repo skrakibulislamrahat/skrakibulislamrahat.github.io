@@ -97,6 +97,31 @@ test('rejected syncs and missing acknowledgements are reported as unconfirmed',a
 });
 
 const bridge=vm.createContext({});vm.runInContext(readFileSync(new URL('./commission-sync.gs',import.meta.url),'utf8'),bridge);
+function editorSetup({key,active=true,validLayout=true}={}) {
+  const properties={...(key?{DESK_KEY:key}:{}),...(active?{}:{DESK_SPREADSHEET:'tracker-id'})},logs=[];
+  const spreadsheet={getId:()=> 'tracker-id',getSheetByName:()=>validLayout?{}:null};
+  const context=vm.createContext({
+    SpreadsheetApp:{getActiveSpreadsheet:()=>active?spreadsheet:null,openById(id){assert.equal(id,'tracker-id');return spreadsheet;}},
+    PropertiesService:{getScriptProperties:()=>({getProperty:name=>properties[name],setProperty(name,value){properties[name]=value;}})},
+    console:{log:message=>logs.push(message)}
+  });
+  vm.runInContext(readFileSync(new URL('./commission-sync.gs',import.meta.url),'utf8'),context);
+  return {context,properties,logs};
+}
+test('setup runs in the script editor without a spreadsheet UI and never exposes the key',()=>{
+  const pending=editorSetup();pending.context.setupPrivateDesk();
+  assert.equal(pending.properties.DESK_SPREADSHEET,'tracker-id');assert.equal(pending.properties.DESK_KEY,undefined);
+  assert.match(pending.logs[0],/Script properties.*DESK_KEY/);
+  const ready=editorSetup({key:config.key,active:false});ready.context.setupPrivateDesk();
+  assert.equal(ready.properties.DESK_KEY,config.key);assert.match(ready.logs[0],/Connection ready/);
+  assert.ok(!JSON.stringify(ready.logs).includes(config.key));
+});
+test('setup rejects the wrong spreadsheet layout and invalid saved keys before enabling sync',()=>{
+  const wrong=editorSetup({validLayout:false});assert.throws(()=>wrong.context.setupPrivateDesk(),/commission tracker/);
+  assert.equal(wrong.properties.DESK_SPREADSHEET,undefined);
+  const invalid=editorSetup({key:'short'});assert.throws(()=>invalid.context.setupPrivateDesk(),/DESK_KEY must contain/);
+  assert.equal(invalid.properties.DESK_KEY,'short');assert.equal(invalid.logs.length,0);
+});
 test('sheet upserts are idempotent, safely adopt matching previous rows, and preserve manual rows',()=>{
   const rows=Array.from({length:5},()=>Array(13).fill('')),entry={id:'day-one',date:'2026-09-17',counts:{repair:4},sales:60000};
   rows[0][0]=entry.date;rows[0][12]='Manual note';rows[1][0]='Other manual day';
