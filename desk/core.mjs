@@ -16,6 +16,8 @@ export const BONUS_POLICIES = {
   ifix:{label:'iFixandRepair',shop:'iFixandRepair',thresholds:[100000,120000,150000],inclusive:true},
   legacy:{label:'Previously saved rule',shop:null,thresholds:[50000,100000,150000],inclusive:false},
 };
+export const DAYTON_BONUS_EFFECTIVE_DATE = '2026-09-20';
+export const datedDaytonPolicy = date => date < DAYTON_BONUS_EFFECTIVE_DATE ? 'legacy' : 'dayton';
 export const dayBonusPolicy = day => day.bonusPolicy??'legacy';
 export const defaultBonusPolicy = settings => settings.bonusPolicy??(settings.shop==='iFixandRepair'||settings.sheetSync?.shop==='iFixandRepair'?'ifix':'dayton');
 export function bonus(sales,policy='dayton') {
@@ -33,7 +35,7 @@ export function emptyLedger() {
   return {schema:1, settings:{name:'Rahat',shop:'',rates:{...DEFAULT_RATES}},days:[],reports:[],companyLedger:[]};
 }
 export function newDay(date, rates,bonusPolicy='dayton') {
-  return {id:uid(),date,bonusPolicy,sales:0,counts:Object.fromEntries(TYPES.map(([k])=>[k,0])),labTrips:{dropoff:0,pickup:0},rates:{...rates},note:'',shifts:[],paidId:null};
+  return {id:uid(),date,bonusPolicy:bonusPolicy==='dayton'?datedDaytonPolicy(date):bonusPolicy,bonusPolicyAutomatic:bonusPolicy==='dayton',sales:0,counts:Object.fromEntries(TYPES.map(([k])=>[k,0])),labTrips:{dropoff:0,pickup:0},rates:{...rates},note:'',shifts:[],paidId:null};
 }
 export const running = day => day.shifts.some(s => s.end === null);
 export function totals(day, now = null) {
@@ -64,6 +66,28 @@ export const PAY_PARTS = {hours:'Hours + lab pay',commission:'Commissions + bonu
 // Old vaults used one paidId. Read that as both components without rewriting
 // their records or immutable payment snapshots.
 export const paymentId = (day,part) => day.payments ? day.payments[part] : day.paidId;
+// Update live unpaid days only. Report snapshots always keep their saved rule.
+export function applyDatedBonusRules(data) {
+  if(defaultBonusPolicy(data.settings)!=='dayton')return 0;
+  let changed=0;
+  for(const day of data.days) {
+    if(day.date<DAYTON_BONUS_EFFECTIVE_DATE)continue;
+    if(paymentId(day,'commission')||day.bonusPolicyAutomatic===false||day.bonusPolicy==='ifix')continue;
+    if(day.bonusPolicy!==undefined&&day.bonusPolicy!=='legacy'&&day.bonusPolicyAutomatic!==true)continue;
+    const policy=datedDaytonPolicy(day.date);
+    if(day.bonusPolicy!==policy){day.bonusPolicy=policy;day.bonusPolicyAutomatic=true;changed++;}
+  }
+  return changed;
+}
+export function applySheetBonusPolicies(data,policies) {
+  if(!Array.isArray(policies)||policies.length>data.days.length)throw Error('Invalid sheet bonus rules.');
+  const seen=new Set();
+  for(const entry of policies) {
+    const day=data.days.find(d=>d.id===entry?.id);
+    if(!day||seen.has(entry.id)||paymentId(day,'commission')||day.bonusPolicyAutomatic!==true||!['dayton','ifix','legacy'].includes(entry.bonusPolicy))throw Error('Invalid sheet bonus rule correction.');
+    seen.add(entry.id);day.bonusPolicy=entry.bonusPolicy;day.bonusPolicyAutomatic=false;
+  }
+}
 export const hasPayment = day => !!(paymentId(day,'hours') || paymentId(day,'commission'));
 function componentTotals(day,allocation,now=null) {
   const t=totals(day,now);
@@ -146,6 +170,7 @@ function checkDay(d) {
   if (d.labTrips !== undefined && (!d.labTrips || typeof d.labTrips!=='object' || Array.isArray(d.labTrips) ||
       !LAB_TYPES.every(([k])=>integer(d.labTrips[k],100000)))) throw Error('Lab trips must be whole, non-negative counts.');
   if(d.bonusPolicy!==undefined&&(typeof d.bonusPolicy!=='string'||!Object.hasOwn(BONUS_POLICIES,d.bonusPolicy)))throw Error('Invalid sales bonus rule.');
+  if(d.bonusPolicyAutomatic!==undefined&&typeof d.bonusPolicyAutomatic!=='boolean')throw Error('Invalid sales bonus rule source.');
   const ids=new Set();
   for (const s of d.shifts) {
     const start=Date.parse(s.start),end=s.end===null?null:Date.parse(s.end);

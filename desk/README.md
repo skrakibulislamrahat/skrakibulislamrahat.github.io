@@ -158,8 +158,11 @@ priority. The ambience module never accesses credentials or work records.
 - Each workday saves its shop bonus rule. The default applies only to new
   workdays. Older entries without a saved rule retain their previous
   $500 / $1,000 / $1,500 calculation, preserving paid report snapshots until
-  the applicable historical rule is explicitly corrected. The date Dayton
-  changed its rules is not inferred from the dates of software updates.
+  the applicable historical rule is explicitly corrected. Dayton’s current
+  tiers apply from September 20, 2026. On opening or refreshing the desk,
+  older unpaid days use the dated rule; paid commission snapshots are untouched.
+  A shop already recorded in the sheet takes precedence over an inferred default
+  when syncing older days, and that shop’s rule is saved back to the desk.
 - An overnight shift belongs to its recorded work date.
 - Running shifts show a live estimate but cannot be marked paid.
 - Each soldering lab drop-off and pickup adds 30 minutes of extra paid time.

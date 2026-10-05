@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {applySheetBonusPolicies} from './core.mjs';
 import assert from 'node:assert/strict';
 import {DEFAULT_RATES,emptyLedger,newDay,markPaid,reopenReport,validateLedger,paymentId,isFullyPaid,sumUnpaid,reportTotals,reportText,reportCSV,totals} from './core.mjs';
 import {sheetConfig,commissionPayload,syncCommissionSheet} from './sheet-sync.mjs';
@@ -156,4 +157,13 @@ test('sheet formulas use per-day shop thresholds while legacy requests keep thei
   assert.equal(rows[0].values[0][9],'=IF(OR(A5="",B5=""),"",IF(H5>1200,20,IF(H5>1000,10,IF(H5>700,5,0))))');
   assert.equal(rows[1].values[0][9],'=IF(OR(A6="",B6=""),"",IF(H6>=1500,20,IF(H6>=1200,10,IF(H6>=1000,5,0))))');
   assert.match(rows[2].values[0][9],/H7>1500.*H7>1000.*H7>500/);
+});
+test('an inferred shop keeps the existing sheet shop and saves its correct bonus rule back to the desk',()=>{
+  const data=emptyLedger(),day=newDay('2026-09-21',DEFAULT_RATES);day.sales=100000;data.days=[day];
+  const payload=commissionPayload(data,config),row=Array(13).fill('');row[1]='iFixandRepair';row[12]='[Private Desk:'+day.id+']';
+  const corrections=bridge.resolveDeskShops_([row],payload.days);bridge.validateDeskPayload_(payload);
+  assert.equal(payload.days[0].shop,'iFixandRepair');assert.equal(payload.days[0].bonus,500);
+  applySheetBonusPolicies(data,corrections);assert.equal(data.days[0].bonusPolicy,'ifix');assert.equal(data.days[0].bonusPolicyAutomatic,false);assert.equal(commissionPayload(data,config).days[0].bonus,500);
+  const explicit=commissionPayload(data,config);row[1]='Dayton Wireless';assert.equal(bridge.resolveDeskShops_([row],explicit.days).length,0);
+  const wrong=structuredClone(corrections);wrong[0].id='unknown';assert.throws(()=>applySheetBonusPolicies(data,wrong),/Invalid sheet/);
 });

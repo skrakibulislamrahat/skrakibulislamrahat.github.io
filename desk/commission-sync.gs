@@ -36,6 +36,7 @@ function doPost(e) {
     var headings=commissions.getRange(4,1,1,13).getValues()[0],payHeadings=payments.getRange(4,1,1,6).getValues()[0];
     if(headings[0]!=='Date'||headings[1]!=='Shop'||headings[12]!=='Notes'||payHeadings[0]!=='Commission month'||payHeadings[2]!=='Amount paid ($)')throw Error('The commission tracker layout changed. Nothing was synced.');
     var timezone=ss.getSpreadsheetTimeZone(),log=commissions.getRange(5,1,1000,13).getValues(),pay=payments.getRange(5,1,1000,6).getValues();
+    var bonusPolicies=resolveDeskShops_(log,payload.days);validateDeskPayload_(payload);
     // Plan and validate both tables before the first write. Only marked rows
     // belong to this sync; manual rows and other tabs remain in place.
     var dayPlan=planDeskRows_(log,payload.days,12,function(entry,row){return deskDateKey_(row[0],timezone)===entry.date&&row[1]===entry.shop;},function(entry,row){return DESK_TYPES.every(function(k,i){return Number(row[i+2]||0)===entry.counts[k];})&&Math.round(Number(row[7]||0)*100)===entry.sales;});
@@ -44,6 +45,7 @@ function doPost(e) {
     applyDeskPayments_(payments,paymentPlan);
     SpreadsheetApp.flush();
     result.ok=true;result.days=payload.days.length;result.payments=payload.payments.length;
+    if(bonusPolicies.length)result.bonusPolicies=bonusPolicies;
   }catch(error){result.message=String(error.message||error);}
   finally{if(lock.hasLock())lock.releaseLock();}
   var json=JSON.stringify(result).replace(/</g,'\\u003c').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029');
@@ -92,6 +94,20 @@ function deskDateKey_(value,timezone) {
 }
 function deskDateSerial_(value){return Math.round((Date.parse(value+'T00:00:00Z')-Date.UTC(1899,11,30))/86400000);}
 function deskMarker_(id){return '[Private Desk:'+id+']';}
+// The existing shop is authoritative for an older day whose rule was inferred
+// from the desk default. Explicit shop choices and paid commissions stay fixed.
+function resolveDeskShops_(rows,days) {
+  var corrections=[];
+  days.forEach(function(day){
+    if(day.bonusPolicyAutomatic!==true)return;
+    var marked=rows.filter(function(row){return String(row[12]||'').includes(deskMarker_(day.id));});
+    if(marked.length!==1||!['Dayton Wireless','iFixandRepair'].includes(marked[0][1])||marked[0][1]===day.shop)return;
+    day.shop=marked[0][1];day.bonusPolicy=day.shop==='iFixandRepair'?'ifix':day.date<'2026-09-20'?'legacy':'dayton';
+    day.bonus=deskBonus_(day.sales,deskBonusPolicy_(day.bonusPolicy));
+    corrections.push({id:day.id,bonusPolicy:day.bonusPolicy});
+  });
+  return corrections;
+}
 function planDeskRows_(rows,entries,noteColumn,match,identical) {
   var taken={},active={},writes=[];
   entries.forEach(function(entry){

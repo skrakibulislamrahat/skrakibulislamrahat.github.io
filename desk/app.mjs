@@ -1,5 +1,5 @@
-import {TYPES,LAB_TYPES,LAB_MINUTES,DEFAULT_RATES,money,uid,localDate,duration,emptyLedger,newDay,totals,sumDays,running,validateLedger,markPaid,reopenReport,reportText,reportCSV,COMPANY_METHODS,companyBalance,upsertCompanyEntry,deleteCompanyEntry,companyReportText,PAY_PARTS,paymentId,hasPayment,isFullyPaid,unpaidTotals,sumUnpaid,paymentAllocations,reportTotals,BONUS_POLICIES,bonus,dayBonusPolicy,defaultBonusPolicy} from './core.mjs?v=12';
-import {sheetConfig,commissionPayload,syncCommissionSheet} from './sheet-sync.mjs?v=12';
+import {TYPES,LAB_TYPES,LAB_MINUTES,DEFAULT_RATES,money,uid,localDate,duration,emptyLedger,newDay,totals,sumDays,running,validateLedger,markPaid,reopenReport,reportText,reportCSV,COMPANY_METHODS,companyBalance,upsertCompanyEntry,deleteCompanyEntry,companyReportText,PAY_PARTS,paymentId,hasPayment,isFullyPaid,unpaidTotals,sumUnpaid,paymentAllocations,reportTotals,BONUS_POLICIES,bonus,dayBonusPolicy,defaultBonusPolicy,applyDatedBonusRules,applySheetBonusPolicies} from './core.mjs?v=13';
+import {sheetConfig,commissionPayload,syncCommissionSheet} from './sheet-sync.mjs?v=13';
 import {open,seal,wrap,newCipher} from './crypto.mjs';
 import {GitHubVault,OWNER} from './github.mjs?v=2';
 
@@ -62,6 +62,10 @@ async function connect(form,saved=false) {
     if(remote) {
       if(create) throw Error('This repository already has a vault. Uncheck “Create a new vault” and enter its existing password.');
       unlocked=await open(remote.envelope,password);validateLedger(unlocked.value);nextSha=remote.sha;
+      if(applyDatedBonusRules(unlocked.value)) {
+        validateLedger(unlocked.value);
+        nextSha=await candidate.write(await seal(unlocked.value,unlocked.cipher),nextSha);
+      }
     } else {
       if(!create) throw Error('No vault exists in this repository yet. Check “Create a new vault” to start.');
       unlocked={value:emptyLedger(),cipher:await newCipher(password)};
@@ -80,7 +84,7 @@ async function connect(form,saved=false) {
 async function commit(change,{close=false,message='Saved to your private GitHub.'}={}) {
   if(busy||!data)return false;setBusy(true);
   try {
-    const next=structuredClone(data);change(next);validateLedger(next);
+    const next=structuredClone(data);change(next);applyDatedBonusRules(next);validateLedger(next);
     const nextSha=await api.write(await seal(next,cipher),sha);
     data=next;sha=nextSha;dirty=false;
     if(close){$('#modal').close();editingDay=null;}
@@ -96,7 +100,9 @@ async function refresh() {
     // The salt is fixed for this vault. A different salt means it was replaced.
     if(remote.envelope.salt!==cipher.salt)throw Error('This vault was replaced or its password changed. Lock and unlock again.');
     const raw=await decryptCurrent(remote.envelope);
-    data=validateLedger(raw);sha=remote.sha;dirty=false;$('#modal').close();editingDay=null;
+    validateLedger(raw);let nextSha=remote.sha;
+    if(applyDatedBonusRules(raw)){validateLedger(raw);nextSha=await api.write(await seal(raw,cipher),remote.sha);}
+    data=raw;sha=nextSha;dirty=false;$('#modal').close();editingDay=null;
     setBusy(false);render();notice('Latest records loaded.');
   } catch(e){setBusy(false);$('#sync-status').textContent='Could not refresh';notice(e.message,true);}
 }
@@ -251,7 +257,7 @@ function renderHistory() {
   return html;
 }
 function renderSettings() {
-  const html='<div class="page-head"><div><p class="eyebrow">SET IT ONCE. MAKE IT YOURS.</p><h1>Your settings.</h1><p class="muted">Defaults for new workdays, reports, and backups.</p></div></div><form id="settings-form" class="panel settings-panel"><h2>Report details</h2><label for="worker-name">Your name</label><input id="worker-name" name="name" maxlength="120" value="'+esc(data.settings.name)+'" required><label for="shop-name">Shop name (optional)</label><input id="shop-name" name="shop" maxlength="120" value="'+esc(data.settings.shop)+'"><hr class="rule"><h2>Pay rates</h2><p class="hint">These defaults apply to new days. To correct a past rate, edit that day.</p>'+rateFields(data.settings.rates)+bonusPolicyField(defaultBonusPolicy(data.settings),'default',false)+'<div class="actions"><button type="submit" class="primary">Save settings</button></div><details><summary>How totals are calculated</summary><p>Hourly pay is $10/hour by default. Unpaid breaks are deducted; completed minutes are rounded down per shift, and hourly pay is rounded to the nearest cent per day.</p><p>Each soldering lab drop-off or pickup adds 30 paid minutes at that workday’s hourly rate. Lab salary is rounded to cents per day and added to your shift pay. At $10/hour, each trip earns $5 extra.</p><p>Dayton Wireless: over $700, $1,000, or $1,200 earns $5, $10, or $20. iFixandRepair: at least $1,000, $1,200, or $1,500 earns $5, $10, or $20. Only the highest bonus applies. Older saved records retain their saved rule until corrected. Laptop / console repairs use the $5 rate instead of the $0.50 phone repair rate.</p><p>An overnight shift belongs to its start day. Rates are stored with each workday. A new pay period means new unpaid days; your paid history is retained.</p></details></form><section class="panel settings-panel"><h2>Your records, in your hands.</h2><p class="muted">Download a password-encrypted backup regularly. Keep your password somewhere safe: it cannot be reset.</p><div class="actions"><button data-action="backup">Download encrypted backup</button><button data-action="restore">Restore backup</button></div><p class="hint">Backups contain your ledger, not your GitHub token. Keep the private repository private. Replacing records does not erase earlier encrypted GitHub versions.</p></section><section class="panel settings-panel"><h2>Connection</h2><p class="muted">'+esc(OWNER+'/'+api.repo)+'</p><p class="hint">Saved credentials are encrypted on this device. To renew a token, lock the desk and choose “Change connection”. There is no automatic token renewal.</p><div class="actions"><button data-action="forget">Forget this device & lock</button><a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank" rel="noopener noreferrer">GitHub token help ↗</a></div></section>';
+  const html='<div class="page-head"><div><p class="eyebrow">SET IT ONCE. MAKE IT YOURS.</p><h1>Your settings.</h1><p class="muted">Defaults for new workdays, reports, and backups.</p></div></div><form id="settings-form" class="panel settings-panel"><h2>Report details</h2><label for="worker-name">Your name</label><input id="worker-name" name="name" maxlength="120" value="'+esc(data.settings.name)+'" required><label for="shop-name">Shop name (optional)</label><input id="shop-name" name="shop" maxlength="120" value="'+esc(data.settings.shop)+'"><hr class="rule"><h2>Pay rates</h2><p class="hint">These defaults apply to new days. To correct a past rate, edit that day.</p>'+rateFields(data.settings.rates)+bonusPolicyField(defaultBonusPolicy(data.settings),'default',false)+'<div class="actions"><button type="submit" class="primary">Save settings</button></div><details><summary>How totals are calculated</summary><p>Hourly pay is $10/hour by default. Unpaid breaks are deducted; completed minutes are rounded down per shift, and hourly pay is rounded to the nearest cent per day.</p><p>Each soldering lab drop-off or pickup adds 30 paid minutes at that workday’s hourly rate. Lab salary is rounded to cents per day and added to your shift pay. At $10/hour, each trip earns $5 extra.</p><p>Dayton Wireless: over $700, $1,000, or $1,200 earns $5, $10, or $20. iFixandRepair: at least $1,000, $1,200, or $1,500 earns $5, $10, or $20. Only the highest bonus applies. Dayton’s current tiers apply from September 20, 2026. Earlier entries and paid commission reports keep their recorded rule. Laptop / console repairs use the $5 rate instead of the $0.50 phone repair rate.</p><p>An overnight shift belongs to its start day. Rates are stored with each workday. A new pay period means new unpaid days; your paid history is retained.</p></details></form><section class="panel settings-panel"><h2>Your records, in your hands.</h2><p class="muted">Download a password-encrypted backup regularly. Keep your password somewhere safe: it cannot be reset.</p><div class="actions"><button data-action="backup">Download encrypted backup</button><button data-action="restore">Restore backup</button></div><p class="hint">Backups contain your ledger, not your GitHub token. Keep the private repository private. Replacing records does not erase earlier encrypted GitHub versions.</p></section><section class="panel settings-panel"><h2>Connection</h2><p class="muted">'+esc(OWNER+'/'+api.repo)+'</p><p class="hint">Saved credentials are encrypted on this device. To renew a token, lock the desk and choose “Change connection”. There is no automatic token renewal.</p><div class="actions"><button data-action="forget">Forget this device & lock</button><a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens" target="_blank" rel="noopener noreferrer">GitHub token help ↗</a></div></section>';
   return html+sheetSettingsPanel();
 }
 
@@ -276,6 +282,11 @@ async function syncSheet() {
   setBusy(true,'Syncing commissions to sheet…');
   try {
     const result=await syncCommissionSheet(config,payload);
+    if(result.bonusPolicies?.length) {
+      setBusy(false);
+      const saved=await commit(next=>applySheetBonusPolicies(next,result.bonusPolicies),{message:'Sheet shop rules saved to your desk.'});
+      if(!saved){$('#sync-status').textContent='Sheet synced • desk save pending';return;}
+    }
     setBusy(false);$('#modal').close();$('#sync-status').textContent='Sheet synced';notice('Sheet confirmed: '+result.days+' commission workdays and '+result.payments+' commission payment rows synced.');
   }catch(error){setBusy(false);$('#sync-status').textContent='Sheet sync not confirmed';notice(error.message,true);if(error.message.startsWith('Connection key not accepted.'))showSheetPairing(true);}
 }
@@ -323,7 +334,7 @@ async function saveDay(form,edit=false) {
   const fields=new FormData(form);
   try {
     const changed=structuredClone(edit?editingDay:displayedDay);
-    if(fields.has('bonusPolicy'))changed.bonusPolicy=String(fields.get('bonusPolicy'));
+    if(fields.has('bonusPolicy')){changed.bonusPolicy=String(fields.get('bonusPolicy'));changed.bonusPolicyAutomatic=false;}
     changed.sales=readMoney(fields,'sales');changed.counts=readCounts(fields);changed.labTrips=readLabTrips(fields);changed.note=String(fields.get('note')||'');
     if(edit) {
       changed.date=String(fields.get('date'));changed.rates=readRates(fields);
@@ -452,7 +463,7 @@ async function handleAction(action,element) {
       try {await navigator.clipboard.writeText($('#sheet-key').value);notice('Connection key copied. Paste it into the DESK_KEY script property.');}
       catch {notice('Copy is unavailable here. Select the connection key field and copy it manually.',true);}break;
     case 'sheet-download-script':{
-      const response=await fetch('./commission-sync.gs?v=12');if(!response.ok)throw Error('Could not load the connection script. Please try again.');
+      const response=await fetch('./commission-sync.gs?v=13');if(!response.ok)throw Error('Could not load the connection script. Please try again.');
       download(await response.text(),'Private-Desk-Commission-Sync.gs','text/plain;charset=utf-8');break;
     }
     case 'sheet-disconnect':
@@ -502,7 +513,7 @@ document.addEventListener('submit',async event=>{
     if(form.id==='pay-form')return await pay(form);
     if(form.id==='bonus-rule-form'){
       const policy=String(new FormData(form).get('bonusPolicy'));
-      return await commit(next=>{const day=next.days.find(d=>d.id===form.dataset.id);if(!day||paymentId(day,'commission'))throw Error('Reopen the commission payment before correcting its bonus rule.');day.bonusPolicy=policy;},{close:true,message:'Commission rule saved. Your hours payment stays recorded.'});
+      return await commit(next=>{const day=next.days.find(d=>d.id===form.dataset.id);if(!day||paymentId(day,'commission'))throw Error('Reopen the commission payment before correcting its bonus rule.');day.bonusPolicy=policy;day.bonusPolicyAutomatic=false;},{close:true,message:'Commission rule saved. Your hours payment stays recorded.'});
     }
     if(form.id==='sheet-form'){
       const f=new FormData(form),config=sheetConfig({url:String(f.get('url')).trim(),key:String(f.get('key')).trim(),shop:String(f.get('shop'))});

@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {applyDatedBonusRules} from './core.mjs';
 import assert from 'node:assert/strict';
 import {DEFAULT_RATES,bonus,emptyLedger,newDay,totals,sumDays,markPaid,reopenReport,validateLedger,reportText,reportCSV,companyBalance,upsertCompanyEntry,deleteCompanyEntry,companyReportText} from './core.mjs';
 import {newCipher,seal,open} from './crypto.mjs';
@@ -76,6 +77,21 @@ test('older records and paid reports retain their recorded bonuses without a pol
   const report=markPaid(data,[d.id],'Original payment');const before=JSON.stringify(data);
   validateLedger(data);assert.equal(JSON.stringify(data),before);assert.equal(totals(d).bonus,500);assert.equal(sumDays(report.days).total,8000);
   assert.throws(()=>{data.days[0].bonusPolicy='unsupported';validateLedger(data);},/bonus rule/);
+});
+test('September 20 migration corrects unpaid Dayton bonuses and preserves hours and paid commissions',()=>{
+  const data=emptyLedger(),earlier=workday('2026-09-19'),hoursPaid=workday('2026-09-20'),commissionPaid=workday('2026-09-21'),ifix=workday('2026-09-22'),manual=workday('2026-09-23');
+  earlier.sales=60000;delete earlier.bonusPolicy;
+  hoursPaid.sales=60000;delete hoursPaid.bonusPolicy;delete hoursPaid.bonusPolicyAutomatic;
+  commissionPaid.sales=130000;ifix.bonusPolicy='ifix';ifix.sales=120000;manual.sales=60000;manual.bonusPolicyAutomatic=false;
+  data.days=[earlier,hoursPaid,commissionPaid,ifix,manual];
+  markPaid(data,[hoursPaid.id],'Hours received',new Date().toISOString(),'hours');
+  markPaid(data,[commissionPaid.id],'Commission received',new Date().toISOString(),'commission');
+  const reports=JSON.stringify(data.reports),before=JSON.stringify(earlier),paid=JSON.stringify(commissionPaid);
+  assert.equal(applyDatedBonusRules(data),1);validateLedger(data);
+  assert.equal(totals(hoursPaid).bonus,0);assert.equal(hoursPaid.bonusPolicy,'dayton');
+  assert.equal(JSON.stringify(data.reports),reports);assert.equal(JSON.stringify(earlier),before);assert.equal(JSON.stringify(commissionPaid),paid);
+  assert.equal(totals(ifix).bonus,1000);assert.equal(totals(manual).bonus,500);assert.equal(applyDatedBonusRules(data),0);
+  assert.equal(newDay('2026-09-19',DEFAULT_RATES).bonusPolicy,'legacy');assert.equal(newDay('2026-09-20',DEFAULT_RATES).bonusPolicy,'dayton');
 });
 test('hours deduct breaks and item types use distinct rates',()=>{
   const d=workday();d.sales=150001;d.counts={repair:4,case:2,other:3,device:1,computer:2};

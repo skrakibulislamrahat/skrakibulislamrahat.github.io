@@ -97,3 +97,21 @@ test('unpaid commission rules can be corrected after hours are paid without chan
   await h.listeners.get('submit')({target:{id:'bonus-rule-form',dataset:{id:day.id},fields:{bonusPolicy:'dayton'}},preventDefault(){}});
   assert.equal(h.run('data.days[0].bonusPolicy'),'dayton');assert.equal(h.run('totals(data.days[0]).bonus'),0);assert.equal(h.run('paymentId(data.days[0],\'hours\')'),paidId);assert.equal(JSON.stringify(h.run('data.reports[0]')),hours);
 });
+test('opening an older vault saves the dated unpaid correction and leaves the hours report intact',async()=>{
+  const h=harness();await seed(h);
+  h.run("data.days[0].date='2026-09-20';data.days[0].shifts=data.days[0].shifts.map(s=>({...s,start:s.start.replace('09-17','09-20'),end:s.end.replace('09-17','09-20')}));delete data.days[0].bonusPolicy;delete data.days[0].bonusPolicyAutomatic;markPaid(data,[data.days[0].id],'Hours received',new Date().toISOString(),'hours');");
+  const reports=JSON.stringify(h.run('data.reports'));
+  h.context.testEnvelope=await cryptography.seal(h.run('data'),h.context.testCipher);
+  h.context.testSavedEnvelope=null;
+  h.run("GitHubVault=class{constructor(){this.repo='test';}async read(){return {envelope:testEnvelope,sha:'old'};}async write(envelope){testSavedEnvelope=envelope;writeCount++;return 'dated';}clear(){}};localStorage.removeItem=()=>{};");
+  await h.run("connect({fields:{repo:'test',token:'fake-only-token',password:'fake-ui-test-password-123'}},false)");
+  assert.equal(h.context.writeCount,1,h.element('#notice-text').textContent);assert.equal(h.run('data.days[0].bonusPolicy'),'dayton');assert.equal(h.run('unpaidTotals(data.days[0]).bonus'),0);assert.equal(JSON.stringify(h.run('data.reports')),reports);
+  const saved=(await cryptography.open(h.context.testSavedEnvelope,'fake-ui-test-password-123')).value;assert.equal(saved.days[0].bonusPolicy,'dayton');
+});
+test('sync saves a corrected sheet shop without changing paid hours',async()=>{
+  const h=harness();await seed(h);
+  h.run("data.days[0].date='2026-09-21';data.days[0].bonusPolicy='dayton';data.days[0].bonusPolicyAutomatic=true;data.days[0].sales=100000;markPaid(data,[data.days[0].id],'Hours received',new Date().toISOString(),'hours');data.settings.sheetSync={url:'https://script.google.com/macros/s/test/exec',key:'fake-ui-existing-key-12345678901234567890',shop:'Dayton Wireless'};");
+  const reports=JSON.stringify(h.run('data.reports')),id=h.run('data.days[0].id');
+  h.context.syncCommissionSheet=async()=>({ok:true,days:1,payments:0,bonusPolicies:[{id,bonusPolicy:'ifix'}]});
+  await h.run('syncSheet()');assert.equal(h.run('data.days[0].bonusPolicy'),'ifix');assert.equal(h.run('unpaidTotals(data.days[0]).bonus'),500);assert.equal(JSON.stringify(h.run('data.reports')),reports);assert.equal(h.element('#sync-status').textContent,'Sheet synced');
+});
