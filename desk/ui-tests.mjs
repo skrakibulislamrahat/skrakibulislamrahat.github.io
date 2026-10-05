@@ -46,7 +46,7 @@ test('day details show both component statuses and keep payment reports availabl
 });
 test('missing sheet connection opens honest setup and existing sync settings survive rate saves',async()=>{
   const h=harness();await seed(h);await h.run('syncSheet()');
-  assert.match(h.element('#modal-content').innerHTML,/Connect once/);assert.match(h.element('#modal-content').innerHTML,/setupPrivateDesk/);
+  assert.match(h.element('#modal-content').innerHTML,/Step 1: Save/);assert.match(h.element('#modal-content').innerHTML,/setupPrivateDesk/);
   h.run("data.settings.sheetSync={url:'https://script.google.com/macros/s/test/exec',key:'fake-only-key-123456789012345678901234',shop:'Dayton Wireless'};view='settings';render();");
   assert.match(h.element('#main').innerHTML,/Connection saved/);
   const fields={name:'Rahat',shop:'Dayton Wireless',...Object.fromEntries(Object.entries(core.DEFAULT_RATES).map(([key,value])=>['rate_'+key,String(value/100)]))};
@@ -57,4 +57,27 @@ test('changing payment type disables zero-dollar confirmations without an except
   const h=harness();await seed(h);h.run("markPaid(data,data.days.map(d=>d.id),'Hours',new Date().toISOString(),'hours');askPay('commission');");
   h.listeners.get('change')({target:{id:'payment-part',value:'hours',dataset:{}}});
   assert.equal(h.element('#payment-amount').textContent,'$0.00');assert.equal(h.element('#confirm-payment').disabled,true);
+});
+
+test('Google pairing starts only after a successful vault save and keeps that saved key',async()=>{
+  const h=harness();await seed(h);h.run("showSheetSetup();api.write=async()=>{throw Error('Fake save failure');};");
+  const fields={url:'https://script.google.com/macros/s/test/exec',key:'fake-ui-pairing-key-12345678901234567890',shop:'Dayton Wireless'};
+  const submit=()=>h.listeners.get('submit')({target:{id:'sheet-form',fields},preventDefault(){}});
+  await submit();assert.equal(h.run('data.settings.sheetSync'),undefined);assert.match(h.element('#modal-content').innerHTML,/Step 1: Save/);
+  h.run("api.write=async()=>{writeCount++;return 'paired';};");await submit();
+  assert.equal(h.context.writeCount,1);assert.equal(h.run('data.settings.sheetSync.key'),fields.key);
+  assert.match(h.element('#modal-content').innerHTML,/Step 2: Connect Google/);assert.match(h.element('#modal-content').innerHTML,/Save script properties/);
+  h.run('showSheetSetup()');assert.ok(h.element('#modal-content').innerHTML.includes(fields.key));
+});
+
+test('a rejected Google key opens repair instructions with the existing key and waits for a confirmed retry',async()=>{
+  const h=harness();await seed(h);
+  const config={url:'https://script.google.com/macros/s/test/exec',key:'fake-ui-existing-key-12345678901234567890',shop:'Dayton Wireless'};
+  h.context.testConfig=config;h.run('data.settings.sheetSync=testConfig');
+  h.context.syncCommissionSheet=async()=>{throw Error('Connection key not accepted. Check the saved key in your desk.');};
+  await h.run('syncSheet()');assert.equal(h.element('#sync-status').textContent,'Sheet sync not confirmed');
+  assert.match(h.element('#modal-content').innerHTML,/Google rejected the connection key/);assert.ok(h.element('#modal-content').innerHTML.includes(config.key));
+  assert.equal(h.context.writeCount,0);assert.equal(h.element('#modal').open,true);
+  h.context.syncCommissionSheet=async(saved,payload)=>{assert.equal(saved.key,config.key);assert.equal(payload.days.length,1);return {ok:true,days:1,payments:0};};
+  await h.run('syncSheet()');assert.equal(h.element('#modal').open,false);assert.equal(h.element('#sync-status').textContent,'Sheet synced');
 });

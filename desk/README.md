@@ -55,8 +55,11 @@ exists it opens the one-time setup, with a downloadable `commission-sync.gs`
 script. Settings also includes **Connect your sheet** and **Edit sheet connection**.
 
 The tracker connection is already deployed. Its URL is prefilled in the desk.
-Use **Copy connection key**, open **Sheet connection settings**, and save it as
-`DESK_KEY` in **Script properties**. Choose the shop and save the desk connection.
+Choose the shop and **Save connection** first. The next screen keeps the saved
+key and guides the Google setup: **Copy connection key**, open **Sheet connection
+settings**, choose **Edit script properties**, and save the key as `DESK_KEY`.
+Return to the desk and press **Sync to sheet**. A rejected Google key reopens this
+setup with the existing saved key, so retrying does not create a different key.
 The key must match in both places before the first sync.
 
 To reinstall, open the existing **Individual Employee Commission Tracker-Ron**
