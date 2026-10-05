@@ -11,13 +11,29 @@ export const DEFAULT_RATES = {hour: 1000, ...Object.fromEntries(TYPES.map(([k,,v
 export const money = cents => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(cents / 100);
 export const uid = () => crypto.randomUUID();
 export const localDate = (d = new Date()) => [d.getFullYear(), String(d.getMonth()+1).padStart(2,'0'), String(d.getDate()).padStart(2,'0')].join('-');
-export const bonus = sales => sales > 150000 ? 2000 : sales > 100000 ? 1000 : sales > 50000 ? 500 : 0;
+export const BONUS_POLICIES = {
+  dayton:{label:'Dayton Wireless · current',shop:'Dayton Wireless',thresholds:[70000,100000,120000],inclusive:false},
+  ifix:{label:'iFixandRepair',shop:'iFixandRepair',thresholds:[100000,120000,150000],inclusive:true},
+  legacy:{label:'Previously saved rule',shop:null,thresholds:[50000,100000,150000],inclusive:false},
+};
+export const dayBonusPolicy = day => day.bonusPolicy??'legacy';
+export const defaultBonusPolicy = settings => settings.bonusPolicy??(settings.shop==='iFixandRepair'||settings.sheetSync?.shop==='iFixandRepair'?'ifix':'dayton');
+export function bonus(sales,policy='dayton') {
+  if(!Object.hasOwn(BONUS_POLICIES,policy))throw Error('Choose a supported sales bonus rule.');
+  const rule=BONUS_POLICIES[policy];
+  for(let i=2;i>=0;i--)if(rule.inclusive?sales>=rule.thresholds[i]:sales>rule.thresholds[i])return [500,1000,2000][i];
+  return 0;
+}
+export function bonusRuleText(policy) {
+  const rule=BONUS_POLICIES[policy];
+  return rule.label+': '+rule.thresholds.map((threshold,i)=>(rule.inclusive?'at least ':'over ')+money(threshold)+' = '+money([500,1000,2000][i])).join('; ')+'. Highest tier only.';
+}
 export const duration = minutes => Math.floor(minutes/60) + 'h ' + (minutes%60) + 'm';
 export function emptyLedger() {
   return {schema:1, settings:{name:'Rahat',shop:'',rates:{...DEFAULT_RATES}},days:[],reports:[],companyLedger:[]};
 }
-export function newDay(date, rates) {
-  return {id:uid(),date,sales:0,counts:Object.fromEntries(TYPES.map(([k])=>[k,0])),labTrips:{dropoff:0,pickup:0},rates:{...rates},note:'',shifts:[],paidId:null};
+export function newDay(date, rates,bonusPolicy='dayton') {
+  return {id:uid(),date,bonusPolicy,sales:0,counts:Object.fromEntries(TYPES.map(([k])=>[k,0])),labTrips:{dropoff:0,pickup:0},rates:{...rates},note:'',shifts:[],paidId:null};
 }
 export const running = day => day.shifts.some(s => s.end === null);
 export function totals(day, now = null) {
@@ -34,7 +50,9 @@ export function totals(day, now = null) {
   const labPay = Math.round(labMinutes * day.rates.hour / 60);
   const paidMinutes = minutes + labMinutes;
   const items = TYPES.reduce((sum,[k]) => sum + day.counts[k]*day.rates[k],0);
-  const salesBonus = bonus(day.sales);
+  // Records saved before shop policies existed keep their recorded totals.
+  // Do not guess the date a shop changed its rules or rewrite paid snapshots.
+  const salesBonus = bonus(day.sales,dayBonusPolicy(day));
   return {minutes,wages,labDropoffs,labPickups,labMinutes,labPay,paidMinutes,items,bonus:salesBonus,total:wages+labPay+items+salesBonus,sales:day.sales};
 }
 export function sumDays(days, now=null) {
@@ -127,6 +145,7 @@ function checkDay(d) {
       d.shifts.length>100 || !(d.paidId===null || validId(d.paidId))) throw Error('Invalid daily record.');
   if (d.labTrips !== undefined && (!d.labTrips || typeof d.labTrips!=='object' || Array.isArray(d.labTrips) ||
       !LAB_TYPES.every(([k])=>integer(d.labTrips[k],100000)))) throw Error('Lab trips must be whole, non-negative counts.');
+  if(d.bonusPolicy!==undefined&&(typeof d.bonusPolicy!=='string'||!Object.hasOwn(BONUS_POLICIES,d.bonusPolicy)))throw Error('Invalid sales bonus rule.');
   const ids=new Set();
   for (const s of d.shifts) {
     const start=Date.parse(s.start),end=s.end===null?null:Date.parse(s.end);
@@ -144,6 +163,7 @@ export function validateLedger(data) {
       typeof data.settings.shop!=='string' || data.settings.name.length>120 || data.settings.shop.length>120 ||
       !validRates(data.settings.rates) || !Array.isArray(data.days) || !Array.isArray(data.reports) ||
       data.days.length>20000 || data.reports.length>10000) throw Error('This is not a supported work ledger.');
+  if(data.settings.bonusPolicy!==undefined&&(typeof data.settings.bonusPolicy!=='string'||!Object.hasOwn(BONUS_POLICIES,data.settings.bonusPolicy)))throw Error('Invalid default sales bonus rule.');
   if(data.companyLedger!==undefined) {
     if(!Array.isArray(data.companyLedger)||data.companyLedger.length>10000)throw Error('Invalid company notebook.');
     const companyIds=new Set();
@@ -238,7 +258,7 @@ export function reportText(report) {
     'Daily sales bonuses: '+money(t.bonus),
     'TOTAL: '+money(t.total),
     '',
-    'Daily bonus: over $500 = $5; over $1,000 = $10; over $1,500 = $20. Highest tier only.',
+    ...[...new Set(report.days.map(dayBonusPolicy))].map(bonusRuleText),
     'Laptop / console repairs use their own rate; they are not also counted as phone repairs.',
     ...(t.labMinutes?['Each soldering lab drop-off or pickup adds 30 paid minutes at that workday’s hourly rate.']:[])
   ].join('\n');
@@ -251,8 +271,8 @@ export function reportCSV(r) {
   const rows=[
     ['Worker',r.name,'Shop',r.shop],
     ['Report',r.label,'Status',r.status,'Payment date',r.paidAt||''],
-    ['Date','Shift minutes','Shift hours','Sales $','Hourly rate $','Hourly pay $',...TYPES.map(([,l])=>l),...TYPES.map(([,l])=>l+' rate $'),'Item commission $','Sales bonus $','Total pay $','Notes','Lab drop-offs','Lab pickups','Lab extra minutes','Lab extra pay $','Total paid minutes','Total paid hours'],
-    ...r.days.map(d=>{const t=reportDayTotals(r,d);return [d.date,t.minutes,(t.minutes/60).toFixed(2),(d.sales/100).toFixed(2),(d.rates.hour/100).toFixed(2),(t.wages/100).toFixed(2),...TYPES.map(([k])=>d.counts[k]),...TYPES.map(([k])=>(d.rates[k]/100).toFixed(2)),(t.items/100).toFixed(2),(t.bonus/100).toFixed(2),(t.total/100).toFixed(2),d.note,t.labDropoffs,t.labPickups,t.labMinutes,(t.labPay/100).toFixed(2),t.paidMinutes,(t.paidMinutes/60).toFixed(2)];}),
+    ['Date','Shift minutes','Shift hours','Sales $','Hourly rate $','Hourly pay $',...TYPES.map(([,l])=>l),...TYPES.map(([,l])=>l+' rate $'),'Item commission $','Sales bonus $','Total pay $','Notes','Lab drop-offs','Lab pickups','Lab extra minutes','Lab extra pay $','Total paid minutes','Total paid hours','Sales bonus rule'],
+    ...r.days.map(d=>{const t=reportDayTotals(r,d);return [d.date,t.minutes,(t.minutes/60).toFixed(2),(d.sales/100).toFixed(2),(d.rates.hour/100).toFixed(2),(t.wages/100).toFixed(2),...TYPES.map(([k])=>d.counts[k]),...TYPES.map(([k])=>(d.rates[k]/100).toFixed(2)),(t.items/100).toFixed(2),(t.bonus/100).toFixed(2),(t.total/100).toFixed(2),d.note,t.labDropoffs,t.labPickups,t.labMinutes,(t.labPay/100).toFixed(2),t.paidMinutes,(t.paidMinutes/60).toFixed(2),bonusRuleText(dayBonusPolicy(d))];}),
     [],
     ['Total pay $',(reportTotals(r).total/100).toFixed(2)],
     [],

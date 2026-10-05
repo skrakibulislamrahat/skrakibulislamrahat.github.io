@@ -19,7 +19,7 @@ function harness() {
   return {context,element,listeners,run:code=>vm.runInContext(code,context)};
 }
 async function seed(h) {
-  const data=core.emptyLedger(),day=core.newDay('2026-09-17',core.DEFAULT_RATES);
+  const data=core.emptyLedger(),day=core.newDay('2026-09-17',core.DEFAULT_RATES,'legacy');
   day.shifts=[{id:crypto.randomUUID(),start:'2026-09-17T09:00:00Z',end:'2026-09-17T17:00:00Z',breakMinutes:30}];day.counts.case=2;day.sales=60000;data.days=[day];
   h.context.testData=data;h.context.testCipher=await cryptography.newCipher('fake-ui-test-password-123');h.context.writeCount=0;
   h.run("data=testData;cipher=testCipher;sha='old';api={repo:'test',write:async()=>{writeCount++;return 'new';}};date='2026-09-17';view='unpaid';selected=new Set(data.days.map(d=>d.id));render();");
@@ -80,4 +80,20 @@ test('a rejected Google key opens repair instructions with the existing key and 
   assert.equal(h.context.writeCount,0);assert.equal(h.element('#modal').open,true);
   h.context.syncCommissionSheet=async(saved,payload)=>{assert.equal(saved.key,config.key);assert.equal(payload.days.length,1);return {ok:true,days:1,payments:0};};
   await h.run('syncSheet()');assert.equal(h.element('#modal').open,false);assert.equal(h.element('#sync-status').textContent,'Sheet synced');
+});
+test('daily bonus choices preview the correct shop tiers and persist only after saving',async()=>{
+  const h=harness();await seed(h);h.run("view='today';render();");
+  const fields={bonusPolicy:'ifix',sales:'1200',note:'',...Object.fromEntries(core.TYPES.map(([key])=>['count_'+key,'0'])),lab_dropoff:'0',lab_pickup:'0'};
+  h.listeners.get('input')({target:{closest:()=>({id:'day-form',fields})}});
+  assert.match(h.element('#sales-track').innerHTML,/At least \$1,000/);assert.match(h.element('#sales-track').innerHTML,/At least \$1,500/);
+  assert.match(h.element('#bonus-note').textContent,/\$10 bonus reached/);assert.equal(h.run('data.days[0].bonusPolicy'),'legacy');
+  await h.run('saveDay({fields:'+JSON.stringify(fields)+'})');assert.equal(h.run('data.days[0].bonusPolicy'),'ifix');assert.equal(h.run('totals(data.days[0]).bonus'),1000);
+  h.run("data.days[0].bonusPolicy='dayton';data.days[0].sales=120001;render();");assert.match(h.element('#main').innerHTML,/Over \$700/);assert.match(h.element('#main').innerHTML,/Over \$1,200/);assert.match(h.element('#main').innerHTML,/\$20 bonus reached/);
+});
+test('unpaid commission rules can be corrected after hours are paid without changing the hours report',async()=>{
+  const h=harness(),day=await seed(h);h.run("markPaid(data,data.days.map(d=>d.id),'Hours',new Date().toISOString(),'hours');view='today';render();");
+  const hours=JSON.stringify(h.run('data.reports[0]')),paidId=h.run('paymentId(data.days[0],\'hours\')');
+  assert.match(h.element('#main').innerHTML,/Correct unpaid commission rule/);
+  await h.listeners.get('submit')({target:{id:'bonus-rule-form',dataset:{id:day.id},fields:{bonusPolicy:'dayton'}},preventDefault(){}});
+  assert.equal(h.run('data.days[0].bonusPolicy'),'dayton');assert.equal(h.run('totals(data.days[0]).bonus'),0);assert.equal(h.run('paymentId(data.days[0],\'hours\')'),paidId);assert.equal(JSON.stringify(h.run('data.reports[0]')),hours);
 });

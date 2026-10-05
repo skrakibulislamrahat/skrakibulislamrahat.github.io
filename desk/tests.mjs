@@ -5,7 +5,7 @@ import {newCipher,seal,open} from './crypto.mjs';
 import {GitHubVault} from './github.mjs';
 
 function workday(date='2026-09-17') {
-  const d=newDay(date,DEFAULT_RATES);
+  const d=newDay(date,DEFAULT_RATES,'legacy');
   d.shifts=[{id:crypto.randomUUID(),start:date+'T09:00:00Z',end:date+'T17:00:00Z',breakMinutes:30}];
   return d;
 }
@@ -64,7 +64,18 @@ test('company notebook survives encrypted vault and backup round trips',async()=
   assert.deepEqual(restored,data);assert.equal(companyBalance(restored).balance,12345);
 });
 test('sales tiers require strictly greater totals; only the highest tier applies',()=>{
-  assert.deepEqual([0,50000,50001,100000,100001,150000,150001].map(bonus),[0,0,500,500,1000,1000,2000]);
+  assert.deepEqual([0,50000,50001,100000,100001,150000,150001].map(sales=>bonus(sales,'legacy')),[0,0,500,500,1000,1000,2000]);
+});
+test('current Dayton and iFix tiers honor every exact boundary and pay only the highest bonus',()=>{
+  assert.deepEqual([0,69999,70000,70001,99999,100000,100001,119999,120000,120001,150000].map(s=>bonus(s,'dayton')),[0,0,0,500,500,500,1000,1000,1000,2000,2000]);
+  assert.deepEqual([0,99999,100000,119999,120000,149999,150000,150001].map(s=>bonus(s,'ifix')),[0,0,500,500,1000,1000,2000,2000]);
+  assert.equal(newDay('2026-10-05',DEFAULT_RATES).bonusPolicy,'dayton');
+});
+test('older records and paid reports retain their recorded bonuses without a policy migration',()=>{
+  const data=emptyLedger(),d=workday();delete d.bonusPolicy;d.sales=60000;data.days=[d];
+  const report=markPaid(data,[d.id],'Original payment');const before=JSON.stringify(data);
+  validateLedger(data);assert.equal(JSON.stringify(data),before);assert.equal(totals(d).bonus,500);assert.equal(sumDays(report.days).total,8000);
+  assert.throws(()=>{data.days[0].bonusPolicy='unsupported';validateLedger(data);},/bonus rule/);
 });
 test('hours deduct breaks and item types use distinct rates',()=>{
   const d=workday();d.sales=150001;d.counts={repair:4,case:2,other:3,device:1,computer:2};

@@ -6,7 +6,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 function fixture(date='2026-09-17') {
-  const data=emptyLedger(),day=newDay(date,DEFAULT_RATES);
+  const data=emptyLedger(),day=newDay(date,DEFAULT_RATES,'legacy');
   day.shifts=[{id:crypto.randomUUID(),start:date+'T09:00:00Z',end:date+'T17:00:00Z',breakMinutes:30}];
   day.counts.repair=4;day.sales=60000;day.labTrips.dropoff=1;data.days=[day];return {data,day};
 }
@@ -136,4 +136,24 @@ test('sheet validates the entire payload before applying updates',()=>{
   const {data}=fixture(),payload=commissionPayload(data,config);bridge.validateDeskPayload_(payload);
   const wrong=structuredClone(payload);wrong.days[0].bonus=999;assert.throws(()=>bridge.validateDeskPayload_(wrong),/totals/);
   const duplicate=structuredClone(payload);duplicate.days.push(duplicate.days[0]);assert.throws(()=>bridge.validateDeskPayload_(duplicate),/duplicate/);
+});
+test('mixed-shop sync carries each workday rule and the bridge validates its matching bonus',()=>{
+  const data=emptyLedger(),dayton=newDay('2026-10-01',DEFAULT_RATES,'dayton'),ifix=newDay('2026-10-02',DEFAULT_RATES,'ifix');
+  dayton.sales=120001;ifix.sales=120000;data.days=[dayton,ifix];
+  const payload=commissionPayload(data,config);assert.deepEqual(payload.days.map(d=>[d.shop,d.bonusPolicy,d.bonus]),[['Dayton Wireless','dayton',2000],['iFixandRepair','ifix',1000]]);
+  bridge.validateDeskPayload_(payload);
+  const wrong=structuredClone(payload);wrong.days[1].shop='Dayton Wireless';assert.throws(()=>bridge.validateDeskPayload_(wrong),/shop does not match/);
+  wrong.days[1].shop='iFixandRepair';wrong.days[1].bonusPolicy='unsupported';assert.throws(()=>bridge.validateDeskPayload_(wrong),/bonus rule/);
+});
+test('sheet formulas use per-day shop thresholds while legacy requests keep their old formulas',()=>{
+  const rows=[],sheet={getRange(row,column,height,width){return {setValues(values){rows.push({row,column,height,width,values});}};}};
+  const data=emptyLedger();data.days=[newDay('2026-10-01',DEFAULT_RATES,'dayton'),newDay('2026-10-02',DEFAULT_RATES,'ifix'),newDay('2026-09-17',DEFAULT_RATES,'legacy')];
+  const payload=commissionPayload(data,config),legacy=payload.days.find(d=>d.bonusPolicy==='legacy');delete legacy.bonusPolicy;
+  // The profile-less fixture represents an old request and is still supported.
+  legacy.sales=60000;legacy.bonus=500;bridge.validateDeskPayload_(payload);
+  const ordered=['dayton','ifix',undefined].map(policy=>payload.days.find(d=>d.bonusPolicy===policy));
+  bridge.applyDeskDays_(sheet,{clears:[],writes:ordered.map((entry,index)=>({entry,index,note:''}))});
+  assert.equal(rows[0].values[0][9],'=IF(OR(A5="",B5=""),"",IF(H5>1200,20,IF(H5>1000,10,IF(H5>700,5,0))))');
+  assert.equal(rows[1].values[0][9],'=IF(OR(A6="",B6=""),"",IF(H6>=1500,20,IF(H6>=1200,10,IF(H6>=1000,5,0))))');
+  assert.match(rows[2].values[0][9],/H7>1500.*H7>1000.*H7>500/);
 });

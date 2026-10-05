@@ -152,8 +152,14 @@ priority. The ambience module never accesses credentials or work records.
   breaks, round hourly pay to the nearest cent for each day.
 - Phone repair: $0.50; case: $1; other item: $0.50; device sale: $3;
   laptop/console repair: $5, counted separately from phone repairs.
-- Highest daily sales bonus only: strictly over $500 → $5; over $1,000 → $10;
-  over $1,500 → $20. Exact thresholds do not activate the next tier.
+- Highest daily sales bonus only. Dayton Wireless: strictly over $700 → $5;
+  over $1,000 → $10; over $1,200 → $20. iFixandRepair: at least $1,000 → $5;
+  at least $1,200 → $10; at least $1,500 → $20.
+- Each workday saves its shop bonus rule. The default applies only to new
+  workdays. Older entries without a saved rule retain their previous
+  $500 / $1,000 / $1,500 calculation, preserving paid report snapshots until
+  the applicable historical rule is explicitly corrected. The date Dayton
+  changed its rules is not inferred from the dates of software updates.
 - An overnight shift belongs to its recorded work date.
 - Running shifts show a live estimate but cannot be marked paid.
 - Each soldering lab drop-off and pickup adds 30 minutes of extra paid time.

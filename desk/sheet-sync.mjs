@@ -1,4 +1,4 @@
-import {TYPES,totals,localDate,reportDayTotals} from './core.mjs?v=8';
+import {TYPES,totals,localDate,reportDayTotals,BONUS_POLICIES,dayBonusPolicy} from './core.mjs?v=12';
 
 export function sheetConfig(value) {
   if(!value||typeof value.url!=='string'||!/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(value.url))throw Error('Paste the deployed Google Apps Script URL ending in /exec.');
@@ -13,7 +13,8 @@ export function commissionPayload(data,config) {
   config=sheetConfig(config);
   const days=[...data.days].sort((a,b)=>a.date.localeCompare(b.date)).map(day=>{
     const t=totals(day);
-    return {id:day.id,date:day.date,shop:config.shop,counts:{...day.counts},rates:Object.fromEntries(TYPES.map(([key])=>[key,day.rates[key]])),sales:day.sales,items:t.items,bonus:t.bonus};
+    const bonusPolicy=dayBonusPolicy(day);
+    return {id:day.id,date:day.date,shop:BONUS_POLICIES[bonusPolicy].shop||config.shop,bonusPolicy,counts:{...day.counts},rates:Object.fromEntries(TYPES.map(([key])=>[key,day.rates[key]])),sales:day.sales,items:t.items,bonus:t.bonus};
   });
   const payments=data.reports.filter(r=>r.status==='paid').flatMap(report=>{
     const months=new Map();

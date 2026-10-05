@@ -58,12 +58,24 @@ function sameDeskKey_(a,b) {
 function deskId_(value){return typeof value==='string'&&/^[a-zA-Z0-9_-]{1,100}$/.test(value);}
 function deskAmount_(n,max){return Number.isSafeInteger(n)&&n>=0&&n<=max;}
 function deskDate_(value){return typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&isFinite(Date.parse(value+'T12:00:00Z'))&&new Date(value+'T12:00:00Z').toISOString().slice(0,10)===value;}
+function deskBonusPolicy_(name) {
+  if(name===undefined||name==='legacy')return {shop:null,thresholds:[50000,100000,150000],inclusive:false};
+  if(name==='dayton')return {shop:'Dayton Wireless',thresholds:[70000,100000,120000],inclusive:false};
+  if(name==='ifix')return {shop:'iFixandRepair',thresholds:[100000,120000,150000],inclusive:true};
+  throw Error('Invalid sales bonus rule.');
+}
+function deskBonus_(sales,policy) {
+  for(var i=2;i>=0;i--)if(policy.inclusive?sales>=policy.thresholds[i]:sales>policy.thresholds[i])return [500,1000,2000][i];
+  return 0;
+}
 function validateDeskPayload_(payload) {
   if(!payload||payload.version!==1||!Array.isArray(payload.days)||!Array.isArray(payload.payments)||payload.days.length>1000||payload.payments.length>1000)throw Error('The tracker supports up to 1,000 workdays and 1,000 commission payments.');
   var ids={},dates={};
   payload.days.forEach(function(day){
     if(!day||!deskId_(day.id)||ids[day.id]||!deskDate_(day.date)||!['Dayton Wireless','iFixandRepair'].includes(day.shop)||dates[day.date+'|'+day.shop]||!deskAmount_(day.sales,100000000)||!day.counts||!day.rates||!DESK_TYPES.every(function(k){return deskAmount_(day.counts[k],100000)&&deskAmount_(day.rates[k],1000000);}))throw Error('Invalid or duplicate commission workday.');
-    var items=DESK_TYPES.reduce(function(sum,k){return sum+day.counts[k]*day.rates[k];},0),bonus=day.sales>150000?2000:day.sales>100000?1000:day.sales>50000?500:0;
+    var policy=deskBonusPolicy_(day.bonusPolicy);
+    if(policy.shop&&day.shop!==policy.shop)throw Error('The workday shop does not match its sales bonus rule.');
+    var items=DESK_TYPES.reduce(function(sum,k){return sum+day.counts[k]*day.rates[k];},0),bonus=deskBonus_(day.sales,policy);
     if(day.items!==items||day.bonus!==bonus)throw Error('Commission totals do not match the workday.');
     ids[day.id]=true;dates[day.date+'|'+day.shop]=true;
   });
@@ -106,7 +118,9 @@ function applyDeskDays_(sheet,plan) {
     var values=[deskDateSerial_(d.date),d.shop].concat(DESK_TYPES.map(function(k){return d.counts[k];}),[d.sales/100]);
     var guard='IF(OR(A'+row+'="",B'+row+'=""),"",';
     var itemFormula='='+guard+'ROUND(SUM('+DESK_TYPES.map(function(k,i){return String.fromCharCode(67+i)+row+'*'+d.rates[k]/100;}).join(',')+'),2))';
-    var bonusFormula='='+guard+'IF(H'+row+'>1500,20,IF(H'+row+'>1000,10,IF(H'+row+'>500,5,0))))';
+    var policy=deskBonusPolicy_(d.bonusPolicy),bonusBody='0';
+    for(var i=0;i<3;i++)bonusBody='IF(H'+row+(policy.inclusive?'>=':'>')+policy.thresholds[i]/100+','+[5,10,20][i]+','+bonusBody+')';
+    var bonusFormula='='+guard+bonusBody+')';
     var checkFormula='='+guard+'IF(COUNTIFS($A$5:$A$1004,A'+row+',$B$5:$B$1004,B'+row+')>1,"Combine duplicate rows","Ready"))';
     var marker=(note?note+' ':'')+deskMarker_(d.id);
     // Escape prior manual notes rather than letting setValues treat them as formulas.
