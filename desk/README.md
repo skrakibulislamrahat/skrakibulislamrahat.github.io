@@ -54,8 +54,13 @@ figures are gross before any deductions.
 exists it opens the one-time setup, with a downloadable `commission-sync.gs`
 script. Settings also includes **Connect your sheet** and **Edit sheet connection**.
 
-Open the existing **Individual Employee Commission Tracker-Ron** spreadsheet,
-choose **Extensions → Apps Script**, paste the downloaded script and run
+The tracker connection is already deployed. Its URL is prefilled in the desk.
+Use **Copy connection key**, open **Sheet connection settings**, and save it as
+`DESK_KEY` in **Script properties**. Choose the shop and save the desk connection.
+The key must match in both places before the first sync.
+
+To reinstall, open the existing **Individual Employee Commission Tracker-Ron**
+spreadsheet, choose **Extensions → Apps Script**, paste the downloaded script and run
 `setupPrivateDesk`. In **Project Settings → Script properties**, add `DESK_KEY`
 and paste the connection key using **Copy connection key** in the dashboard.
 Setup runs from the script editor without opening spreadsheet dialogs. Deploy as
