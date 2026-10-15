@@ -332,10 +332,10 @@ window.SITE_DATA = {
       },
       {
         "year": "2026",
-        "type": "Under Review",
+        "type": "Initially Accepted / In Editing",
         "title": "Evaluation of lightweight AI models for early diabetic retinopathy detection in resource-constrained screening settings",
-        "venue": "In review",
-        "description": "Manuscript under review."
+        "venue": "International Journal of Electrical and Computer Engineering (IJECE)",
+        "description": "Initially accepted September 27, 2026; currently in editing. Full acceptance/publication remains pending completion of the journal's final requirements and payment evidence."
       }
     ]
   },
@@ -478,7 +478,7 @@ window.SITE_DATA = {
       "title": "Smaller models. The same scrutiny.",
       "cvTitle": "Lightweight diabetic-retinopathy screening models",
       "summary": "Five-fold comparison of EfficientNet-B0, MobileNetV2, and SqueezeNet using out-of-fold predictions and paired statistical tests.",
-      "status": "Research project",
+      "status": "Initially accepted · In Editing · IJECE",
       "tags": [
         "Five-fold evaluation",
         "Compact CNNs",
