@@ -27,7 +27,7 @@ window.SITE_DATA = {
       "label": "Citations"
     },
     {
-      "value": "13",
+      "value": "14",
       "label": "Published + accepted"
     },
     {
@@ -65,10 +65,10 @@ window.SITE_DATA = {
       "description": "A 12-model study of background sensitivity and external discrimination across APTOS and a processed Messidor-2 archive."
     },
     {
-      "status": "Under Review",
-      "venue": "CMIG",
-      "title": "Calibration Under Domain Shift in Diabetic Retinopathy Screening",
-      "description": "Controlled evaluation of calibration transfer from APTOS to Messidor-2, including source-fitted temperature scaling and limited-label target-side recalibration."
+      "status": "Accepted",
+      "venue": "Discover Artificial Intelligence",
+      "title": "Calibration Failure and Limited-Label Recalibration of Retinal Image Classifiers Under Dataset Shift",
+      "description": "Accepted October 8, 2026. Evaluates source-to-target calibration transfer and limited-label recalibration from APTOS to Messidor-2."
     },
     {
       "status": "Research Project",
@@ -104,13 +104,33 @@ window.SITE_DATA = {
       {
         "year": "2026",
         "type": "Accepted",
-        "title": "Multi-Stream Contextual and Frequency-Aware Deep Learning with Evidential Uncertainty for Alzheimer’s MRI Slice Classification",
+        "title": "Calibration Failure and Limited-Label Recalibration of Retinal Image Classifiers Under Dataset Shift",
         "venue": "Discover Artificial Intelligence (Springer Nature)",
-        "acceptedDate": "September 17, 2026",
-        "description": "Accepted September 17, 2026. MS-AtroNet combines CNN, VMamba-S, wavelet features, and evidential uncertainty for four-class MRI slice classification. Evaluation is at image level; patient-level clinical validation remains necessary."
+        "acceptedDate": "October 8, 2026",
+        "doi": "10.1007/s44163-026-02520-5",
+        "description": "Accepted October 8, 2026; in production. Publication link will be added when available."
       }
     ],
     "Journal Articles": [
+      {
+        "year": "2026",
+        "type": "Journal",
+        "title": "Multi-stream contextual and frequency-aware deep learning with evidential uncertainty for Alzheimer’s MRI slice classification",
+        "venue": "Discover Artificial Intelligence (Springer Nature), 6, Article 1375",
+        "acceptedDate": "September 17, 2026",
+        "description": "Published October 7, 2026. MS-AtroNet combines CNN, VMamba-S, wavelet features, and evidential uncertainty for four-class MRI slice classification. Evaluation is at image level; patient-level clinical validation remains necessary.",
+        "publishedDate": "October 7, 2026",
+        "links": [
+          {
+            "label": "DOI",
+            "url": "https://doi.org/10.1007/s44163-026-02337-2"
+          },
+          {
+            "label": "View",
+            "url": "https://link.springer.com/article/10.1007/s44163-026-02337-2"
+          }
+        ]
+      },
       {
         "year": "2026",
         "type": "Journal",
@@ -313,13 +333,6 @@ window.SITE_DATA = {
       {
         "year": "2026",
         "type": "Under Review",
-        "title": "Calibration Under Domain Shift in Diabetic Retinopathy Screening: Temperature Scaling Transfer and Target-Side Calibration with Limited Labels",
-        "venue": "Computerized Medical Imaging and Graphics",
-        "description": "Manuscript under review."
-      },
-      {
-        "year": "2026",
-        "type": "Under Review",
         "title": "Evaluation of lightweight AI models for early diabetic retinopathy detection in resource-constrained screening settings",
         "venue": "In review",
         "description": "Manuscript under review."
@@ -408,7 +421,7 @@ window.SITE_DATA = {
       }
     ]
   },
-  "updated": "September 17, 2026",
+  "updated": "October 15, 2026",
   "projects": [
     {
       "id": "artifacts",

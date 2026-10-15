@@ -40,10 +40,11 @@ Repository: [Multimodal_Framework_Research](https://github.com/skrakibulislamrah
 
 ## Accepted for publication
 
-- **Multi-Stream Contextual and Frequency-Aware Deep Learning with Evidential Uncertainty for Alzheimer’s MRI Slice Classification.** *Discover Artificial Intelligence*, accepted September 17, 2026.
+- **Calibration Failure and Limited-Label Recalibration of Retinal Image Classifiers Under Dataset Shift.** *Discover Artificial Intelligence*, accepted October 8, 2026; in production.
 
 ## Published work
 
+- **Multi-stream contextual and frequency-aware deep learning with evidential uncertainty for Alzheimer’s MRI slice classification.** *Discover Artificial Intelligence*, 6, Article 1375, published October 7, 2026. DOI: https://doi.org/10.1007/s44163-026-02337-2
 - **TriGWONet: A lightweight multibranch convolutional neural network using gray wolf optimization for accurate oral cancer image classification.** *Discover Artificial Intelligence*, 2026. DOI: https://doi.org/10.1007/s44163-025-00776-x
 - **Multimodal Deep Learning for Classifying Diabetic Retinopathy Severity.** *Journal of Korea Multimedia Society*, 2026. DOI: https://doi.org/10.9717/kmms.2026.29.3.524
 
