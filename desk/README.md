@@ -87,6 +87,11 @@ sync rows. Unrelated manual rows, validation, formatting, and other tabs stay
 in place. Historical rate formulas are set only on rows owned by this sync.
 The existing tracker is limited to 1,000 daily rows and 1,000 payment rows.
 
+Workday dates, commission months and payment dates are written as Apps Script
+`Date` values at midnight in the spreadsheet's timezone. This satisfies the
+tracker's strict date validation and preserves the selected calendar day even
+when the script or browser uses a different timezone.
+
 Unsaved drafts must be saved first. Success is shown only after the spreadsheet
 acknowledges the request; a timeout says **Sync not confirmed**. After a failure,
 check the sheet before retrying: a partial write may have reached it, and another

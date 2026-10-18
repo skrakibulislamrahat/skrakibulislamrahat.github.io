@@ -97,7 +97,47 @@ test('rejected syncs and missing acknowledgements are reported as unconfirmed',a
   const timed=fakeBrowser();await assert.rejects(syncCommissionSheet(config,{}, {...timed,timeout:2}),/not confirmed/);assert.equal(timed.nodes[1].removed,true);
 });
 
-const bridge=vm.createContext({});vm.runInContext(readFileSync(new URL('./commission-sync.gs',import.meta.url),'utf8'),bridge);
+const bridgeSource=readFileSync(new URL('./commission-sync.gs',import.meta.url),'utf8');
+// Independently specified instants stand in for Apps Script's native date parser.
+// Midnight on a DST transition still uses the offset before that day's change.
+const dateInstants={
+  'America/New_York':{
+    '2026-01-01':'2026-01-01T05:00:00.000Z',
+    '2026-03-01':'2026-03-01T05:00:00.000Z',
+    '2026-03-08':'2026-03-08T05:00:00.000Z',
+    '2026-03-09':'2026-03-09T04:00:00.000Z',
+    '2026-09-17':'2026-09-17T04:00:00.000Z',
+    '2026-10-01':'2026-10-01T04:00:00.000Z',
+    '2026-10-02':'2026-10-02T04:00:00.000Z',
+    '2026-10-18':'2026-10-18T04:00:00.000Z',
+    '2026-11-01':'2026-11-01T04:00:00.000Z',
+    '2026-11-02':'2026-11-02T05:00:00.000Z'
+  },
+  'Asia/Dhaka':{
+    '2026-10-01':'2026-09-30T18:00:00.000Z',
+    '2026-10-18':'2026-10-17T18:00:00.000Z',
+    '2026-12-01':'2026-11-30T18:00:00.000Z',
+    '2026-12-31':'2026-12-30T18:00:00.000Z',
+    '2027-01-01':'2026-12-31T18:00:00.000Z'
+  }
+};
+function sheetDateKey(value,timezone) {
+  const parts=new Intl.DateTimeFormat('en-US',{timeZone:timezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(value);
+  const part=type=>parts.find(p=>p.type===type).value;
+  return part('year')+'-'+part('month')+'-'+part('day');
+}
+function dateUtilities(timezone) {
+  return {
+    parseDate(value,zone,format){
+      assert.equal(zone,timezone,'Dates must use the spreadsheet timezone');
+      assert.equal(format,'yyyy-MM-dd');
+      const instant=dateInstants[timezone][value];assert.ok(instant,'Missing native date-parser fixture: '+value);
+      return new Date(instant);
+    },
+    formatDate(value,zone,format){assert.equal(format,'yyyy-MM-dd');return sheetDateKey(value,zone);}
+  };
+}
+const bridge=vm.createContext({Date,Utilities:dateUtilities('America/New_York')});vm.runInContext(bridgeSource,bridge);
 function editorSetup({key,active=true,validLayout=true}={}) {
   const properties={...(key?{DESK_KEY:key}:{}),...(active?{}:{DESK_SPREADSHEET:'tracker-id'})},logs=[];
   const spreadsheet={getId:()=> 'tracker-id',getSheetByName:()=>validLayout?{}:null};
@@ -137,6 +177,7 @@ test('sheet validates the entire payload before applying updates',()=>{
   const {data}=fixture(),payload=commissionPayload(data,config);bridge.validateDeskPayload_(payload);
   const wrong=structuredClone(payload);wrong.days[0].bonus=999;assert.throws(()=>bridge.validateDeskPayload_(wrong),/totals/);
   const duplicate=structuredClone(payload);duplicate.days.push(duplicate.days[0]);assert.throws(()=>bridge.validateDeskPayload_(duplicate),/duplicate/);
+  const invalidDate=structuredClone(payload);invalidDate.days[0].date='2026-02-30';assert.throws(()=>bridge.validateDeskPayload_(invalidDate),/workday/);
 });
 test('mixed-shop sync carries each workday rule and the bridge validates its matching bonus',()=>{
   const data=emptyLedger(),dayton=newDay('2026-10-01',DEFAULT_RATES,'dayton'),ifix=newDay('2026-10-02',DEFAULT_RATES,'ifix');
@@ -153,10 +194,75 @@ test('sheet formulas use per-day shop thresholds while legacy requests keep thei
   // The profile-less fixture represents an old request and is still supported.
   legacy.sales=60000;legacy.bonus=500;bridge.validateDeskPayload_(payload);
   const ordered=['dayton','ifix',undefined].map(policy=>payload.days.find(d=>d.bonusPolicy===policy));
-  bridge.applyDeskDays_(sheet,{clears:[],writes:ordered.map((entry,index)=>({entry,index,note:''}))});
+  bridge.applyDeskDays_(sheet,{clears:[],writes:ordered.map((entry,index)=>({entry,index,note:''}))},'America/New_York');
   assert.equal(rows[0].values[0][9],'=IF(OR(A5="",B5=""),"",IF(H5>1200,20,IF(H5>1000,10,IF(H5>700,5,0))))');
   assert.equal(rows[1].values[0][9],'=IF(OR(A6="",B6=""),"",IF(H6>=1500,20,IF(H6>=1200,10,IF(H6>=1000,5,0))))');
   assert.match(rows[2].values[0][9],/H7>1500.*H7>1000.*H7>500/);
+});
+function dateSyncHarness(timezone,scriptTimezone) {
+  let locked=false,flushed=0;
+  function table(width,dateColumns,headings) {
+    const rows=Array.from({length:1000},()=>Array(width).fill(''));
+    return {rows,getRange(row,column,height,columns){return {
+      getValues(){
+        if(row===4)return [headings];
+        return rows.slice(row-5,row-5+height).map(values=>values.slice(column-1,column-1+columns));
+      },
+      setValues(values){
+        assert.equal(values.length,height);
+        for(const valuesRow of values){
+          assert.equal(valuesRow.length,columns);
+          valuesRow.forEach((value,index)=>{
+            if(dateColumns.includes(column+index)&&(!(value instanceof Date)||!Number.isFinite(value.getTime())))throw Error('Enter the work date.');
+          });
+        }
+        values.forEach((valuesRow,index)=>rows[row-5+index].splice(column-1,columns,...valuesRow));
+      },
+      clearContent(){for(let index=row-5;index<row-5+height;index++)rows[index].fill('',column-1,column-1+columns);}
+    };}};
+  }
+  const headings=Array(13).fill('');headings[0]='Date';headings[1]='Shop';headings[12]='Notes';
+  const payHeadings=Array(6).fill('');payHeadings[0]='Commission month';payHeadings[2]='Amount paid ($)';
+  const commissions=table(13,[1],headings),payments=table(6,[1,2],payHeadings);
+  const ss={getSpreadsheetTimeZone:()=>timezone,getSheetByName:name=>name==='Commission Log'?commissions:name==='Payments'?payments:null};
+  const properties={DESK_KEY:config.key,DESK_SPREADSHEET:'test-spreadsheet'};
+  const context=vm.createContext({
+    Date,Utilities:dateUtilities(timezone),Session:{getScriptTimeZone:()=>scriptTimezone},
+    SpreadsheetApp:{openById(id){assert.equal(id,'test-spreadsheet');return ss;},flush(){flushed++;}},
+    PropertiesService:{getScriptProperties:()=>({getProperty:name=>properties[name]})},
+    LockService:{getScriptLock:()=>({waitLock(){locked=true;},hasLock:()=>locked,releaseLock(){locked=false;}})},
+    HtmlService:{XFrameOptionsMode:{ALLOWALL:'ALLOWALL'},createHtmlOutput(html){return {html,setXFrameOptionsMode(){return this;}};}}
+  });
+  vm.runInContext(bridgeSource,context);
+  return {commissions,payments,flushed:()=>flushed,sync(payload){
+    const response=context.doPost({parameter:{key:config.key,nonce:'date-test-nonce',payload:JSON.stringify(payload)}});
+    let result;
+    vm.runInNewContext(response.html.match(/<script>([\s\S]+)<\/script>/)[1],{window:{top:{postMessage(message){result=message;}}}});
+    assert.equal(locked,false);return result;
+  }};
+}
+for(const [timezone,scriptTimezone,dates] of [
+  ['America/New_York','Etc/UTC',['2026-01-01','2026-03-08','2026-03-09','2026-10-18','2026-11-01','2026-11-02']],
+  ['Asia/Dhaka','America/Los_Angeles',['2026-10-18','2026-12-31','2027-01-01']]
+])test('sync writes real workday and payment dates in '+timezone+' when script timezone is '+scriptTimezone,()=>{
+  const data=emptyLedger();data.days=dates.map(date=>{const day=newDay(date,DEFAULT_RATES,'legacy');day.counts.repair=2;return day;});
+  const payload=commissionPayload(data,config);
+  payload.payments=dates.map((date,index)=>({id:'date-payment-'+index,month:date.slice(0,7)+'-01',date,amount:100}));
+  const harness=dateSyncHarness(timezone,scriptTimezone),result=harness.sync(payload);
+  assert.equal(result.ok,true,result.message);assert.equal(result.days,dates.length);assert.equal(result.payments,dates.length);assert.equal(harness.flushed(),1);
+  function assertDate(actual,expected){
+    assert.ok(actual instanceof Date,'Date-validated cells must receive Date objects');
+    assert.equal(actual.toISOString(),dateInstants[timezone][expected]);
+    assert.equal(sheetDateKey(actual,timezone),expected,'Calendar date must not shift');
+  }
+  payload.days.forEach((day,index)=>assertDate(harness.commissions.rows[index][0],day.date));
+  payload.payments.forEach((payment,index)=>{
+    assertDate(harness.payments.rows[index][0],payment.month);assertDate(harness.payments.rows[index][1],payment.date);
+    assert.equal(harness.payments.rows[index][2],payment.amount/100);
+  });
+  assert.equal(harness.sync(payload).ok,true,'A repeated sync must accept previously written Date objects');
+  assert.equal(harness.commissions.rows.filter(row=>row[0]!=='').length,dates.length);
+  assert.equal(harness.payments.rows.filter(row=>row[0]!=='').length,dates.length);
 });
 test('an inferred shop keeps the existing sheet shop and saves its correct bonus rule back to the desk',()=>{
   const data=emptyLedger(),day=newDay('2026-09-21',DEFAULT_RATES);day.sales=100000;data.days=[day];

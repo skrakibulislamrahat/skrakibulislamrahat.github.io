@@ -41,8 +41,8 @@ function doPost(e) {
     // belong to this sync; manual rows and other tabs remain in place.
     var dayPlan=planDeskRows_(log,payload.days,12,function(entry,row){return deskDateKey_(row[0],timezone)===entry.date&&row[1]===entry.shop;},function(entry,row){return DESK_TYPES.every(function(k,i){return Number(row[i+2]||0)===entry.counts[k];})&&Math.round(Number(row[7]||0)*100)===entry.sales;});
     var paymentPlan=planDeskRows_(pay,payload.payments,4,function(){return false;},function(){return false;});
-    applyDeskDays_(commissions,dayPlan);
-    applyDeskPayments_(payments,paymentPlan);
+    applyDeskDays_(commissions,dayPlan,timezone);
+    applyDeskPayments_(payments,paymentPlan,timezone);
     SpreadsheetApp.flush();
     result.ok=true;result.days=payload.days.length;result.payments=payload.payments.length;
     if(bonusPolicies.length)result.bonusPolicies=bonusPolicies;
@@ -92,7 +92,9 @@ function deskDateKey_(value,timezone) {
   if(typeof value==='number')return new Date(Date.UTC(1899,11,30)+value*86400000).toISOString().slice(0,10);
   return String(value||'');
 }
-function deskDateSerial_(value){return Math.round((Date.parse(value+'T00:00:00Z')-Date.UTC(1899,11,30))/86400000);}
+// Apps Script date validation expects Date values, not plain serial numbers.
+// Parse midnight in the sheet's timezone so calendar dates never shift a day.
+function deskSheetDate_(value,timezone){return Utilities.parseDate(value,timezone,'yyyy-MM-dd');}
 function deskMarker_(id){return '[Private Desk:'+id+']';}
 // The existing shop is authoritative for an older day whose rule was inferred
 // from the desk default. Explicit shop choices and paid commissions stay fixed.
@@ -127,11 +129,11 @@ function planDeskRows_(rows,entries,noteColumn,match,identical) {
   rows.forEach(function(row,index){var match=String(row[noteColumn]||'').match(/\[Private Desk:([a-zA-Z0-9_-]+)\]/);if(match&&!active[match[1]])clears.push(index);});
   return {writes:writes,clears:clears};
 }
-function applyDeskDays_(sheet,plan) {
+function applyDeskDays_(sheet,plan,timezone) {
   plan.clears.forEach(function(index){sheet.getRange(index+5,1,1,8).clearContent();sheet.getRange(index+5,13).clearContent();});
   plan.writes.forEach(function(write){
     var d=write.entry,row=write.index+5,note=write.note.replace(/\[Private Desk:[a-zA-Z0-9_-]+\]/g,'').trim();
-    var values=[deskDateSerial_(d.date),d.shop].concat(DESK_TYPES.map(function(k){return d.counts[k];}),[d.sales/100]);
+    var values=[deskSheetDate_(d.date,timezone),d.shop].concat(DESK_TYPES.map(function(k){return d.counts[k];}),[d.sales/100]);
     var guard='IF(OR(A'+row+'="",B'+row+'=""),"",';
     var itemFormula='='+guard+'ROUND(SUM('+DESK_TYPES.map(function(k,i){return String.fromCharCode(67+i)+row+'*'+d.rates[k]/100;}).join(',')+'),2))';
     var policy=deskBonusPolicy_(d.bonusPolicy),bonusBody='0';
@@ -145,7 +147,7 @@ function applyDeskDays_(sheet,plan) {
     sheet.getRange(row,1,1,13).setValues([values]);
   });
 }
-function applyDeskPayments_(sheet,plan) {
+function applyDeskPayments_(sheet,plan,timezone) {
   plan.clears.forEach(function(index){sheet.getRange(index+5,1,1,5).clearContent();});
-  plan.writes.forEach(function(write){var p=write.entry,row=write.index+5;sheet.getRange(row,1,1,5).setValues([[deskDateSerial_(p.month),deskDateSerial_(p.date),p.amount/100,'Other',deskMarker_(p.id)]]);});
+  plan.writes.forEach(function(write){var p=write.entry,row=write.index+5;sheet.getRange(row,1,1,5).setValues([[deskSheetDate_(p.month,timezone),deskSheetDate_(p.date,timezone),p.amount/100,'Other',deskMarker_(p.id)]]);});
 }
