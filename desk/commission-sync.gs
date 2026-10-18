@@ -41,6 +41,8 @@ function doPost(e) {
     // belong to this sync; manual rows and other tabs remain in place.
     var dayPlan=planDeskRows_(log,payload.days,12,function(entry,row){return deskDateKey_(row[0],timezone)===entry.date&&row[1]===entry.shop;},function(entry,row){return DESK_TYPES.every(function(k,i){return Number(row[i+2]||0)===entry.counts[k];})&&Math.round(Number(row[7]||0)*100)===entry.sales;});
     var paymentPlan=planDeskRows_(pay,payload.payments,4,function(){return false;},function(){return false;});
+    validateDeskDateColumns_(commissions,dayPlan,13,1,headings);
+    validateDeskDateColumns_(payments,paymentPlan,5,2,payHeadings);
     applyDeskDays_(commissions,dayPlan,timezone);
     applyDeskPayments_(payments,paymentPlan,timezone);
     SpreadsheetApp.flush();
@@ -92,8 +94,7 @@ function deskDateKey_(value,timezone) {
   if(typeof value==='number')return new Date(Date.UTC(1899,11,30)+value*86400000).toISOString().slice(0,10);
   return String(value||'');
 }
-// Apps Script date validation expects Date values, not plain serial numbers.
-// Parse midnight in the sheet's timezone so calendar dates never shift a day.
+// Write explicit Date values at midnight in the spreadsheet timezone.
 function deskSheetDate_(value,timezone){return Utilities.parseDate(value,timezone,'yyyy-MM-dd');}
 function deskMarker_(id){return '[Private Desk:'+id+']';}
 // The existing shop is authoritative for an older day whose rule was inferred
@@ -128,6 +129,20 @@ function planDeskRows_(rows,entries,noteColumn,match,identical) {
   var clears=[];
   rows.forEach(function(row,index){var match=String(row[noteColumn]||'').match(/\[Private Desk:([a-zA-Z0-9_-]+)\]/);if(match&&!active[match[1]])clears.push(index);});
   return {writes:writes,clears:clears};
+}
+// A pasted date cell can carry its validation into Shop or another column.
+// Check both write plans first, so this reports the exact cell before syncing.
+function validateDeskDateColumns_(sheet,plan,width,dateColumnCount,headings) {
+  if(!plan.writes.length)return;
+  var rows=plan.writes.map(function(write){return write.index+5;}),first=Math.min.apply(null,rows),last=Math.max.apply(null,rows);
+  var rules=sheet.getRange(first,1,last-first+1,width).getDataValidations();
+  rows.forEach(function(row){
+    rules[row-first].forEach(function(rule,column){
+      if(column<dateColumnCount||!rule||!/^DATE_/.test(String(rule.getCriteriaType())))return;
+      var cell=String.fromCharCode(65+column)+row,label=headings[column]||String.fromCharCode(65+column);
+      throw Error(sheet.getName()+'!'+cell+' has a date-only rule in the '+label+' column. Restore that cell\'s validation and sync again.');
+    });
+  });
 }
 function applyDeskDays_(sheet,plan,timezone) {
   plan.clears.forEach(function(index){sheet.getRange(index+5,1,1,8).clearContent();sheet.getRange(index+5,13).clearContent();});

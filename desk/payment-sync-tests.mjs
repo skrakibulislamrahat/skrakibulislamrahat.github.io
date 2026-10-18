@@ -201,20 +201,21 @@ test('sheet formulas use per-day shop thresholds while legacy requests keep thei
 });
 function dateSyncHarness(timezone,scriptTimezone) {
   let locked=false,flushed=0;
-  function table(width,dateColumns,headings) {
+  // Record writes for timezone assertions; this is not Google's validation engine.
+  const rule=criteria=>({getCriteriaType:()=>criteria});
+  function table(name,width,headings,defaultRules) {
     const rows=Array.from({length:1000},()=>Array(width).fill(''));
-    return {rows,getRange(row,column,height,columns){return {
+    const rules=Array.from({length:1000},()=>defaultRules.slice());
+    return {rows,rules,getName:()=>name,getRange(row,column,height,columns){return {
       getValues(){
         if(row===4)return [headings];
         return rows.slice(row-5,row-5+height).map(values=>values.slice(column-1,column-1+columns));
       },
+      getDataValidations(){return rules.slice(row-5,row-5+height).map(values=>values.slice(column-1,column-1+columns));},
       setValues(values){
         assert.equal(values.length,height);
         for(const valuesRow of values){
           assert.equal(valuesRow.length,columns);
-          valuesRow.forEach((value,index)=>{
-            if(dateColumns.includes(column+index)&&(!(value instanceof Date)||!Number.isFinite(value.getTime())))throw Error('Enter the work date.');
-          });
         }
         values.forEach((valuesRow,index)=>rows[row-5+index].splice(column-1,columns,...valuesRow));
       },
@@ -223,7 +224,8 @@ function dateSyncHarness(timezone,scriptTimezone) {
   }
   const headings=Array(13).fill('');headings[0]='Date';headings[1]='Shop';headings[12]='Notes';
   const payHeadings=Array(6).fill('');payHeadings[0]='Commission month';payHeadings[2]='Amount paid ($)';
-  const commissions=table(13,[1],headings),payments=table(6,[1,2],payHeadings);
+  const commissions=table('Commission Log',13,headings,[rule('DATE_IS_VALID_DATE'),rule('VALUE_IN_LIST'),...Array.from({length:5},()=>rule('CUSTOM_FORMULA')),rule('NUMBER_GREATER_THAN_OR_EQUAL_TO'),...Array(5).fill(null)]);
+  const payments=table('Payments',6,payHeadings,[rule('DATE_IS_VALID_DATE'),rule('DATE_IS_VALID_DATE'),rule('NUMBER_GREATER_THAN'),rule('VALUE_IN_LIST'),null,null]);
   const ss={getSpreadsheetTimeZone:()=>timezone,getSheetByName:name=>name==='Commission Log'?commissions:name==='Payments'?payments:null};
   const properties={DESK_KEY:config.key,DESK_SPREADSHEET:'test-spreadsheet'};
   const context=vm.createContext({
@@ -234,7 +236,7 @@ function dateSyncHarness(timezone,scriptTimezone) {
     HtmlService:{XFrameOptionsMode:{ALLOWALL:'ALLOWALL'},createHtmlOutput(html){return {html,setXFrameOptionsMode(){return this;}};}}
   });
   vm.runInContext(bridgeSource,context);
-  return {commissions,payments,flushed:()=>flushed,sync(payload){
+  return {commissions,payments,rule,flushed:()=>flushed,sync(payload){
     const response=context.doPost({parameter:{key:config.key,nonce:'date-test-nonce',payload:JSON.stringify(payload)}});
     let result;
     vm.runInNewContext(response.html.match(/<script>([\s\S]+)<\/script>/)[1],{window:{top:{postMessage(message){result=message;}}}});
@@ -244,14 +246,14 @@ function dateSyncHarness(timezone,scriptTimezone) {
 for(const [timezone,scriptTimezone,dates] of [
   ['America/New_York','Etc/UTC',['2026-01-01','2026-03-08','2026-03-09','2026-10-18','2026-11-01','2026-11-02']],
   ['Asia/Dhaka','America/Los_Angeles',['2026-10-18','2026-12-31','2027-01-01']]
-])test('sync writes real workday and payment dates in '+timezone+' when script timezone is '+scriptTimezone,()=>{
+])test('sync preserves workday and payment calendar dates in '+timezone+' when script timezone is '+scriptTimezone,()=>{
   const data=emptyLedger();data.days=dates.map(date=>{const day=newDay(date,DEFAULT_RATES,'legacy');day.counts.repair=2;return day;});
   const payload=commissionPayload(data,config);
   payload.payments=dates.map((date,index)=>({id:'date-payment-'+index,month:date.slice(0,7)+'-01',date,amount:100}));
   const harness=dateSyncHarness(timezone,scriptTimezone),result=harness.sync(payload);
   assert.equal(result.ok,true,result.message);assert.equal(result.days,dates.length);assert.equal(result.payments,dates.length);assert.equal(harness.flushed(),1);
   function assertDate(actual,expected){
-    assert.ok(actual instanceof Date,'Date-validated cells must receive Date objects');
+    assert.ok(actual instanceof Date,'Sync serializes dates as Date objects');
     assert.equal(actual.toISOString(),dateInstants[timezone][expected]);
     assert.equal(sheetDateKey(actual,timezone),expected,'Calendar date must not shift');
   }
@@ -263,6 +265,47 @@ for(const [timezone,scriptTimezone,dates] of [
   assert.equal(harness.sync(payload).ok,true,'A repeated sync must accept previously written Date objects');
   assert.equal(harness.commissions.rows.filter(row=>row[0]!=='').length,dates.length);
   assert.equal(harness.payments.rows.filter(row=>row[0]!=='').length,dates.length);
+});
+test('preflight locates one corrupted shop rule at B10 before changing any cells',()=>{
+  const dates=['2026-01-01','2026-03-08','2026-03-09','2026-10-18','2026-11-01','2026-11-02'];
+  const data=emptyLedger();data.days=dates.map(date=>{const day=newDay(date,DEFAULT_RATES,'legacy');day.counts.repair=2;return day;});
+  const payload=commissionPayload(data,config),harness=dateSyncHarness('America/New_York','Etc/UTC');
+  payload.payments=[{id:'preflight-payment',month:'2026-10-01',date:'2026-10-18',amount:100}];
+  payload.days.forEach((day,index)=>{
+    const row=harness.commissions.rows[index];row[0]=new Date(dateInstants['America/New_York'][day.date]);
+    row[1]=day.shop;row[2]=0;row[12]='[Private Desk:'+day.id+']';
+  });
+  // A date was accidentally copied over both the shop value and its validator.
+  harness.commissions.rows[5][1]=harness.commissions.rows[5][0];
+  const corrupt=harness.rule('DATE_IS_VALID_DATE');harness.commissions.rules[5][1]=corrupt;
+  const before=JSON.stringify([harness.commissions.rows,harness.payments.rows]);
+  const result=harness.sync(payload);
+  assert.equal(result.ok,false);assert.match(result.message,/Commission Log!B10.*date-only rule.*Shop/);
+  assert.equal(JSON.stringify([harness.commissions.rows,harness.payments.rows]),before);
+  assert.equal(harness.flushed(),0);assert.equal(harness.commissions.rules[5][1],corrupt,'Validation must be reported, not overwritten');
+});
+test('misplaced payment date validation rejects the whole sync before commission writes',()=>{
+  const data=emptyLedger();data.days=[newDay('2026-10-18',DEFAULT_RATES,'legacy')];
+  const payload=commissionPayload(data,config),harness=dateSyncHarness('America/New_York','Etc/UTC');
+  payload.payments=[{id:'bad-payment-rule',month:'2026-10-01',date:'2026-10-18',amount:100}];
+  harness.payments.rules[0][2]=harness.rule('DATE_ON_OR_AFTER');
+  const before=JSON.stringify([harness.commissions.rows,harness.payments.rows]),result=harness.sync(payload);
+  assert.equal(result.ok,false);assert.match(result.message,/Payments!C5.*date-only rule.*Amount paid \(\$\)/);
+  assert.equal(JSON.stringify([harness.commissions.rows,harness.payments.rows]),before);
+  assert.equal(harness.flushed(),0);
+});
+test('preflight ignores date rules on unrelated rows between the planned writes',()=>{
+  const data=emptyLedger();data.days=[newDay('2026-10-01',DEFAULT_RATES,'legacy'),newDay('2026-10-18',DEFAULT_RATES,'legacy')];
+  const payload=commissionPayload(data,config),harness=dateSyncHarness('America/New_York','Etc/UTC');
+  payload.days.forEach((day,index)=>{
+    const row=harness.commissions.rows[index*10];row[0]=new Date(dateInstants['America/New_York'][day.date]);
+    row[1]=day.shop;row[12]='[Private Desk:'+day.id+']';
+  });
+  const unrelated=harness.rule('DATE_IS_VALID_DATE');harness.commissions.rules[5][1]=unrelated;
+  const result=harness.sync(payload);assert.equal(result.ok,true,result.message);
+  assert.equal(harness.commissions.rules[5][1],unrelated);assert.ok(harness.commissions.rows[5].every(value=>value===''));
+  assert.equal(sheetDateKey(harness.commissions.rows[0][0],'America/New_York'),'2026-10-01');
+  assert.equal(sheetDateKey(harness.commissions.rows[10][0],'America/New_York'),'2026-10-18');
 });
 test('an inferred shop keeps the existing sheet shop and saves its correct bonus rule back to the desk',()=>{
   const data=emptyLedger(),day=newDay('2026-09-21',DEFAULT_RATES);day.sales=100000;data.days=[day];

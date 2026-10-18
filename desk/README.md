@@ -88,9 +88,17 @@ in place. Historical rate formulas are set only on rows owned by this sync.
 The existing tracker is limited to 1,000 daily rows and 1,000 payment rows.
 
 Workday dates, commission months and payment dates are written as Apps Script
-`Date` values at midnight in the spreadsheet's timezone. This satisfies the
-tracker's strict date validation and preserves the selected calendar day even
-when the script or browser uses a different timezone.
+`Date` values at midnight in the spreadsheet's timezone. This makes the timezone
+conversion explicit and preserves the selected calendar day even when the script
+or browser uses a different timezone.
+
+Spreadsheet validation rules remain in place. A date-related validation error can
+come from a rule copied into the wrong column: the **Shop** column must accept a
+shop name, not require a date. Before writing either table, the sync checks its
+planned rows for date-only rules outside the date columns. The error identifies
+the affected cell, such as **Commission Log!B10**, so its intended validation can
+be restored before retrying. The check does not change rules or inspect unrelated
+rows; other validation failures are still reported by Google Sheets.
 
 Unsaved drafts must be saved first. Success is shown only after the spreadsheet
 acknowledges the request; a timeout says **Sync not confirmed**. After a failure,
